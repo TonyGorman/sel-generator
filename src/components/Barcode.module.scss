@@ -1,0 +1,474 @@
+:global(:root) {
+  --tile-size-mm: 39mm;
+  --page-pad-left-mm: 11mm;
+  --page-pad-right-mm: 12mm;
+  --page-pad-top-mm: 7.5mm;
+  --page-pad-bottom-mm: 7.5mm;
+  --grid-width-mm: calc(var(--tile-size-mm) * 7);
+  --grid-height-mm: calc(var(--tile-size-mm) * 5);
+  --sheet-width-mm: 296mm;
+  --sheet-height-mm: 210mm;
+}
+
+.barcodeRoot {
+  overflow-x: auto;
+  overflow-y: visible;
+  width: min(1500px, calc(100% - 300px));
+  margin: 0 auto;
+  padding: 18px 0 24px;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText, #323130);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+}
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  align-items: flex-end;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tabButton,
+.tabButtonActive {
+  appearance: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 0;
+  background: transparent;
+  color: #6b7280;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.tabButton:hover,
+.tabButtonActive:hover {
+  color: #1f2937;
+}
+
+.tabButton:focus-visible,
+.tabButtonActive:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 244, 0.24);
+  border-radius: 2px 2px 0 0;
+}
+
+.tabButtonActive {
+  border-bottom-color: #2f7df4;
+  color: #2f7df4;
+}
+
+.tabPanelBox {
+  width: 100%;
+  margin-top: 18px;
+  padding: 34px 38px;
+  border: 1px solid #d8dde5;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.tabPanelContent {
+  width: 100%;
+  text-align: left;
+}
+
+.panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panelTitle {
+  margin: 0 0 28px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.sectionBox {
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.sectionIntro {
+  margin: 0 0 24px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.formStack {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 36px;
+}
+
+.generateButton {
+  min-width: 220px;
+}
+
+.configExampleBox {
+  margin-top: 0;
+}
+
+.configExampleCard {
+  margin-top: 0;
+  max-width: 100%;
+}
+
+.configLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  margin-top: 8px;
+}
+
+.configControlsColumn {
+  flex: 0 0 360px;
+  min-width: 320px;
+  display: grid;
+  gap: 28px;
+}
+
+.configExampleBox {
+  flex: 1 1 auto;
+}
+
+.configExampleBox :global(label) {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.configExampleCard :global(.barcodeBox) {
+  margin: 0;
+}
+
+.configExampleCard :global(.barcodeBox) {
+  width: var(--tile-size-mm);
+}
+
+.configExampleCard :global(.barcodeBox .barcodeGraphic) {
+  margin-bottom: 4mm;
+}
+
+@media (max-width: 1024px) {
+  .barcodeRoot {
+    width: calc(100% - 48px);
+  }
+
+  .tabPanelBox {
+    padding: 26px 24px;
+  }
+
+  .configLayout {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .configControlsColumn {
+    flex-basis: auto;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .barcodeRoot {
+    width: calc(100% - 24px);
+    padding-top: 12px;
+  }
+
+  .tabList {
+    gap: 0;
+  }
+
+  .tabButton,
+  .tabButtonActive {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .panelTitle {
+    font-size: 1.6rem;
+  }
+
+  .tabPanelBox {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .configLayout {
+    gap: 14px;
+  }
+}
+
+:global {
+  #workbenchPageContent,
+  .CanvasComponent.LCS .CanvasZone {
+    max-width: 100% !important;
+  }
+}
+
+.App{
+  margin-top:50px;
+}
+
+.pdfDiv {
+  width: var(--sheet-width-mm);
+  margin: 0 auto;
+}
+
+.exportSurface {
+  position: absolute;
+  top: 0;
+  left: -99999px;
+  pointer-events: none;
+}
+
+.previewPage,
+.printPage {
+  width: var(--sheet-width-mm);
+  height: var(--sheet-height-mm);
+  box-sizing: border-box;
+  padding: var(--page-pad-top-mm) var(--page-pad-right-mm) var(--page-pad-bottom-mm) var(--page-pad-left-mm);
+  background: #fff;
+  overflow: hidden;
+}
+
+.printPage {
+  break-after: page;
+  page-break-after: always;
+}
+
+.printPage:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.welcome {
+  text-align: center;
+}
+
+.welcomeImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+.loader {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.barcodeText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  color: black;
+  text-align: center;
+  z-index:999;
+}
+
+.textBox button {
+  margin-top:20px;
+}
+
+.primaryCode {
+  font-size: 13mm;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.07mm;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+}
+
+.secondaryCode {
+  margin-top: 3.2mm;
+  font-size: 7mm;
+  line-height: 1.05;
+  font-weight: 700;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+}
+
+.barcodeBox {
+   display:flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: space-between;
+  width: var(--tile-size-mm);
+   min-width: 0;
+   height: var(--tile-size-mm);
+   padding: 1.5mm 1.2mm 0.8mm;
+   box-sizing: border-box;
+   border: 0.2mm solid #8c8c8c;
+   break-inside: avoid;
+   page-break-inside: avoid;
+}
+
+.barcodeDiv {
+  display: grid;
+  grid-template-columns: repeat(7, var(--tile-size-mm));
+  grid-auto-rows: var(--tile-size-mm);
+  width: 100%;
+  height: var(--grid-height-mm);
+  margin: 0 auto;
+}
+
+.printBarcodeDiv {
+  display: grid;
+  grid-template-columns: repeat(7, var(--tile-size-mm));
+  grid-auto-rows: var(--tile-size-mm);
+  width: 100%;
+  height: var(--grid-height-mm);
+  margin: 0 auto;
+}
+
+.barcodeGraphic {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 8mm;
+  margin-bottom: 4mm;
+}
+
+.barcodeGraphic :global(svg) {
+  width: auto;
+  max-width: 100%;
+  height: 8mm;
+}
+
+.barcodeGraphic :global(svg),
+.barcodeGraphic :global(svg *) {
+  shape-rendering: crispEdges;
+}
+
+.download {
+  float: right;
+}
+
+.actionBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 16px;
+}
+
+.actionButton {
+  min-width: 170px;
+}
+
+.paginationDiv {
+  display: flex;
+  float: right;
+}
+
+.loaderBox { 
+  background:rgba(0,0,0,0.8); 
+  position:fixed; 
+  bottom:0; 
+  left:0; 
+  width:100%; 
+  height:100%; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  color:white; 
+  font-size:18px; 
+  z-index:1000;
+}
+
+.alertError{
+  background-color: #a50000;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  justify-content: space-between;
+  padding: 12px;
+  width: 100%;
+}
+
+.textBox {
+  width: 75vw;
+  max-width: 75vw;
+  margin: 0 auto 20px;
+}
+
+@media (max-width: 768px) {
+  .textBox {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.printPortal {
+  position: absolute;
+  left: -99999px;
+  top: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@page {
+  size: 296mm 210mm;
+  margin: 0;
+}
+
+@media print {
+  :global(html),
+  :global(body) {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide every direct child of body — including the React root */
+  :global(body) > * {
+    display: none !important;
+  }
+
+  /* Show only the portal container that sits as a direct body child */
+  :global(#barcode-print-surface) {
+    display: block !important;
+  }
+
+  /* Un-hide the inner wrapper that is visibility:hidden on screen */
+  .printPortal {
+    visibility: visible;
+    position: static;
+    left: auto;
+  }
+}

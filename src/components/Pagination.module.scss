@@ -1,0 +1,57 @@
+.pagenum{
+background-color: #fff;
+    color: #f06c00;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #f06c00;
+    border-radius: 2px;
+    padding:7px;
+    font-size:14px;
+    margin-right: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.activePage {
+    background-color: #f06c00;
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #f06c00;
+    border-radius: 2px;
+    padding:7px;
+    font-size:14px;
+    margin-right: 10px;
+}
+
+.otherPage {
+    background-color: white;
+    color: #f06c00;
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+    padding:10px;
+    text-decoration: none;
+    font-size:14px;
+    margin-right: 10px;
+    border: 1px solid #f06c00;
+}
+
+.otherPage:hover {
+    background-color: white;
+    color: black;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #f06c00;
+    border-radius: 2px;
+    padding:10px;
+    text-decoration: none;
+    font-size:14px;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

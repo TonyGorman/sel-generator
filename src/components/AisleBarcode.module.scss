@@ -1,0 +1,234 @@
+.panel {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.panelTitle {
+    margin: 0 0 28px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.configLink {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #005a9c;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.configLink:hover {
+    color: #004578;
+}
+
+.configLayout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 48px;
+    align-items: start;
+}
+
+.stackedSections {
+    display: grid;
+    gap: 28px;
+    max-width: 620px;
+}
+
+.sectionBox {
+    min-width: 0;
+}
+
+.sectionTitle {
+    margin: 0 0 18px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.twoFieldGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.fieldGroup {
+    min-width: 0;
+}
+
+.fieldLabel {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.sideGrid {
+    display: grid;
+    gap: 16px;
+}
+
+.sideRow {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.sideLabel {
+    padding-top: 38px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.sideInputGroup {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.singleField {
+    max-width: 220px;
+}
+
+.summaryBox {
+    padding: 20px 18px;
+    border-radius: 18px;
+    background: #f8fafc;
+    color: #4b5563;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.summaryRow span:first-child {
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.summaryRow span:last-child {
+    text-align: right;
+}
+
+.summaryTotal {
+    margin-top: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.actionsRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 36px;
+}
+
+.generateButton {
+    min-width: 220px;
+}
+
+.textBoxes {
+    display: inline-flex;
+    justify-content: space-between; /* Aligns items within the container */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.labelDiv {
+    width: 83px!important;
+  }
+
+.textBoxes div {
+    width:50px;
+    margin-right: 20px;
+}
+
+.shelves {
+    width:50px;
+    margin-bottom: 20px;
+}
+
+.shelfControlsRow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.shelfControlsRow > div {
+    width: 50px;
+    margin-right: 20px;
+}
+
+.shelfFormatChoice {
+    width: auto !important;
+    min-width: 240px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+}
+
+.alertError{
+    background-color: #a50000;
+    color: white;
+    border-radius: 4px;
+    display: flex;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    justify-content: space-between;
+    padding: 12px;
+    width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .configLayout {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .singleField {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .panelTitle {
+        font-size: 1.6rem;
+    }
+
+    .twoFieldGrid,
+    .sideInputGroup {
+        grid-template-columns: 1fr;
+    }
+
+    .sideRow {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .sideLabel {
+        padding-top: 0;
+    }
+
+    .actionsRow {
+        justify-content: stretch;
+    }
+
+    .generateButton {
+        width: 100%;
+        min-width: 0;
+    }
+}
