@@ -29,7 +29,16 @@ Before publishing, validate the build locally if needed with:
 
 ### Publish on GitHub Pages
 
-This repository includes a GitHub Actions workflow that builds and publishes to GitHub Pages on every push to `main`.
+This repository includes a GitHub Actions workflow that runs quality checks on pull requests to `main` and on pushes to `main`.
+
+Quality checks run in CI:
+
+- `npm run styles:types:check`
+- `npm run styles:audit`
+- `npm run test:run`
+- `npm run build`
+
+Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
 
 1. Push your latest changes to `main`.
 2. In GitHub, open Settings > Pages.

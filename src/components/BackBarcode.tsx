@@ -23,7 +23,7 @@ const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration 
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string): void => {
         const inpVal = e.target.value.trim();
-        const numericValue = inpVal === '' ? null : Number(inpVal);
+        const numericValue = inpVal === '' || !/^\d+$/.test(inpVal) ? null : Number(inpVal);
 
         switch (type) {
             case 'bay_start':

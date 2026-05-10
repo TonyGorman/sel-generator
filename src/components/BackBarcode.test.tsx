@@ -97,4 +97,14 @@ describe('BackBarcode', () => {
 
     expect(onOpenConfiguration).toHaveBeenCalledTimes(1);
   });
+
+  it('does not render NaN when a letter is entered into a numeric field', () => {
+    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    const inputs = screen.getAllByRole('textbox');
+    fireEvent.change(inputs[0], { target: { value: 'a' } });
+
+    expect(inputs[0]).toHaveValue('');
+    expect(screen.queryByDisplayValue('NaN')).not.toBeInTheDocument();
+  });
 });

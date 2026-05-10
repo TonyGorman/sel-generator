@@ -284,9 +284,10 @@
 
 .secondaryCode {
   margin-top: 3.2mm;
-  font-size: 7mm;
+  font-size: 5.8mm;
   line-height: 1.05;
   font-weight: 700;
+  white-space: nowrap;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
 }
 

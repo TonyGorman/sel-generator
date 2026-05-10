@@ -30,7 +30,7 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: string): void => {
         const inpVal = e.target.value.trim();
-        const numericValue = inpVal === '' ? null : Number(inpVal);
+        const numericValue = inpVal === '' || !/^\d+$/.test(inpVal) ? null : Number(inpVal);
 
         switch (type) {
             case 'aisle_start':

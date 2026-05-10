@@ -16,7 +16,7 @@ const MM_TO_PX = 96 / 25.4;
 
 // Keep vector text sizes aligned with CSS text sizes in Barcode.module.css.
 const PRIMARY_TEXT_SIZE_MM = 12;
-const SECONDARY_TEXT_SIZE_MM = 7;
+const SECONDARY_TEXT_SIZE_MM = 5.8;
 const PRIMARY_TEXT_LETTER_SPACING_MM = 0.07;
 
 // Calibrated baselines to visually match browser print output.
