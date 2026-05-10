@@ -2,11 +2,12 @@ import * as React from 'react';
 import styles from './Barcode.module.scss';
 import Tabs from './Tabs';
 import AisleBarcode from './AisleBarcode';
-import BAKBarcode from './BAKBarcode';
+import BackBarcode from './BackBarcode';
 import SpecificBarcode from './SpecificBarcode';
 import Configuration from './Configuration';
 import { ITabItem } from '../models/ITabItem';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 const Barcode = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
@@ -14,6 +15,7 @@ const Barcode = (): React.ReactElement => {
     primaryCodeFormat: 'sideBay',
     shelfStyle: 'number',
     secondaryCodeFormat: 'dashes',
+    backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
   });
 
   const handleTabClick = (key: string): void => {
@@ -32,9 +34,9 @@ const Barcode = (): React.ReactElement => {
       content: <AisleBarcode config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
     },
     {
-      key: 'bak',
+      key: 'back',
       headerText: 'Back barcode',
-      content: <BAKBarcode config={config} />,
+      content: <BackBarcode config={config} />,
     },
     {
       key: 'config',

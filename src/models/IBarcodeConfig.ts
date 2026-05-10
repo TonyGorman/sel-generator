@@ -6,4 +6,5 @@ export interface IBarcodeConfig {
   primaryCodeFormat: PrimaryCodeFormat;
   shelfStyle: ShelfStyle;
   secondaryCodeFormat: SecondaryCodeFormat;
+  backCodePrefix: string;
 }

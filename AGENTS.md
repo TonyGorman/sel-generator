@@ -1,11 +1,13 @@
 # AGENTS Guidance
 
 ## Core Objective
+
 This project is A4 print-first. The primary and non-negotiable use case is printing barcode labels on A4 39mm SEL paper.
 This has to be millimeter perfect to ensure the labels fit within the perforated lines on the paper.
 Protect physical barcode label accuracy and scan reliability before making UI/UX changes.
 
 ## Non-Negotiable Geometry Rules
+
 - Keep all label and page geometry in millimeters (mm).
 - Do not convert print geometry to px/rem/%.
 - Canonical values:
@@ -13,21 +15,25 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
   - A4 margins: left 11mm, right 12mm, top 7.5mm, bottom 7.5mm
 
 ## Rendering Path Awareness
+
 - Screen preview and print portal use the same `BarcodeTile` render path.
 - Download uses a calibrated vector PDF path by default, with raster fallback.
 - If print and download diverge, treat it as a rendering-path calibration issue first.
 
 ## Barcode Safety Rules
+
 - Preserve barcode module width/height and quiet-zone assumptions unless explicitly changing barcode spec.
 - Avoid changes that visually look better on screen but risk print scan reliability.
 - Validate scan-critical changes with real print output whenever possible.
 
 ## PDF Calibration Rules
+
 - Change vector text/barcode constants in small increments.
 - For vertical text alignment changes, tune in ~0.2-0.6mm steps and re-check print vs download.
 - Prefer explicit constants for tunable values instead of scattered literals.
 
 ## Test Workflow (Required)
+
 - Unit tests: `npm run test:run`
 - Coverage: `npm run test:coverage`
 - E2E: `npm run test:e2e`
@@ -35,17 +41,20 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 - Update visual baselines only for intentional UI changes: `npm run test:visual:update`
 
 ## Visual Regression Scope
+
 - Snapshot baselines live under `tests/e2e/barcode-regressions.spec.ts-snapshots`.
 - Keep at least one full-page (35 label) preview snapshot using default configuration.
 - Keep download regression checks in place (PDF contract snapshot) to catch export drift.
 
 ## Change Discipline
+
 - Make minimal, targeted edits.
 - Do not modify `node_modules`.
 - Do not remove defensive branches just to improve coverage; add tests to cover them.
 - If removing platform-specific references, remove only first-party references in repo files.
 
 ## React / TypeScript Approach
+
 - Prefer function components with typed props interfaces; keep public prop contracts explicit and stable.
 - Keep state as close as possible to where it is used, but lift shared configuration state to the nearest common parent.
 - Use controlled inputs for form fields so generated barcode output is deterministic and testable.
@@ -58,13 +67,16 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 - Keep TypeScript changes strict enough to catch regressions, but avoid broad refactors unless explicitly requested.
 
 ## Testing Expectations For React Changes
+
 - For logic changes, add or update Vitest tests near the affected component/helper.
 - For UI behavior changes, add or update Playwright assertions in `tests/e2e/barcode-regressions.spec.ts`.
 - For visual/layout changes, update visual snapshots only when the change is intentional and verified.
 - When fixing uncovered defensive branches, write realistic tests that exercise the branch rather than removing the guard.
 
 ## Decision Order
+
 When tradeoffs are required, prioritize in this order:
+
 1. Scan reliability and barcode readability
 2. Physical print geometry accuracy
 3. Print/download parity
@@ -72,33 +84,41 @@ When tradeoffs are required, prioritize in this order:
 5. Refactoring and code style improvements
 
 ## Selector and Label Drift Rule
+
 - If tab text, button labels, heading labels, or alert text changes intentionally, update related E2E selectors/assertions in the same change.
 - If visual output changes intentionally, update snapshot baselines in the same change.
 
 ## Render-Path Change Checklist
+
 Before completing any change that affects barcode output, verify:
+
 - On-screen preview output
 - Print portal output
 - Vector PDF download output
 - Raster fallback PDF output (where applicable)
 
 ## Snapshot Discipline
+
 - Update snapshots only for intentional UI changes.
 - After updating snapshots, run visual tests once with snapshot update mode and once without update mode.
 - Keep a short note in commit/PR context describing why snapshot changes were expected.
 
 ## Accessibility Guardrail
+
 - Preserve accessible roles and names for key controls and regions (tabs, tabpanels, alerts, primary action buttons) unless the change is explicitly intentional.
 - If accessibility labels are changed intentionally, update associated tests in the same change.
 
 ## Test Determinism Rules
+
 - Avoid introducing randomness into snapshot-producing tests.
 - Avoid assertions that depend on current timestamps, unstable ordering, or environment-specific variability unless normalized.
 - Normalize dynamic outputs before snapshotting when possible.
 
 ## Performance Guardrail
+
 - Avoid expensive per-item work inside render loops over barcode tiles unless required.
 - Prefer precomputed values and memoization when repeated calculations affect full-page barcode rendering.
 
 ## Documentation Sync Rule
+
 - If test scripts, build commands, or deployment workflow changes, update `README.md` in the same change.

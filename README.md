@@ -1,15 +1,15 @@
 # barcode-generator
-Generate Shelf Edge Labels for printing.  
 
+Generate Shelf Edge Labels for printing.  
 
 ## Build and Publish
 
 ### Local setup
 
 1. Install dependencies:
-	`npm install`
+   `npm install`
 2. Start the development server:
-	`npm run dev`
+   `npm run dev`
 
 ### Production build
 
@@ -96,7 +96,7 @@ Confirm generated labels remain machine-readable after:
 Create at least one sample sheet from each flow:
 
 - Aisle flow: low, mid, high values (for example 01, 50, 99) and multiple side ranges
-- BAK flow: bay range and shelf range coverage
+- Back (wall) flow: bay range and shelf range coverage
 - Specific flow: all supported input styles (compact and dashed)
 
 Include both shelf modes:

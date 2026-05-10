@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BarcodeTile, { getDashedCode, getPrimaryText } from './BarcodeTile';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('react-barcode', () => ({
   default: ({ value }: { value: string }) => <div data-testid="barcode-value">{value}</div>,
@@ -12,6 +13,7 @@ const defaultConfig: IBarcodeConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
+  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
 describe('BarcodeTile helpers', () => {
@@ -23,12 +25,16 @@ describe('BarcodeTile helpers', () => {
     expect(getDashedCode('01L01A')).toBe('01-L01-A');
   });
 
-  it('formats compact BAK code into dashed output', () => {
-    expect(getDashedCode('BAK01A')).toBe('BAK-01-A');
+  it('formats compact back wall code into dashed output', () => {
+    expect(getDashedCode(`${DEFAULT_BACK_CODE_PREFIX}01A`)).toBe(`${DEFAULT_BACK_CODE_PREFIX}-01-A`);
   });
 
-  it('uses BAK fallback formatting when type is BAK and code does not match compact patterns', () => {
-    expect(getDashedCode('ABCDE7', 'BAK')).toBe('ABC-DE-7');
+  it('formats compact custom back wall prefix code into dashed output', () => {
+    expect(getDashedCode('9901A', 'Back', '99')).toBe('99-01-A');
+  });
+
+  it('uses Back fallback formatting when type is Back and code does not match compact patterns', () => {
+    expect(getDashedCode('ABCDE7', 'Back')).toBe('AB-CD-E7');
   });
 
   it('uses generic 6-character fallback formatting for unknown values', () => {
@@ -62,12 +68,12 @@ describe('BarcodeTile helpers', () => {
     });
   });
 
-  it('uses BAK fallback primary parsing when type is BAK and pattern does not match', () => {
+  it('uses Back fallback primary parsing when type is Back and pattern does not match', () => {
     expect(
-      getPrimaryText('ABCDE9', 'shelfOnly', 'alphabetical', 'dashes', 'BAK'),
+      getPrimaryText('ABCDE9', 'shelfOnly', 'alphabetical', 'dashes', 'Back'),
     ).toEqual({
-      primary: 'I',
-      secondary: 'ABC-DE-9',
+      primary: 'E9',
+      secondary: 'AB-CD-E9',
     });
   });
 
@@ -80,12 +86,30 @@ describe('BarcodeTile helpers', () => {
     });
   });
 
-  it('returns compact BAK primary text when primary format is sideBay', () => {
+  it('returns compact back wall primary text when primary format is sideBay', () => {
     expect(
-      getPrimaryText('BAK01A', 'sideBay', 'alphabetical', 'dashes', 'BAK'),
+      getPrimaryText(`${DEFAULT_BACK_CODE_PREFIX}01A`, 'sideBay', 'alphabetical', 'dashes', 'Back'),
     ).toEqual({
-      primary: 'BK01',
-      secondary: 'BAK-01-A',
+      primary: `${DEFAULT_BACK_CODE_PREFIX}01`,
+      secondary: `${DEFAULT_BACK_CODE_PREFIX}-01-A`,
+    });
+  });
+
+  it('renders dashed back wall input with back wall secondary text', () => {
+    expect(
+      getPrimaryText(`${DEFAULT_BACK_CODE_PREFIX}-01-A`, 'sideBay', 'alphabetical', 'dashes'),
+    ).toEqual({
+      primary: `${DEFAULT_BACK_CODE_PREFIX}01`,
+      secondary: `${DEFAULT_BACK_CODE_PREFIX}-01-A`,
+    });
+  });
+
+  it('renders custom Back prefix for primary and secondary text', () => {
+    expect(
+      getPrimaryText('9901A', 'sideBay', 'alphabetical', 'dashes', 'Back', '99'),
+    ).toEqual({
+      primary: '9901',
+      secondary: '99-01-A',
     });
   });
 

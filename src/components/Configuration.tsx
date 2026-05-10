@@ -2,8 +2,8 @@ import * as React from 'react';
 import styles from './Barcode.module.scss';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import BarcodeTile from './BarcodeTile';
-import { getShelfTokenForConfig } from '../config/barcodeConfig';
-import { RadioGroup, RadioOption } from './FormControls';
+import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
+import { RadioGroup, RadioOption, TextField } from './FormControls';
 
 export interface IConfigurationProps {
   config: IBarcodeConfig;
@@ -49,6 +49,13 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
     });
   };
 
+  const handleBackCodePrefixChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onConfigChange({
+      ...config,
+      backCodePrefix: normalizeBackCodePrefix(event.target.value),
+    });
+  };
+
   return (
     <div className={styles.panel}>
       <h1 className={styles.panelTitle}>Label Configuration</h1>
@@ -82,6 +89,23 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
               selectedKey={config.secondaryCodeFormat}
               onChange={handleSecondaryCodeFormatChange}
             />
+          </section>
+
+          <section className={styles.sectionBox}>
+            <h2 className={styles.sectionTitle}>Back Code Prefix</h2>
+            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-back-code-prefix`}>
+              Prefix (letters or numbers)
+            </label>
+            <TextField
+              id={`${idPrefix}-back-code-prefix`}
+              value={config.backCodePrefix}
+              maxLength={2}
+              onChange={handleBackCodePrefixChange}
+              aria-describedby={`${idPrefix}-back-code-prefix-help`}
+            />
+            <p id={`${idPrefix}-back-code-prefix-help`}>
+              Example: BK or 99.
+            </p>
           </section>
         </div>
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './Barcode.module.scss';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE } from '../config/barcodeConfig';
+import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
 interface ISpecificBarcodeProps {
@@ -37,6 +37,8 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
         return numericValue >= 1 && numericValue <= max;
     };
 
+    const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
+
     const isValidSpecificCode = (code: string): boolean => {
         const normalizedCode = code.toUpperCase();
 
@@ -56,15 +58,15 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
                 && isShelfTokenValid(shelf);
         }
 
-        const compactBakMatch = normalizedCode.match(/^BAK(\d{2})([A-Z0-9]+)$/);
-        if (compactBakMatch) {
-            const [, bay, shelf] = compactBakMatch;
+        const compactBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}(\\d{2})([A-Z0-9]+)$`));
+        if (compactBackMatch) {
+            const [, bay, shelf] = compactBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
         }
 
-        const dashedBakMatch = normalizedCode.match(/^BAK-(\d{2})-([A-Z0-9]+)$/);
-        if (dashedBakMatch) {
-            const [, bay, shelf] = dashedBakMatch;
+        const dashedBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}-(\\d{2})-([A-Z0-9]+)$`));
+        if (dashedBackMatch) {
+            const [, bay, shelf] = dashedBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
         }
 
@@ -84,7 +86,7 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
 
         const hasInvalidCode = barcodeTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage('Use valid codes only. Supported formats: 01L01A, 01-L01-A, BAK01A, BAK-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.');
+            setErrorMessage(`Use valid codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.`);
             return;
         }
 
@@ -110,7 +112,7 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
                         placeholder="Enter barcodes"
                         onChange={onInputChange}
                     />
-                    <p>Supported formats: 01L01A, 01-L01-A, BAK01A, BAK-01-A. Bay values must be 01-99 and shelves must be 1-20 or A-T.</p>
+                    <p>Supported formats: 01L01A, 01-L01-A, {backCodePrefix}01A, {backCodePrefix}-01-A. Bay values must be 01-99 and shelves must be 1-20 or A-T.</p>
                 </div>
             </section>
 

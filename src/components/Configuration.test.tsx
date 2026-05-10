@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Configuration from './Configuration';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./BarcodeTile', () => ({
   default: ({ code }: { code: string }) => <div data-testid="preview-code">{code}</div>,
@@ -12,6 +13,7 @@ const defaultConfig: IBarcodeConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
+  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
 describe('Configuration', () => {
@@ -50,5 +52,19 @@ describe('Configuration', () => {
 
     fireEvent.click(screen.getByLabelText('Shelf as Number (e.g., "1")'));
     expect(screen.getByTestId('preview-code')).toHaveTextContent('01R023');
+  });
+
+  it('emits sanitized Back code prefix updates', () => {
+    const onConfigChange = vi.fn();
+    render(<Configuration config={defaultConfig} onConfigChange={onConfigChange} />);
+
+    fireEvent.change(screen.getByLabelText('Prefix (letters or numbers)'), {
+      target: { value: '99' },
+    });
+
+    expect(onConfigChange).toHaveBeenCalledWith({
+      ...defaultConfig,
+      backCodePrefix: '99',
+    });
   });
 });

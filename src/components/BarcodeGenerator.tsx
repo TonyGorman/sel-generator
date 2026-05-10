@@ -135,6 +135,7 @@ const drawVectorPage = async (
       config.shelfStyle,
       config.secondaryCodeFormat,
       type,
+      config.backCodePrefix,
     );
 
     pdf.rect(x, y, tileSizeMm, tileSizeMm);
@@ -152,7 +153,16 @@ const drawVectorPage = async (
     const barcodeX = x + tilePaddingHorizontalMm;
     const barcodeY = y + tileSizeMm - tilePaddingBottomMm - barcodeBottomMarginMm - barcodeHeightMm;
     const barcodeWidth = tileSizeMm - tilePaddingHorizontalMm * 2;
-    await drawVectorBarcode(pdf, svg2pdf, jsBarcode, getDashedCode(code, type), barcodeX, barcodeY, barcodeWidth, barcodeHeightMm);
+    await drawVectorBarcode(
+      pdf,
+      svg2pdf,
+      jsBarcode,
+      getDashedCode(code, type, config.backCodePrefix),
+      barcodeX,
+      barcodeY,
+      barcodeWidth,
+      barcodeHeightMm,
+    );
   }
 };
 

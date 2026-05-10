@@ -2,6 +2,7 @@ import * as React from 'react';
 import Barcode from 'react-barcode';
 import styles from './Barcode.module.scss';
 import { IBarcodeConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/barcodeConfig';
 
 const MM_TO_PX = 96 / 25.4;
 const BARCODE_HEIGHT_MM = 8;
@@ -40,25 +41,92 @@ const formatShelfToken = (token: string, shelfStyle: ShelfStyle): string => {
   return shelfStyle === 'number' ? convertShelfTokenToNumber(token) : convertShelfTokenToLetter(token);
 };
 
-export const getDashedCode = (code: string, type?: string): string => {
+const AISLE_CODE_PATTERN = /^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/;
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildBackCodePattern = (backCodePrefix: string): RegExp => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  return new RegExp(`^${escapeRegExp(normalizedPrefix)}(\\d{2})([A-Z0-9]+)$`, 'i');
+};
+
+const parseAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
+  const match = code.match(AISLE_CODE_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  const [, zone, side, bay, shelf] = match;
+  return { zone, side, bay, shelf };
+};
+
+const parseBackCode = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
+  const match = code.match(buildBackCodePattern(backCodePrefix));
+  if (!match) {
+    return null;
+  }
+
+  const [, bay, shelf] = match;
+  return {
+    bay,
+    shelf,
+  };
+};
+
+const getSecondaryDisplayValue = (_code: string, dashedCode: string, secondaryCodeFormat: SecondaryCodeFormat, _type?: string): string => {
+  const rawSecondaryDisplayValue = secondaryCodeFormat === 'spaces' ? dashedCode.replace(/-/g, ' ') : dashedCode;
+  return rawSecondaryDisplayValue;
+};
+
+const parseDashedBackCode = (parts: string[], backCodePrefix: string, type?: string): { bay: string; shelf: string } | null => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  if (!(type === 'Back' || parts[0].toUpperCase() === normalizedPrefix)) {
+    return null;
+  }
+
+  if (parts.length < 3) {
+    return null;
+  }
+
+  const bay = parts[1];
+  const shelf = parts[parts.length - 1];
+
+  if (!/^\d{2}$/.test(bay)) {
+    return null;
+  }
+
+  return { bay, shelf };
+};
+
+export const getDashedCode = (code: string, type?: string, backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX): string => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+
   if (code.includes('-')) {
     return code;
   }
 
-  const aisleMatch = code.match(/^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/);
-  if (aisleMatch) {
-    const [, zone, side, bay, shelf] = aisleMatch;
+  const aisleCode = parseAisleCode(code);
+  if (aisleCode) {
+    const { zone, side, bay, shelf } = aisleCode;
     return `${zone}-${side}${bay}-${shelf}`;
   }
 
-  const bakMatch = code.match(/^BAK(\d{2})([A-Z0-9]+)$/);
-  if (bakMatch) {
-    const [, bay, shelf] = bakMatch;
-    return `BAK-${bay}-${shelf}`;
+  const backCode = parseBackCode(code, normalizedPrefix);
+  if (backCode) {
+    const { bay, shelf } = backCode;
+    return `${normalizedPrefix}-${bay}-${shelf}`;
   }
 
-  if (type === 'BAK') {
-    return `${code.slice(0, 3)}-${code.slice(3, 5)}-${code.slice(5)}`;
+  if (type === 'Back') {
+    const fallbackBackCode = parseBackCode(code, normalizedPrefix);
+    if (fallbackBackCode) {
+      const { bay, shelf } = fallbackBackCode;
+      return `${normalizedPrefix}-${bay}-${shelf}`;
+    }
+
+    const prefixLength = normalizedPrefix.length;
+
+    return `${code.slice(0, prefixLength)}-${code.slice(prefixLength, prefixLength + 2)}-${code.slice(prefixLength + 2)}`;
   }
 
   if (code.length === 6) {
@@ -74,12 +142,23 @@ export const getPrimaryText = (
   shelfStyle: ShelfStyle,
   secondaryCodeFormat: SecondaryCodeFormat,
   type?: string,
+  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
 ): { primary: string; secondary: string } => {
-  const dashedCode = getDashedCode(code, type);
-  const secondaryDisplayValue = secondaryCodeFormat === 'spaces' ? dashedCode.replace(/-/g, ' ') : dashedCode;
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  const dashedCode = getDashedCode(code, type, normalizedPrefix);
+  const secondaryDisplayValue = getSecondaryDisplayValue(code, dashedCode, secondaryCodeFormat, type);
 
   if (code.includes('-')) {
     const parts = code.split('-');
+
+    const dashedBackCode = parseDashedBackCode(parts, normalizedPrefix, type);
+    if (dashedBackCode) {
+      const { bay, shelf } = dashedBackCode;
+      return {
+        primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `${normalizedPrefix}${bay}`,
+        secondary: secondaryDisplayValue,
+      };
+    }
 
     if (parts.length >= 3) {
       const shelfToken = parts[parts.length - 1];
@@ -90,28 +169,40 @@ export const getPrimaryText = (
     }
   }
 
-  const aisleMatch = code.match(/^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/);
-  if (aisleMatch) {
-    const [, zone, side, bay, shelf] = aisleMatch;
+  const aisleCode = parseAisleCode(code);
+  if (aisleCode) {
+    const { side, bay, shelf } = aisleCode;
     return {
       primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `${side}${bay}`,
       secondary: secondaryDisplayValue,
     };
   }
 
-  const bakMatch = code.match(/^BAK(\d{2})([A-Z0-9]+)$/);
-  if (bakMatch) {
-    const [, bay, shelf] = bakMatch;
+  const backCode = parseBackCode(code, normalizedPrefix);
+  if (backCode) {
+    const { bay, shelf } = backCode;
     return {
-      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `BK${bay}`,
+      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `${normalizedPrefix}${bay}`,
       secondary: secondaryDisplayValue,
     };
   }
 
-  if (type === 'BAK') {
-    const compactBakPrefix = code.startsWith('BAK') ? `BK${code.slice(3, 5)}` : code.slice(0, 5);
+  if (type === 'Back') {
+    const fallbackBackCode = parseBackCode(code, normalizedPrefix);
+    if (fallbackBackCode) {
+      const { bay, shelf } = fallbackBackCode;
+      return {
+        primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `${normalizedPrefix}${bay}`,
+        secondary: secondaryDisplayValue,
+      };
+    }
+
+    const prefixLength = normalizedPrefix.length;
+    const bayToken = code.slice(prefixLength, prefixLength + 2);
+    const shelfToken = code.slice(prefixLength + 2);
+
     return {
-      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(code.slice(5), shelfStyle) : compactBakPrefix,
+      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelfToken, shelfStyle) : `${normalizedPrefix}${bayToken}`,
       secondary: secondaryDisplayValue,
     };
   }
@@ -136,8 +227,15 @@ interface IBarcodeTileProps {
 }
 
 const BarcodeTile: React.FC<IBarcodeTileProps> = ({ code, config, type }) => {
-  const { primary, secondary } = getPrimaryText(code, config.primaryCodeFormat, config.shelfStyle, config.secondaryCodeFormat, type);
-  const barcodeValue = getDashedCode(code, type);
+  const { primary, secondary } = getPrimaryText(
+    code,
+    config.primaryCodeFormat,
+    config.shelfStyle,
+    config.secondaryCodeFormat,
+    type,
+    config.backCodePrefix,
+  );
+  const barcodeValue = getDashedCode(code, type, config.backCodePrefix);
 
   return (
     <div className={styles.barcodeBox}>

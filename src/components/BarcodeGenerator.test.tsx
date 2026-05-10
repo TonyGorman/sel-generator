@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 const {
   addPageMock,
@@ -94,6 +95,7 @@ const defaultConfig: IBarcodeConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
+  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
 describe('BarcodeGenerator PDF export', () => {

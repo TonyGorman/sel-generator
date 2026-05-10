@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleBarcode from './AisleBarcode';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./BarcodeGenerator', () => ({
   default: ({ aisles }: { aisles: string[] }) => <div data-testid="generated-count">{aisles.length}</div>,
@@ -12,6 +13,7 @@ const defaultConfig: IBarcodeConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
+  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
 describe('AisleBarcode', () => {

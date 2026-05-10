@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { DEFAULT_BACK_CODE_PREFIX } from '../../src/config/barcodeConfig';
 
 const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
   return pdfBytes
@@ -117,6 +118,7 @@ const renderFirstPdfPageAsPng = async (page: Page, pdfBytes: Buffer, scale: numb
 };
 
 test.describe('Barcode Generator regressions', () => {
+
   test('loads and shows primary tabs', async ({ page }) => {
     await page.goto('/');
 
@@ -147,7 +149,7 @@ test.describe('Barcode Generator regressions', () => {
   test('Specific barcode generation downloads a PDF export', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByPlaceholder('Enter barcodes').fill('01L01A,BAK01A');
+    await page.getByPlaceholder('Enter barcodes').fill(`01L01A,${DEFAULT_BACK_CODE_PREFIX}01A`);
     await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
@@ -160,7 +162,7 @@ test.describe('Barcode Generator regressions', () => {
     expect(download.suggestedFilename()).toBe('barcodes.pdf');
   });
 
-  test('BAK tab shows validation message for missing values', async ({ page }) => {
+  test('Back tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Back barcode' }).click();

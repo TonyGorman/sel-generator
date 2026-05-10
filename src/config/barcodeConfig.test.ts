@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_BACK_CODE_PREFIX,
   MAX_AISLE_VALUE,
   MAX_BAY_VALUE,
   MAX_SHELF_VALUE,
   PDF_EXPORT_SCALE,
   PDF_IMAGE_COMPRESSION,
   getShelfTokenForConfig,
+  normalizeBackCodePrefix,
 } from './barcodeConfig';
 
 describe('barcodeConfig', () => {
@@ -18,6 +20,16 @@ describe('barcodeConfig', () => {
   it('keeps PDF export profile stable for scan reliability', () => {
     expect(PDF_EXPORT_SCALE).toBe(3);
     expect(PDF_IMAGE_COMPRESSION).toBe('NONE');
+  });
+
+  it('keeps Back prefix default stable', () => {
+    expect(DEFAULT_BACK_CODE_PREFIX).toBe('BK');
+  });
+
+  it('normalizes Back prefix values for config safety', () => {
+    expect(normalizeBackCodePrefix('bk')).toBe('BK');
+    expect(normalizeBackCodePrefix('9-9')).toBe('99');
+    expect(normalizeBackCodePrefix('')).toBe(DEFAULT_BACK_CODE_PREFIX);
   });
 
   it('returns numeric shelf labels when shelf style is number', () => {

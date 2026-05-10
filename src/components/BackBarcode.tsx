@@ -2,14 +2,14 @@ import * as React from 'react';
 import styles from './AisleBarcode.module.scss';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
-import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/barcodeConfig';
+import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
-interface IBAKBarcodeProps {
+interface IBackBarcodeProps {
     config: IBarcodeConfig;
 }
 
-const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
+const BackBarcode: React.FC<IBackBarcodeProps> = ({ config }) => {
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [barcodeStruct, setBarcodeStruct] = React.useState({
@@ -39,6 +39,7 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
 
     const generateBarcodeText = (): string[] => {
         const barcodeTexts: string[] = [];
+        const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
 
         if (!hasValue(barcodeStruct.bay_start) || !hasValue(barcodeStruct.bay_end) || !hasValue(barcodeStruct.shelves)) {
             return [];
@@ -47,7 +48,7 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
         for (let i = barcodeStruct.bay_start; i <= barcodeStruct.bay_end; i++) {
             for (let k = 0; k < barcodeStruct.shelves; k++) {
                 const shelfToken = getShelfTokenForConfig(k, config.shelfStyle);
-                const barcodeText = "BAK" + (i > 9 ? i : "0" + i) + shelfToken;
+                const barcodeText = backCodePrefix + (i > 9 ? i : "0" + i) + shelfToken;
                 barcodeTexts.push(barcodeText);
             }
         }
@@ -87,7 +88,7 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator type='BAK' aisles={generateBarcodeText()} config={config} />)
+        setShowBarcode(<BarcodeGenerator type='Back' aisles={generateBarcodeText()} config={config} />)
     }
 
     return (
@@ -146,4 +147,4 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
     );
 };
 
-export default BAKBarcode;
+export default BackBarcode;

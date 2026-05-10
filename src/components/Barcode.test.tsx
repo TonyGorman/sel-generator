@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Barcode from './Barcode';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./SpecificBarcode', () => ({
   default: ({ config }: { config: IBarcodeConfig }) => (
@@ -16,8 +17,8 @@ vi.mock('./AisleBarcode', () => ({
   ),
 }));
 
-vi.mock('./BAKBarcode', () => ({
-  default: () => <div>BAK Mock</div>,
+vi.mock('./BackBarcode', () => ({
+  default: () => <div>Back Mock</div>,
 }));
 
 vi.mock('./Configuration', () => ({
@@ -28,6 +29,7 @@ vi.mock('./Configuration', () => ({
           primaryCodeFormat: 'shelfOnly',
           shelfStyle: 'number',
           secondaryCodeFormat: 'spaces',
+          backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
         })
       }
     >
