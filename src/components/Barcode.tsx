@@ -12,7 +12,7 @@ const Barcode = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<IBarcodeConfig>({
     primaryCodeFormat: 'sideBay',
-    shelfStyle: 'alphabetical',
+    shelfStyle: 'number',
     secondaryCodeFormat: 'dashes',
   });
 
