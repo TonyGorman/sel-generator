@@ -1,4 +1,6 @@
 # barcode-generator
+Generate Shelf Edge Labels for printing.  
+
 
 ## Build and Publish
 
