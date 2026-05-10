@@ -1,4 +1,120 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
+  return pdfBytes
+    .toString('latin1')
+    .replace(/\/CreationDate \(D:[^)]+\)/g, '/CreationDate (D:00000000000000+00\'00\')')
+    .replace(/\/ModDate \(D:[^)]+\)/g, '/ModDate (D:00000000000000+00\'00\')')
+    .replace(/\/ID \[<[^>]+><[^>]+>\]/g, '/ID [<stable-id><stable-id>]');
+};
+
+const buildPdfContractSnapshot = (pdfBytes: Buffer): { pageCount: number; textTokens: string[] } => {
+  const normalizedPdf = sanitizePdfForSnapshot(pdfBytes);
+  const pageCount = (normalizedPdf.match(/\/Type \/Page\b/g) ?? []).length;
+
+  const textTokens = Array.from(
+    new Set(
+      Array.from(normalizedPdf.matchAll(/\(([^\)\r\n]{1,40})\)\s*Tj/g))
+        .map((match) => match[1].trim())
+        .filter((token) => /[A-Za-z0-9]/.test(token))
+        .filter((token) => token.length <= 20)
+        .filter((token) => /^[A-Za-z0-9\-\s]+$/.test(token)),
+    ),
+  ).sort();
+
+  return {
+    pageCount,
+    textTokens,
+  };
+};
+
+const pdfBundlePath = join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build/pdf.min.mjs');
+const pdfWorkerBundlePath = join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs');
+
+let cachedPdfBundleSource: string | null = null;
+let cachedPdfWorkerSource: string | null = null;
+
+const getPdfBundleSources = async (): Promise<{ pdfBundleSource: string; pdfWorkerSource: string }> => {
+  if (!cachedPdfBundleSource) {
+    cachedPdfBundleSource = await readFile(pdfBundlePath, 'utf8');
+  }
+  if (!cachedPdfWorkerSource) {
+    cachedPdfWorkerSource = await readFile(pdfWorkerBundlePath, 'utf8');
+  }
+
+  return {
+    pdfBundleSource: cachedPdfBundleSource,
+    pdfWorkerSource: cachedPdfWorkerSource,
+  };
+};
+
+const renderFirstPdfPageAsPng = async (page: Page, pdfBytes: Buffer, scale: number = 2): Promise<Buffer> => {
+  const { pdfBundleSource, pdfWorkerSource } = await getPdfBundleSources();
+  const rendererPage = await page.context().newPage();
+
+  try {
+    const pngBase64 = await rendererPage.evaluate(
+      async ({ pdfBase64, scale: renderScale, pdfBundleSource: bundle, pdfWorkerSource: workerBundle }) => {
+        const createBytes = (base64: string): Uint8Array => {
+          const binary = atob(base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index += 1) {
+            bytes[index] = binary.charCodeAt(index);
+          }
+          return bytes;
+        };
+
+        const pdfBundleUrl = URL.createObjectURL(new Blob([bundle], { type: 'text/javascript' }));
+        const pdfWorkerUrl = URL.createObjectURL(new Blob([workerBundle], { type: 'text/javascript' }));
+
+        try {
+          const pdfjs = await import(pdfBundleUrl);
+          pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
+          const loadingTask = pdfjs.getDocument({ data: createBytes(pdfBase64) });
+          const documentProxy = await loadingTask.promise;
+
+          try {
+            const firstPage = await documentProxy.getPage(1);
+            const viewport = firstPage.getViewport({ scale: renderScale });
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+
+            const context = canvas.getContext('2d');
+            if (!context) {
+              throw new Error('Unable to get 2D canvas context for PDF rendering.');
+            }
+
+            await firstPage.render({
+              canvasContext: context,
+              viewport,
+            }).promise;
+
+            return canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+          } finally {
+            await documentProxy.destroy();
+          }
+        } finally {
+          URL.revokeObjectURL(pdfBundleUrl);
+          URL.revokeObjectURL(pdfWorkerUrl);
+        }
+      },
+      {
+        pdfBase64: pdfBytes.toString('base64'),
+        scale,
+        pdfBundleSource,
+        pdfWorkerSource,
+      },
+    );
+
+    return Buffer.from(pngBase64, 'base64');
+  } finally {
+    await rendererPage.close();
+  }
+};
 
 test.describe('Barcode Generator regressions', () => {
   test('loads and shows primary tabs', async ({ page }) => {
@@ -79,5 +195,71 @@ test.describe('Barcode Generator regressions', () => {
 
     await page.getByRole('button', { name: 'Print Barcodes' }).click();
     await expect.poll(async () => page.evaluate(() => (window as typeof window & { __printCalls?: number }).__printCalls ?? 0)).toBe(1);
+  });
+
+  test('Specific barcode download remains stable for regression snapshot', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByPlaceholder('Enter barcodes').fill('01L01A');
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    const download = await downloadPromise;
+
+    const filePath = await download.path();
+    expect(filePath).not.toBeNull();
+
+    const pdfBytes = await readFile(filePath as string);
+    const contractSnapshot = buildPdfContractSnapshot(pdfBytes);
+
+    expect(JSON.stringify(contractSnapshot, null, 2)).toMatchSnapshot('specific-download.contract.json');
+  });
+
+  test('Specific barcode download first page remains visually stable', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
+    await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    const download = await downloadPromise;
+
+    const filePath = await download.path();
+    expect(filePath).not.toBeNull();
+
+    const pdfBytes = await readFile(filePath as string);
+    const firstPagePng = await renderFirstPdfPageAsPng(page, pdfBytes);
+
+    expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
+  });
+
+  test('captures full preview of 35 barcodes with default configuration', async ({ page }) => {
+    await page.setViewportSize({ width: 1800, height: 1400 });
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+
+    const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
+    await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+
+    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
+
+    const barcodeRoot = page.locator('[class*="barcodeRoot"]').first();
+    await barcodeRoot.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
+
+    const previewPage = page.locator('[class*="previewPage"]').first();
+    await expect(previewPage).toHaveScreenshot('default-config-35-barcodes.png', {
+      animations: 'disabled',
+    });
   });
 });

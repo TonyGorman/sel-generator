@@ -34,7 +34,48 @@ This repository includes a GitHub Actions workflow that builds and publishes to 
 3. Set Source to GitHub Actions.
 4. Wait for the `Deploy to GitHub Pages` workflow to finish.
 
-Your site will be available at your repository Pages URL.
+Your site will be available at [https://tonygorman.github.io/barcode-generator/](https://tonygorman.github.io/barcode-generator/)
+
+## Testing
+
+### Unit tests
+
+Run all unit tests:
+
+`npm run test:run`
+
+### Coverage
+
+Run unit tests with coverage output:
+
+`npm run test:coverage`
+
+### End-to-end tests
+
+Run all Playwright E2E tests:
+
+`npm run test:e2e`
+
+Run only the barcode regression spec:
+
+`npm run test:e2e -- tests/e2e/barcode-regressions.spec.ts`
+
+### Visual regression snapshots
+
+Visual snapshots are part of the Playwright suite and are validated automatically when running `npm run test:e2e`.
+
+The barcode regression spec now validates two visual outputs:
+
+- On-screen preview image snapshots (including a full-page 35-label default configuration capture)
+- Downloaded PDF first-page visual snapshot (rendered from the exported PDF and compared as a PNG baseline)
+
+If UI changes are intentional, update the snapshot baselines with:
+
+`npm run test:e2e -- tests/e2e/barcode-regressions.spec.ts --update-snapshots=all`
+
+Snapshot files are stored under:
+
+`tests/e2e/barcode-regressions.spec.ts-snapshots`
 
 ## Print and Scan Validation Protocol
 

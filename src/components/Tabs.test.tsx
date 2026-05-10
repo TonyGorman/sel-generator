@@ -64,4 +64,17 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'One' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Panel One')).toBeInTheDocument();
   });
+
+  it('returns early when keyboard navigation lands on a missing tab entry', () => {
+    const sparseTabs = new Array<ITabItem>(2);
+    sparseTabs[0] = { key: 'one', headerText: 'One', content: <div>Panel One</div> };
+
+    const onTabClick = vi.fn();
+    render(<Tabs tabs={sparseTabs} selectedKey="one" onTabClick={onTabClick} />);
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'One' }), { key: 'ArrowRight' });
+
+    expect(onTabClick).not.toHaveBeenCalled();
+    expect(screen.getByText('Panel One')).toBeInTheDocument();
+  });
 });
