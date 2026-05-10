@@ -24,21 +24,6 @@
     margin-top: 8px;
 }
 
-.configLink {
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: #005a9c;
-    font: inherit;
-    font-weight: 600;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.configLink:hover {
-    color: #004578;
-}
-
 .configLayout {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -152,46 +137,6 @@
 
 .generateButton {
     min-width: 220px;
-}
-
-.textBoxes {
-    display: inline-flex;
-    justify-content: space-between; /* Aligns items within the container */
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.labelDiv {
-    width: 83px!important;
-  }
-
-.textBoxes div {
-    width:50px;
-    margin-right: 20px;
-}
-
-.shelves {
-    width:50px;
-    margin-bottom: 20px;
-}
-
-.shelfControlsRow {
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.shelfControlsRow > div {
-    width: 50px;
-    margin-right: 20px;
-}
-
-.shelfFormatChoice {
-    width: auto !important;
-    min-width: 240px;
-    margin-top: 0;
-    display: flex;
-    align-items: center;
 }
 
 .alertError{

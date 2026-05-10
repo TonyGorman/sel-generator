@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './AisleBarcode.module.scss';
+import styles from './AisleBarcode.module.css';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
@@ -7,9 +7,10 @@ import { Button, TextField } from './FormControls';
 
 interface IBackBarcodeProps {
     config: IBarcodeConfig;
+    onOpenConfiguration: () => void;
 }
 
-const BackBarcode: React.FC<IBackBarcodeProps> = ({ config }) => {
+const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration }) => {
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [barcodeStruct, setBarcodeStruct] = React.useState({
@@ -91,10 +92,16 @@ const BackBarcode: React.FC<IBackBarcodeProps> = ({ config }) => {
         setShowBarcode(<BarcodeGenerator type='Back' aisles={generateBarcodeText()} config={config} />)
     }
 
+    const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+        event.preventDefault();
+        onOpenConfiguration();
+    };
+
     return (
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Back Wall Barcodes</h1>
-            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required.</p>
+            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. The prefix can be customized in the{' '}
+                    <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
             <div className={styles.stackedSections}>
                 <section className={styles.sectionBox}>
                     <h2 className={styles.sectionTitle}>Bay Range (1-99)</h2>

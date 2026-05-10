@@ -10,6 +10,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "styles:types": "node scripts/generate-css-module-types.mjs",
+    "styles:types:check": "node scripts/generate-css-module-types.mjs --check",
+    "styles:audit": "node scripts/audit-css-modules.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -42,7 +45,6 @@
     "@vitest/coverage-v8": "^4.1.5",
     "jsdom": "^29.1.1",
     "pdfjs-dist": "^5.7.284",
-    "sass": "^1.99.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.11",
     "vitest": "^4.1.5"

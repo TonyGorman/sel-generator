@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './Barcode.module.scss';
+import styles from './Barcode.module.css';
 import Tabs from './Tabs';
 import AisleBarcode from './AisleBarcode';
 import BackBarcode from './BackBarcode';
@@ -36,7 +36,7 @@ const Barcode = (): React.ReactElement => {
     {
       key: 'back',
       headerText: 'Back barcode',
-      content: <BackBarcode config={config} />,
+      content: <BackBarcode config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
     },
     {
       key: 'config',

@@ -40,6 +40,20 @@ Your site will be available at [https://tonygorman.github.io/barcode-generator/]
 
 ## Testing
 
+### Style Safety
+
+Generate typed CSS module declarations:
+
+`npm run styles:types`
+
+Check typed CSS module declarations are up to date:
+
+`npm run styles:types:check`
+
+Audit CSS/SCSS module classes for unused declarations and missing references:
+
+`npm run styles:audit`
+
 ### Unit tests
 
 Run all unit tests:

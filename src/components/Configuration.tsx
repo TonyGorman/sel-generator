@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './Barcode.module.scss';
+import styles from './Barcode.module.css';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import BarcodeTile from './BarcodeTile';
 import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';

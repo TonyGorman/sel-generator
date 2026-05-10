@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './FormControls.module.scss';
+import styles from './FormControls.module.css';
 
 const joinClasses = (...classNames: Array<string | undefined>): string => classNames.filter(Boolean).join(' ');
 

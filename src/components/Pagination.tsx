@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './Pagination.module.scss';
+import styles from './Pagination.module.css';
 import { IPaginationProps } from '../models/IPaginationProps';
 
 const Pagination = (props:IPaginationProps): React.ReactElement => {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ICommonTabsProps } from '../models/ICommonTabsProps'
-import styles from './Barcode.module.scss';
+import styles from './Barcode.module.css';
 
 const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => {
   const buttonRefs = React.useRef<Array<HTMLButtonElement | null>>([]);

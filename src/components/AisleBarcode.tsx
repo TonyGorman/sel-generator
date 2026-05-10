@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './AisleBarcode.module.scss';
+import styles from './AisleBarcode.module.css';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/barcodeConfig';

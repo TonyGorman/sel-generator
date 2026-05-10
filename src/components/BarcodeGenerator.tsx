@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import styles from './Barcode.module.scss';
+import styles from './Barcode.module.css';
 
 import { IBarcodeGenerator } from '../models/IBarcodeGenerator';
 import Pagination from './Pagination';
@@ -14,7 +14,7 @@ const GRID_COLUMNS = 7;
 const MM_TO_PT = 72 / 25.4;
 const MM_TO_PX = 96 / 25.4;
 
-// Keep vector text sizes aligned with CSS text sizes in Barcode.module.scss.
+// Keep vector text sizes aligned with CSS text sizes in Barcode.module.css.
 const PRIMARY_TEXT_SIZE_MM = 12;
 const SECONDARY_TEXT_SIZE_MM = 7;
 const PRIMARY_TEXT_LETTER_SPACING_MM = 0.07;

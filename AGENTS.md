@@ -34,6 +34,8 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 
 ## Test Workflow (Required)
 
+- Style typing check: `npm run styles:types:check`
+- Style usage audit: `npm run styles:audit`
 - Unit tests: `npm run test:run`
 - Coverage: `npm run test:coverage`
 - E2E: `npm run test:e2e`
@@ -56,6 +58,7 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 ## React / TypeScript Approach
 
 - Prefer function components with typed props interfaces; keep public prop contracts explicit and stable.
+- Use CSS Modules with `.module.css` files and generated `.module.css.d.ts` typings; do not reintroduce `.module.scss` unless explicitly requested.
 - Keep state as close as possible to where it is used, but lift shared configuration state to the nearest common parent.
 - Use controlled inputs for form fields so generated barcode output is deterministic and testable.
 - Preserve existing data flow: input components collect values, generator components produce code arrays, and rendering components display labels.
@@ -122,3 +125,5 @@ Before completing any change that affects barcode output, verify:
 ## Documentation Sync Rule
 
 - If test scripts, build commands, or deployment workflow changes, update `README.md` in the same change.
+- Keep `.module.css.d.ts` files in sync with style class changes using `npm run styles:types`.
+- Keep deployment quality gating aligned with `.github/workflows/deploy-pages.yml` (style checks, unit tests, and build must pass before deploy).

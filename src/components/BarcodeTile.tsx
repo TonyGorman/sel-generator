@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
-import styles from './Barcode.module.scss';
+import styles from './Barcode.module.css';
 import { IBarcodeConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/IBarcodeConfig';
 import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/barcodeConfig';
 
