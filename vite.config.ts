@@ -1,8 +1,24 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
+const resolveBasePath = (): string => {
+  if (process.env.GITHUB_ACTIONS !== 'true') {
+    return '/'
+  }
+
+  const repository = process.env.GITHUB_REPOSITORY ?? ''
+  const [, repoName = ''] = repository.split('/')
+
+  if (!repoName || repoName.endsWith('.github.io')) {
+    return '/'
+  }
+
+  return `/${repoName}/`
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: resolveBasePath(),
   plugins: [react()],
   server: {
     port: 5173,

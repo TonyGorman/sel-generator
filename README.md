@@ -25,6 +25,17 @@ Before publishing, validate the build locally if needed with:
 
 `npm run preview`
 
+### Publish on GitHub Pages
+
+This repository includes a GitHub Actions workflow that builds and publishes to GitHub Pages on every push to `main`.
+
+1. Push your latest changes to `main`.
+2. In GitHub, open Settings > Pages.
+3. Set Source to GitHub Actions.
+4. Wait for the `Deploy to GitHub Pages` workflow to finish.
+
+Your site will be available at your repository Pages URL.
+
 ## Print and Scan Validation Protocol
 
 Use this protocol whenever PDF/export logic, barcode sizing, typography, or print styles are changed.
