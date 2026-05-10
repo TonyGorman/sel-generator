@@ -16,7 +16,6 @@
   width: min(1500px, calc(100% - 300px));
   margin: 0 auto;
   padding: 18px 0 24px;
-  color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText, #323130);
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
 }
@@ -225,13 +224,6 @@
   }
 }
 
-:global {
-  #workbenchPageContent,
-  .CanvasComponent.LCS .CanvasZone {
-    max-width: 100% !important;
-  }
-}
-
 .App{
   margin-top:50px;
 }
@@ -268,21 +260,6 @@
   page-break-after: auto;
 }
 
-.welcome {
-  text-align: center;
-}
-
-.welcomeImage {
-  width: 100%;
-  max-width: 420px;
-}
-
-.loader {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #007bff;
-}
-
 .barcodeText {
   display: flex;
   flex-direction: column;
@@ -292,10 +269,6 @@
   color: black;
   text-align: center;
   z-index:999;
-}
-
-.textBox button {
-  margin-top:20px;
 }
 
 .primaryCode {
@@ -367,10 +340,6 @@
   shape-rendering: crispEdges;
 }
 
-.download {
-  float: right;
-}
-
 .actionBar {
   display: flex;
   justify-content: flex-end;
@@ -381,11 +350,6 @@
 
 .actionButton {
   min-width: 170px;
-}
-
-.paginationDiv {
-  display: flex;
-  float: right;
 }
 
 .loaderBox { 
@@ -414,19 +378,6 @@
   justify-content: space-between;
   padding: 12px;
   width: 100%;
-}
-
-.textBox {
-  width: 75vw;
-  max-width: 75vw;
-  margin: 0 auto 20px;
-}
-
-@media (max-width: 768px) {
-  .textBox {
-    width: 100%;
-    max-width: 100%;
-  }
 }
 
 .pagination {

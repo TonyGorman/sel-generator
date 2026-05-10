@@ -92,8 +92,8 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
 
     return (
         <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate BAK Barcodes</h1>
-            <p>Set the start bay, end bay and the amount of shelves required.</p>
+            <h1 className={styles.panelTitle}>Generate Back Wall Barcodes</h1>
+            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required.</p>
             <div className={styles.stackedSections}>
                 <section className={styles.sectionBox}>
                     <h2 className={styles.sectionTitle}>Bay Range (1-99)</h2>
@@ -127,7 +127,7 @@ const BAKBarcode: React.FC<IBAKBarcodeProps> = ({ config }) => {
             </div>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateBarcode}>Generate BAK barcodes</Button>
+                <Button className={styles.generateButton} onClick={generateBarcode}>Generate Barcodes</Button>
             </div>
 
             {errorMessage && (

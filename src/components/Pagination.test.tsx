@@ -4,6 +4,18 @@ import { describe, expect, it, vi } from 'vitest';
 import Pagination from './Pagination';
 
 describe('Pagination', () => {
+  it('calls onPageChange with empty data and renders no page buttons', async () => {
+    const onPageChange = vi.fn();
+
+    render(<Pagination data={[]} onPageChange={onPageChange} />);
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith([]);
+    });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('updates rendered slice when data changes and current page is out of range', async () => {
     const onPageChange = vi.fn();
     const fullData = Array.from({ length: 70 }, (_, index) => `item-${index + 1}`);

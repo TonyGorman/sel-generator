@@ -193,10 +193,10 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
     };
 
     const sideRows = [
-        { label: 'LF', startKey: 'lf_start', endKey: 'lf_end' },
-        { label: 'RF', startKey: 'rf_start', endKey: 'rf_end' },
-        { label: 'EF', startKey: 'ef_start', endKey: 'ef_end' },
-        { label: 'FT', startKey: 'ft_start', endKey: 'ft_end' },
+        { label: 'Left', startKey: 'lf_start', endKey: 'lf_end' },
+        { label: 'Right', startKey: 'rf_start', endKey: 'rf_end' },
+        { label: 'End', startKey: 'ef_start', endKey: 'ef_end' },
+        { label: 'Front', startKey: 'ft_start', endKey: 'ft_end' },
     ] as const;
 
     const activeSideRanges = sideRows.filter((side) => hasValue(barcodeStruct[side.startKey]) && hasValue(barcodeStruct[side.endKey]));
@@ -239,11 +239,12 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
     return (
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Aisle Barcodes</h1>
-            <p>Enter values for: aisles from 1 to 99, Sides (Left, Right, End, Front) from 1 to 99, Bays from1 to 99 and Shelves (which can be letters or numbers)</p>
-            <p>e.g. Aisle 1, Side LF, Bay 1, Shelf A. 
-                Label formats can be changed in the{' '}
-                <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
-            </p>
+            <div className={styles.sectionIntro}>
+                <p><strong>Enter values for:</strong> aisles from 1 to 99, Sides (Left, Right, End, Front), Bays from 1 to 99 and Shelves (which can be letters or numbers) from 1 to 20.</p>
+                <p>Label formats can be changed in the{' '}
+                    <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
+                </p>
+            </div>
             <div className={styles.configLayout}>
                 <section className={styles.sectionBox}>
                     <h2 className={styles.sectionTitle}>Aisle Range (1-99)</h2>
@@ -329,7 +330,7 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
             {errorMessage && <div role="alert" className={styles.alertError}><div><span>{errorMessage}</span></div></div>}
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateBarcode}>Generate labels</Button>
+                <Button className={styles.generateButton} onClick={generateBarcode}>Generate Barcodes</Button>
             </div>
 
             <div className="App">

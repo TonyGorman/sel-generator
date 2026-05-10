@@ -115,7 +115,7 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
             </section>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateBarcode}>Generate barcodes</Button>
+                <Button className={styles.generateButton} onClick={generateBarcode}>Generate Barcodes</Button>
             </div>
 
             <div className="App">

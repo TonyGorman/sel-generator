@@ -103,14 +103,15 @@ export const getPrimaryText = (
   if (bakMatch) {
     const [, bay, shelf] = bakMatch;
     return {
-      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `BAK${bay}`,
+      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(shelf, shelfStyle) : `BK${bay}`,
       secondary: secondaryDisplayValue,
     };
   }
 
   if (type === 'BAK') {
+    const compactBakPrefix = code.startsWith('BAK') ? `BK${code.slice(3, 5)}` : code.slice(0, 5);
     return {
-      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(code.slice(5), shelfStyle) : code.slice(0, 5),
+      primary: primaryCodeFormat === 'shelfOnly' ? formatShelfToken(code.slice(5), shelfStyle) : compactBakPrefix,
       secondary: secondaryDisplayValue,
     };
   }

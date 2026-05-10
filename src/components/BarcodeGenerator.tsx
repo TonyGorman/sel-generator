@@ -11,6 +11,19 @@ import { getDashedCode, getPrimaryText } from './BarcodeTile';
 
 const ITEMS_PER_PAGE = 35;
 const GRID_COLUMNS = 7;
+const MM_TO_PT = 72 / 25.4;
+const MM_TO_PX = 96 / 25.4;
+
+// Keep vector text sizes aligned with CSS text sizes in Barcode.module.scss.
+const PRIMARY_TEXT_SIZE_MM = 12;
+const SECONDARY_TEXT_SIZE_MM = 7;
+const PRIMARY_TEXT_LETTER_SPACING_MM = 0.07;
+
+// Calibrated baselines to visually match browser print output.
+const PRIMARY_TEXT_BASELINE_FROM_CONTENT_TOP_MM = 11.5;
+const SECONDARY_TEXT_BASELINE_FROM_CONTENT_TOP_MM = 22.2;
+const BARCODE_MODULE_WIDTH_MM = 0.23;
+const BARCODE_HEIGHT_MM = 8;
 
 type JsPdfInstance = {
   addPage: (size: [number, number], orientation: 'landscape') => void;
@@ -20,6 +33,7 @@ type JsPdfInstance = {
   setTextColor: (gray: number) => void;
   setFont: (fontName: string, fontStyle: string) => void;
   setFontSize: (size: number) => void;
+  setCharSpace: (spacing: number) => void;
   text: (text: string, x: number, y: number, options?: { align?: 'center' | 'left' | 'right' }) => void;
   addImage: (
     imageData: string,
@@ -52,6 +66,9 @@ const readMmCssVariable = (name: string, fallback: number): number => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const mmToPt = (mm: number): number => mm * MM_TO_PT;
+const mmToPx = (mm: number): number => mm * MM_TO_PX;
+
 const drawVectorBarcode = async (
   pdf: JsPdfInstance,
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>,
@@ -59,19 +76,28 @@ const drawVectorBarcode = async (
   barcodeValue: string,
   x: number,
   y: number,
-  width: number,
+  maxWidth: number,
   height: number,
 ): Promise<void> => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   jsBarcode(svg, barcodeValue, {
     format: 'CODE128',
     displayValue: false,
-    width: 2,
-    height: 60,
+    width: mmToPx(BARCODE_MODULE_WIDTH_MM),
+    height: mmToPx(BARCODE_HEIGHT_MM),
     margin: 0,
   });
 
-  await svg2pdf(svg, pdf, { x, y, width, height });
+  // Preserve barcode aspect ratio so modules are not stretched wider than print output.
+  const viewBox = svg.viewBox.baseVal;
+  const sourceWidth = viewBox && viewBox.width > 0 ? viewBox.width : svg.getBoundingClientRect().width;
+  const sourceHeight = viewBox && viewBox.height > 0 ? viewBox.height : svg.getBoundingClientRect().height;
+  const aspectRatio = sourceWidth > 0 && sourceHeight > 0 ? sourceWidth / sourceHeight : 1;
+
+  const targetWidth = Math.min(maxWidth, height * aspectRatio);
+  const centeredX = x + (maxWidth - targetWidth) / 2;
+
+  await svg2pdf(svg, pdf, { x: centeredX, y, width: targetWidth, height });
 };
 
 const drawVectorPage = async (
@@ -114,12 +140,14 @@ const drawVectorPage = async (
     pdf.rect(x, y, tileSizeMm, tileSizeMm);
 
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(38);
-    pdf.text(primary, x + tileSizeMm / 2, y + tilePaddingTopMm + 11.5, { align: 'center' });
+    pdf.setFontSize(mmToPt(PRIMARY_TEXT_SIZE_MM));
+    pdf.setCharSpace(PRIMARY_TEXT_LETTER_SPACING_MM);
+    pdf.text(primary, x + tileSizeMm / 2, y + tilePaddingTopMm + PRIMARY_TEXT_BASELINE_FROM_CONTENT_TOP_MM, { align: 'center' });
 
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(20);
-    pdf.text(secondary, x + tileSizeMm / 2, y + tilePaddingTopMm + 18.5, { align: 'center' });
+    pdf.setFontSize(mmToPt(SECONDARY_TEXT_SIZE_MM));
+    pdf.setCharSpace(0);
+    pdf.text(secondary, x + tileSizeMm / 2, y + tilePaddingTopMm + SECONDARY_TEXT_BASELINE_FROM_CONTENT_TOP_MM, { align: 'center' });
 
     const barcodeX = x + tilePaddingHorizontalMm;
     const barcodeY = y + tileSizeMm - tilePaddingBottomMm - barcodeBottomMarginMm - barcodeHeightMm;

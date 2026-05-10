@@ -33,7 +33,7 @@ const Barcode = (): React.ReactElement => {
     },
     {
       key: 'bak',
-      headerText: 'BAK barcode',
+      headerText: 'Back barcode',
       content: <BAKBarcode config={config} />,
     },
     {

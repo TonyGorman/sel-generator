@@ -6,7 +6,7 @@ test.describe('Barcode Generator regressions', () => {
 
     await expect(page.getByRole('tab', { name: 'Specific barcode' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Aisle barcode' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'BAK barcode' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Back barcode' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Configuration' })).toBeVisible();
   });
 
@@ -23,7 +23,7 @@ test.describe('Barcode Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific barcode' }).click();
-    await page.getByRole('button', { name: 'Generate barcodes' }).click();
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Enter at least one barcode value.');
   });
@@ -32,7 +32,7 @@ test.describe('Barcode Generator regressions', () => {
     await page.goto('/');
 
     await page.getByPlaceholder('Enter barcodes').fill('01L01A,BAK01A');
-    await page.getByRole('button', { name: 'Generate barcodes' }).click();
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
@@ -47,8 +47,8 @@ test.describe('Barcode Generator regressions', () => {
   test('BAK tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'BAK barcode' }).click();
-    await page.getByRole('button', { name: 'Generate BAK barcodes' }).click();
+    await page.getByRole('tab', { name: 'Back barcode' }).click();
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and shelves using whole numbers.');
   });
@@ -74,7 +74,7 @@ test.describe('Barcode Generator regressions', () => {
 
     await expect(page.getByText('Total labels: 1')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Generate labels' }).click();
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
     await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Print Barcodes' }).click();

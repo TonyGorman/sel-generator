@@ -1,6 +1,6 @@
+export const MAX_AISLE_VALUE = 99;
 export const MAX_BAY_VALUE = 99;
 export const MAX_SHELF_VALUE = 20;
-export const MAX_AISLE_VALUE = 99;
 
 // Conservative raster export profile to preserve barcode edge fidelity.
 export const PDF_EXPORT_SCALE = 3;

@@ -12,6 +12,7 @@ const {
   setTextColorMock,
   setFontMock,
   setFontSizeMock,
+  setCharSpaceMock,
   textMock,
   addImageMock,
   saveMock,
@@ -28,6 +29,7 @@ const {
   const setTextColor = vi.fn();
   const setFont = vi.fn();
   const setFontSize = vi.fn();
+  const setCharSpace = vi.fn();
   const text = vi.fn();
   const addImage = vi.fn();
   const save = vi.fn();
@@ -40,6 +42,7 @@ const {
       setTextColor,
       setFont,
       setFontSize,
+      setCharSpace,
       text,
       addImage,
       save,
@@ -58,6 +61,7 @@ const {
     setTextColorMock: setTextColor,
     setFontMock: setFont,
     setFontSizeMock: setFontSize,
+    setCharSpaceMock: setCharSpace,
     textMock: text,
     addImageMock: addImage,
     saveMock: save,
@@ -81,7 +85,9 @@ vi.mock('./BarcodeTile', () => ({
 }));
 
 vi.mock('./Pagination', () => ({
-  default: () => <div data-testid="pagination" />,
+  default: ({ onPageChange }: { onPageChange: (items: string[]) => void }) => (
+    <button data-testid="pagination-trigger" onClick={() => onPageChange(['MANUAL'])}>Paginate</button>
+  ),
 }));
 
 const defaultConfig: IBarcodeConfig = {
@@ -99,6 +105,7 @@ describe('BarcodeGenerator PDF export', () => {
     setTextColorMock.mockReset();
     setFontMock.mockReset();
     setFontSizeMock.mockReset();
+    setCharSpaceMock.mockReset();
     textMock.mockReset();
     addImageMock.mockReset();
     saveMock.mockReset();
@@ -176,4 +183,50 @@ describe('BarcodeGenerator PDF export', () => {
     });
     expect(saveMock).not.toHaveBeenCalled();
   });
+
+  it('shows an error when no print pages are available for export', async () => {
+    render(<BarcodeGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
+    });
+    expect(saveMock).not.toHaveBeenCalled();
+  });
+
+  it('updates preview items through pagination callback', () => {
+    const aisles = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
+    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+
+    fireEvent.click(screen.getByTestId('pagination-trigger'));
+
+    expect(screen.getByText('MANUAL')).toBeInTheDocument();
+  });
+
+  it('invokes window.print when print button is clicked', () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
+
+    render(<BarcodeGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Print Barcodes' }));
+    expect(printSpy).toHaveBeenCalledTimes(1);
+
+    printSpy.mockRestore();
+  });
+
+  it('shows error alert when download fails', async () => {
+    // Empty aisles to trigger error with no print pages available
+    render(<BarcodeGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+
+    await waitFor(
+      () => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
+      },
+      { timeout: 5000 },
+    );
+  });
+
 });
