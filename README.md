@@ -1,31 +1,29 @@
 # barcode-generator
 
-## Deploy to the Internet (Vercel)
+## Build and Publish
 
-This project is configured for static deployment on Vercel.
+### Local setup
 
-### One-time setup
+1. Install dependencies:
+	`npm install`
+2. Start the development server:
+	`npm run dev`
 
-1. Push this repository to GitHub.
-2. Sign in to Vercel and choose Add New Project.
-3. Import this GitHub repository.
-4. Keep defaults (Vercel will use `npm run build` and publish `dist`).
-5. Click Deploy.
+### Production build
 
-After deploy, Vercel gives you a public URL.
+Generate a production-ready build with:
 
-### CLI deploy option
+`npm run build`
 
-If you prefer terminal deployment:
+The compiled output is written to `dist`.
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. From this project folder run: `vercel`
-3. For production publish run: `vercel --prod`
+### Publish
 
-### Notes
+To publish this app, deploy the contents of `dist` using your preferred static hosting provider or web server.
 
-- Production output is generated with `npm run build`.
-- Vercel config is defined in `vercel.json`.
+Before publishing, validate the build locally if needed with:
+
+`npm run preview`
 
 ## Print and Scan Validation Protocol
 
