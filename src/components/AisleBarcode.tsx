@@ -3,7 +3,8 @@ import styles from './AisleBarcode.module.css';
 import BarcodeGenerator from './BarcodeGenerator';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/barcodeConfig';
-import { Button, TextField } from './FormControls';
+import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
+import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
 interface IAisleBarcodeProps {
     config: IBarcodeConfig;
@@ -13,6 +14,8 @@ interface IAisleBarcodeProps {
 const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguration }) => {
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
+    const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
+    const idPrefix = React.useId();
     const [barcodeStruct, setBarcodeStruct] = React.useState({
         aisle_start: null as number | null,
         aisle_end: null as number | null,
@@ -198,6 +201,10 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
         { label: 'End', startKey: 'ef_start', endKey: 'ef_end' },
         { label: 'Front', startKey: 'ft_start', endKey: 'ft_end' },
     ] as const;
+    const printModeOptions: RadioOption[] = [
+        { key: 'mini-sel', text: 'Mini SEL' },
+        { key: 'large-sel', text: 'Large SEL' },
+    ];
 
     const activeSideRanges = sideRows.filter((side) => hasValue(barcodeStruct[side.startKey]) && hasValue(barcodeStruct[side.endKey]));
 
@@ -228,7 +235,7 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator type='Aisle' aisles={generateBarcodeText()} config={config} />)
+        setShowBarcode(<BarcodeGenerator type='Aisle' aisles={generateBarcodeText()} config={config} layoutMode={labelPrintMode} />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -301,6 +308,16 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
                         />
                     </div>
+                </section>
+
+                <section className={styles.sectionBox}>
+                    <h2 className={styles.sectionTitle}>Label Size</h2>
+                    <RadioGroup
+                        name={`${idPrefix}-label-print-mode`}
+                        options={printModeOptions}
+                        selectedKey={labelPrintMode}
+                        onChange={(key) => setLabelPrintMode(key as LabelPrintMode)}
+                    />
                 </section>
 
                 <section className={styles.sectionBox}>

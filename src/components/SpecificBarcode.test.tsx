@@ -6,8 +6,8 @@ import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./BarcodeGenerator', () => ({
-  default: ({ aisles }: { aisles: string[] }) => (
-    <div data-testid="generated-barcodes">{aisles.join('|')}</div>
+  default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
+    <div data-testid="generated-barcodes" data-layout-mode={layoutMode}>{aisles.join('|')}</div>
   ),
 }));
 
@@ -94,5 +94,16 @@ describe('SpecificBarcode', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid codes only.');
+  });
+
+  it('always renders specific labels using mini-sel mode', () => {
+    render(<SpecificBarcode config={defaultConfig} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
+      target: { value: '01L01A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+
+    expect(screen.getByTestId('generated-barcodes')).toHaveAttribute('data-layout-mode', 'mini-sel');
   });
 });

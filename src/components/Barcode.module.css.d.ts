@@ -4,8 +4,10 @@ export type Styles = {
   'actionsRow': string;
   'alertError': string;
   'barcodeBox': string;
+  'barcodeBoxLargeSel': string;
   'barcodeDiv': string;
   'barcodeGraphic': string;
+  'barcodeGraphicLargeSel': string;
   'barcodeRoot': string;
   'barcodeText': string;
   'configControlsColumn': string;
@@ -16,6 +18,12 @@ export type Styles = {
   'fieldLabel': string;
   'formStack': string;
   'generateButton': string;
+  'largeSelHeading': string;
+  'largeSelHeadingFallback': string;
+  'largeSelHeadingMain': string;
+  'largeSelHeadingPrefix': string;
+  'largeSelHeadingSuffix': string;
+  'largeSelLabelTextArea': string;
   'loaderBox': string;
   'panel': string;
   'panelTitle': string;

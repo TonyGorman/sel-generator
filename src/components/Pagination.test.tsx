@@ -16,6 +16,25 @@ describe('Pagination', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('uses custom itemsPerPage when provided', async () => {
+    const onPageChange = vi.fn();
+    const fullData = Array.from({ length: 16 }, (_, index) => `item-${index + 1}`);
+
+    render(<Pagination data={fullData} itemsPerPage={8} onPageChange={onPageChange} />);
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(0, 8));
+    });
+
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(8, 16));
+    });
+  });
+
   it('updates rendered slice when data changes and current page is out of range', async () => {
     const onPageChange = vi.fn();
     const fullData = Array.from({ length: 70 }, (_, index) => `item-${index + 1}`);

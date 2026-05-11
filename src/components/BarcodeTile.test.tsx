@@ -1,12 +1,18 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import BarcodeTile, { getDashedCode, getPrimaryText } from './BarcodeTile';
+import LabelTile, { getDashedCode, getLargeSelDisplayParts, getPrimaryText } from './LabelTile';
 import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+
+const MM_TO_PX = 96 / 25.4;
+const mmToPx = (mm: number): number => mm * MM_TO_PX;
 
 vi.mock('react-barcode', () => ({
-  default: ({ value }: { value: string }) => <div data-testid="barcode-value">{value}</div>,
+  default: ({ value, width, height }: { value: string; width: number; height: number }) => (
+    <div data-testid="barcode-value" data-width={String(width)} data-height={String(height)}>{value}</div>
+  ),
 }));
 
 const defaultConfig: IBarcodeConfig = {
@@ -149,14 +155,32 @@ describe('BarcodeTile helpers', () => {
       secondary: '3',
     });
   });
+
+  it('parses large-sel display parts from aisle values', () => {
+    expect(getLargeSelDisplayParts('31L03A', 'Aisle')).toEqual({
+      prefix: '31-',
+      main: 'L03',
+      suffix: '-A',
+    });
+  });
 });
 
-describe('BarcodeTile', () => {
+describe('LabelTile', () => {
   it('renders primary and secondary text with dashed barcode value', () => {
-    render(<BarcodeTile code="01L01A" config={defaultConfig} type="Aisle" />);
+    render(<LabelTile code="01L01A" config={defaultConfig} type="Aisle" />);
 
     expect(screen.getByText('L01')).toBeInTheDocument();
     expect(screen.getAllByText('01-L01-A')).toHaveLength(2);
     expect(screen.getByTestId('barcode-value')).toHaveTextContent('01-L01-A');
+  });
+
+  it('uses layout strategy barcode sizing for large-sel mode', () => {
+    render(<LabelTile code="01L01A" config={defaultConfig} type="Aisle" layoutMode="large-sel" />);
+
+    const barcode = screen.getByTestId('barcode-value');
+    const largeSelTypography = getLabelLayoutStrategy('large-sel').typography;
+
+    expect(barcode).toHaveAttribute('data-width', String(mmToPx(largeSelTypography.barcodeModuleWidthMm)));
+    expect(barcode).toHaveAttribute('data-height', String(mmToPx(largeSelTypography.barcodeHeightMm)));
   });
 });

@@ -1,4 +1,11 @@
 {
   "pageCount": 1,
-  "textTokens": []
+  "textTokens": [],
+  "pageBoxes": [
+    {
+      "widthPt": 839.06,
+      "heightPt": 595.28,
+      "orientation": "landscape"
+    }
+  ]
 }

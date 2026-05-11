@@ -79,10 +79,11 @@ vi.mock('jsbarcode', () => ({ default: jsBarcodeMock }));
 vi.mock('svg2pdf.js', () => ({ svg2pdf: svg2pdfMock }));
 vi.mock('html2canvas', () => ({ default: html2CanvasMock }));
 
-vi.mock('./BarcodeTile', () => ({
+vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div>{code}</div>,
-  getDashedCode: (code: string) => code,
-  getPrimaryText: (code: string) => ({ primary: code, secondary: code }),
+  getDashedLabelCode: (code: string) => code,
+  getPrimaryLabelText: (code: string) => ({ primary: code, secondary: code }),
+  getLargeSelDisplayParts: () => null,
 }));
 
 vi.mock('./Pagination', () => ({
@@ -168,6 +169,27 @@ describe('BarcodeGenerator PDF export', () => {
       undefined,
       'NONE',
     );
+  });
+
+  it('exports large-sel pages using portrait A4 geometry', async () => {
+    const aisles = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
+    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+
+    await waitFor(() => {
+      expect(saveMock).toHaveBeenCalledWith('barcodes.pdf');
+    });
+
+    expect(jsPDFConstructorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [210, 297],
+        compress: true,
+      }),
+    );
+    expect(addPageMock).toHaveBeenCalledTimes(1);
   });
 
   it('shows a user-facing error message if export cannot start', async () => {

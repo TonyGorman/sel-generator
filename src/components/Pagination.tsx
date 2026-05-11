@@ -3,9 +3,8 @@ import styles from './Pagination.module.css';
 import { IPaginationProps } from '../models/IPaginationProps';
 
 const Pagination = (props:IPaginationProps): React.ReactElement => {
-    const { data, onPageChange } = props;
+    const { data, onPageChange, itemsPerPage = 35 } = props;
     const [currentPage, setCurrentPage] = React.useState(1);
-    const itemsPerPage = 35;
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
 

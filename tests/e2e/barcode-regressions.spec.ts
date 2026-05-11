@@ -11,9 +11,31 @@ const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
     .replace(/\/ID \[<[^>]+><[^>]+>\]/g, '/ID [<stable-id><stable-id>]');
 };
 
-const buildPdfContractSnapshot = (pdfBytes: Buffer): { pageCount: number; textTokens: string[] } => {
+const roundPdfPointValue = (value: number): number => {
+  return Math.round(value * 100) / 100;
+};
+
+const buildPdfContractSnapshot = (
+  pdfBytes: Buffer,
+): {
+  pageCount: number;
+  textTokens: string[];
+  pageBoxes: Array<{ widthPt: number; heightPt: number; orientation: 'landscape' | 'portrait' }>;
+} => {
   const normalizedPdf = sanitizePdfForSnapshot(pdfBytes);
   const pageCount = (normalizedPdf.match(/\/Type \/Page\b/g) ?? []).length;
+  const pageBoxes = Array.from(
+    normalizedPdf.matchAll(/\/MediaBox\s*\[\s*0\s+0\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*\]/g),
+  ).map((match) => {
+    const widthPt = roundPdfPointValue(Number.parseFloat(match[1]));
+    const heightPt = roundPdfPointValue(Number.parseFloat(match[2]));
+
+    return {
+      widthPt,
+      heightPt,
+      orientation: widthPt >= heightPt ? 'landscape' as const : 'portrait' as const,
+    };
+  });
 
   const textTokens = Array.from(
     new Set(
@@ -28,6 +50,7 @@ const buildPdfContractSnapshot = (pdfBytes: Buffer): { pageCount: number; textTo
   return {
     pageCount,
     textTokens,
+    pageBoxes,
   };
 };
 
@@ -183,7 +206,7 @@ test.describe('Barcode Generator regressions', () => {
 
     await page.getByRole('tab', { name: 'Aisle barcode' }).click();
 
-    const visibleInputs = page.locator('input:visible');
+    const visibleInputs = page.getByRole('textbox');
     await visibleInputs.nth(0).fill('1');
     await visibleInputs.nth(1).fill('1');
     await visibleInputs.nth(2).fill('1');
@@ -197,6 +220,89 @@ test.describe('Barcode Generator regressions', () => {
 
     await page.getByRole('button', { name: 'Print Barcodes' }).click();
     await expect.poll(async () => page.evaluate(() => (window as typeof window & { __printCalls?: number }).__printCalls ?? 0)).toBe(1);
+  });
+
+  test('Large SEL mode is only available from Aisle tab', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await expect(page.getByLabel('Large SEL')).toHaveCount(0);
+
+    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await expect(page.getByLabel('Large SEL')).toBeVisible();
+    await expect(page.getByLabel('Mini SEL')).toBeVisible();
+  });
+
+  test('Aisle Large SEL preview remains visually stable for one full 8-label page', async ({ page }) => {
+    await page.setViewportSize({ width: 1800, height: 1600 });
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByLabel('Large SEL').click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await visibleInputs.nth(2).fill('1');
+    await visibleInputs.nth(3).fill('2');
+    await visibleInputs.nth(4).fill('1');
+    await visibleInputs.nth(5).fill('2');
+    await visibleInputs.nth(10).fill('2');
+
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
+
+    const barcodeRoot = page.locator('[class*="barcodeRoot"]').first();
+    await barcodeRoot.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
+
+    const previewPage = page.locator('[class*="previewPage"]').first();
+    await expect(previewPage).toHaveScreenshot('aisle-large-sel-8-labels.png', {
+      animations: 'disabled',
+    });
+  });
+
+  test('Aisle Large SEL download remains stable for regression snapshots', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByLabel('Large SEL').click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await visibleInputs.nth(2).fill('1');
+    await visibleInputs.nth(3).fill('2');
+    await visibleInputs.nth(4).fill('1');
+    await visibleInputs.nth(5).fill('2');
+    await visibleInputs.nth(10).fill('2');
+
+    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    const download = await downloadPromise;
+
+    const filePath = await download.path();
+    expect(filePath).not.toBeNull();
+
+    const pdfBytes = await readFile(filePath as string);
+    const contractSnapshot = buildPdfContractSnapshot(pdfBytes);
+
+    expect(contractSnapshot.pageBoxes).toEqual([
+      {
+        widthPt: 595.28,
+        heightPt: 841.89,
+        orientation: 'portrait',
+      },
+    ]);
+
+    expect(JSON.stringify(contractSnapshot, null, 2)).toMatchSnapshot('aisle-large-sel-download.contract.json');
+
+    const firstPagePng = await renderFirstPdfPageAsPng(page, pdfBytes);
+    expect(firstPagePng).toMatchSnapshot('aisle-large-sel-download-first-page.visual.png');
   });
 
   test('Specific barcode download remains stable for regression snapshot', async ({ page }) => {

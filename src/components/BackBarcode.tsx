@@ -89,7 +89,7 @@ const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration 
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator type='Back' aisles={generateBarcodeText()} config={config} />)
+        setShowBarcode(<BarcodeGenerator type='Back' aisles={generateBarcodeText()} config={config} layoutMode="mini-sel" />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {

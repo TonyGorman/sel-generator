@@ -6,7 +6,9 @@ import { IBarcodeConfig } from '../models/IBarcodeConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./BarcodeGenerator', () => ({
-  default: ({ aisles }: { aisles: string[] }) => <div data-testid="generated-count">{aisles.length}</div>,
+  default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
+    <div data-testid="generated-count" data-layout-mode={layoutMode}>{aisles.length}</div>
+  ),
 }));
 
 const defaultConfig: IBarcodeConfig = {
@@ -179,5 +181,23 @@ describe('AisleBarcode', () => {
 
     expect(inputs[0]).toHaveValue('');
     expect(screen.queryByDisplayValue('NaN')).not.toBeInTheDocument();
+  });
+
+  it('passes large-sel mode to generator when Large SEL is selected', () => {
+    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.click(screen.getByLabelText('Large SEL'));
+
+    fillInputs({
+      0: '1',
+      1: '1',
+      2: '1',
+      3: '1',
+      10: '1',
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+
+    expect(screen.getByTestId('generated-count')).toHaveAttribute('data-layout-mode', 'large-sel');
   });
 });

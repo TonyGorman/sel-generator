@@ -91,7 +91,7 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator aisles={barcodeTexts} config={config} />)
+        setShowBarcode(<BarcodeGenerator aisles={barcodeTexts} config={config} layoutMode="mini-sel" />)
     }
 
     return (
