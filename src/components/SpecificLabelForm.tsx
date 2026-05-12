@@ -97,7 +97,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
     return (
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: FRF03A,FRF047).</p>
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: 01L01A,01-L01-A).</p>
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
                     <div><span>{errorMessage}</span></div>
