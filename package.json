@@ -23,8 +23,8 @@
     "test:run": "npm run typecheck && npm run test:unit",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:visual": "playwright test tests/e2e/barcode-regressions.spec.ts",
-    "test:visual:update": "playwright test tests/e2e/barcode-regressions.spec.ts --update-snapshots=all",
+    "test:visual": "playwright test tests/e2e/label-regressions.spec.ts",
+    "test:visual:update": "playwright test tests/e2e/label-regressions.spec.ts --update-snapshots=all",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:install": "playwright install chromium"

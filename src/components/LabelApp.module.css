@@ -1,7 +1,6 @@
 /* 
- * - Runtime layout vars: --current-* (injected from layoutStrategy page/typography values).
- * - Barcode placement vars: --mini-sel-barcode-* and --large-sel-barcode-* (injected from
- *   layoutStrategy.barcodeGeometry).
+ * - Runtime layout vars:    --current-* (injected from layoutStrategy page/typography values).
+ * - Barcode placement vars: --mini-sel-barcode-* and --large-sel-barcode-* (injected from layoutStrategy.barcodeGeometry).
  */
 
 .labelAppRoot {
@@ -164,11 +163,6 @@
 
 .configExampleCard :global(.labelBox) {
   margin: 0;
-}
-
-.configExampleCard :global(.labelBox) {
-  --current-tile-width-mm: 39mm;
-  --current-tile-height-mm: 39mm;
 }
 
 .configExampleCard :global(.labelBox .barcodeGraphic) {

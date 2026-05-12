@@ -7,7 +7,7 @@ import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles }: { aisles: string[] }) => (
-    <div data-testid="generated-barcodes">{aisles.join('|')}</div>
+    <div data-testid="generated-labels">{aisles.join('|')}</div>
   ),
 }));
 
@@ -49,7 +49,7 @@ describe('BackLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-barcodes')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX}01A|${DEFAULT_BACK_CODE_PREFIX}01B|${DEFAULT_BACK_CODE_PREFIX}02A|${DEFAULT_BACK_CODE_PREFIX}02B`);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX}01A|${DEFAULT_BACK_CODE_PREFIX}01B|${DEFAULT_BACK_CODE_PREFIX}02A|${DEFAULT_BACK_CODE_PREFIX}02B`);
   });
 
   it('shows validation error when bay start is below 1', () => {
@@ -86,7 +86,7 @@ describe('BackLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-barcodes')).toHaveTextContent('9901A|9901B');
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('9901A|9901B');
   });
 
   it('opens configuration when configuration section link is clicked', () => {

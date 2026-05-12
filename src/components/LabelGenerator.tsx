@@ -7,7 +7,6 @@ import Pagination from './Pagination';
 import LabelTile from './LabelTile';
 import { Button } from './FormControls';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
-import { getBarcodeCssVarsForMode } from '../config/barcodeCssVars';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './LabelPdfExport';
 
@@ -28,7 +27,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const [printContainer, setPrintContainer] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
-    const id = 'barcode-print-surface';
+    const id = 'label-print-surface';
     let el = document.getElementById(id);
     if (!el) {
       el = document.createElement('div');
@@ -122,10 +121,10 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
 
   const pageStyle = React.useMemo(
     () => {
-      const geometry = layoutStrategy.barcodeGeometry;
       const page = layoutStrategy.page;
       const typography = layoutStrategy.typography;
-      const modeVars = getBarcodeCssVarsForMode(layoutStrategy.mode, geometry);
+      const geo = layoutStrategy.barcodeGeometry;
+      const mode = layoutStrategy.mode;
 
       const pageVars: Record<string, string> = {
         '--current-sheet-width-mm': toMmStyle(page.sheetWidthMm),
@@ -146,12 +145,12 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         '--current-large-prefix-text-size-mm': toMmStyle(typography.largePrefixTextSizeMm),
         '--current-large-main-text-size-mm': toMmStyle(typography.largeMainTextSizeMm),
         '--current-large-suffix-text-size-mm': toMmStyle(typography.largeSuffixTextSizeMm),
+        [`--${mode}-barcode-width-mm`]: toMmStyle(geo.widthMm),
+        [`--${mode}-barcode-height-mm`]: toMmStyle(geo.heightMm),
+        [`--${mode}-barcode-margin-bottom-mm`]: toMmStyle(geo.marginBottomMm),
       };
 
-      return {
-        ...pageVars,
-        ...modeVars,
-      } as React.CSSProperties;
+      return pageVars as React.CSSProperties;
     },
     [layoutStrategy],
   );
@@ -173,7 +172,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
 
       {loading && (
         <div className={styles.loaderBox} role="status" aria-live="polite" aria-atomic="true">
-          Downloading label PDF using barcode-safe export profile....
+          Downloading label PDF using label-safe export profile....
         </div>
       )}
       {!loading && (

@@ -350,6 +350,17 @@ test.describe('Label Generator regressions', () => {
     expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
   });
 
+  test('configuration tab preview tile renders at correct 39mm size', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Configuration' }).click();
+    await expect(page.getByRole('heading', { name: 'Label Configuration' })).toBeVisible();
+
+    const previewTile = page.locator('[class*="configExampleCard"]').first();
+    await expect(previewTile).toHaveScreenshot('config-tab-preview-tile.png', {
+      animations: 'disabled',
+    });
+  });
+
   test('captures full preview of 35 labels with default configuration', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
     await page.goto('/');

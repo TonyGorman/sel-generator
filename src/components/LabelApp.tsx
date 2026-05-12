@@ -8,8 +8,6 @@ import Configuration from './Configuration';
 import { ITabItem } from '../models/ITabItem';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
-import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
-import { getBarcodeCssVarsForMode } from '../config/barcodeCssVars';
 
 const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
@@ -47,15 +45,8 @@ const LabelApp = (): React.ReactElement => {
     },
   ];
 
-  const miniSelGeometry = getLabelLayoutStrategy('mini-sel').barcodeGeometry;
-  const largeSelGeometry = getLabelLayoutStrategy('large-sel').barcodeGeometry;
-  const appCssVars = {
-    ...getBarcodeCssVarsForMode('mini-sel', miniSelGeometry),
-    ...getBarcodeCssVarsForMode('large-sel', largeSelGeometry),
-  } as React.CSSProperties;
-
   return (
-    <section className={styles.labelAppRoot} style={appCssVars}>
+    <section className={styles.labelAppRoot}>
       <Tabs tabs={tabItems} selectedKey={selectedTabKey} onTabClick={handleTabClick} />
     </section>
   );

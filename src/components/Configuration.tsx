@@ -3,7 +3,17 @@ import styles from './LabelApp.module.css';
 import { ILabelConfig } from '../models/ILabelConfig';
 import LabelTile from './LabelTile';
 import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
+import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { RadioGroup, RadioOption, TextField } from './FormControls';
+
+const { page: miniPage, barcodeGeometry: miniGeo } = getLabelLayoutStrategy('mini-sel');
+const PREVIEW_STYLE = {
+  '--current-tile-width-mm': `${miniPage.labelWidthMm}mm`,
+  '--current-tile-height-mm': `${miniPage.labelHeightMm}mm`,
+  '--mini-sel-barcode-width-mm': `${miniGeo.widthMm}mm`,
+  '--mini-sel-barcode-height-mm': `${miniGeo.heightMm}mm`,
+  '--mini-sel-barcode-margin-bottom-mm': `${miniGeo.marginBottomMm}mm`,
+} as React.CSSProperties;
 
 export interface IConfigurationProps {
   config: ILabelConfig;
@@ -112,7 +122,7 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
         <div className={styles.configExampleBox}>
           <section className={styles.sectionBox}>
             <h2 className={styles.sectionTitle}>Preview</h2>
-            <div className={styles.configExampleCard}>
+            <div className={styles.configExampleCard} style={PREVIEW_STYLE}>
               <LabelTile code={exampleLabelCode} config={config} type="Aisle" />
             </div>
           </section>

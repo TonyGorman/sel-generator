@@ -112,15 +112,15 @@ Run all Playwright E2E tests:
 
 `npm run test:e2e`
 
-Run only the barcode regression spec:
+Run only the label regression spec:
 
-`npm run test:e2e -- tests/e2e/barcode-regressions.spec.ts`
+`npm run test:e2e -- tests/e2e/label-regressions.spec.ts`
 
 ### Visual regression snapshots
 
 Visual snapshots are part of the Playwright suite and are validated automatically when running `npm run test:e2e`.
 
-The barcode regression spec now validates visual outputs for both label sizes:
+The label regression spec now validates visual outputs for both label sizes:
 
 - On-screen preview image snapshots for Mini SEL (35-label full page) and Large SEL (8-label full page)
 - Downloaded PDF first-page visual snapshots for both Mini SEL and Large SEL
@@ -132,7 +132,7 @@ If UI changes are intentional, update the snapshot baselines with:
 
 Snapshot files are stored under:
 
-`tests/e2e/barcode-regressions.spec.ts-snapshots`
+`tests/e2e/label-regressions.spec.ts-snapshots`
 
 ## Label Sizes
 

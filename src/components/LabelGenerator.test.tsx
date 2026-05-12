@@ -99,7 +99,7 @@ const defaultConfig: ILabelConfig = {
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
-describe('BarcodeGenerator PDF export', () => {
+describe('LabelGenerator PDF export', () => {
   beforeEach(() => {
     addPageMock.mockReset();
     rectMock.mockReset();
@@ -119,7 +119,7 @@ describe('BarcodeGenerator PDF export', () => {
     html2CanvasMock.mockClear();
   });
 
-  it('exports all pages with vector barcode rendering in one landscape A4 PDF', async () => {
+  it('exports all pages with vector label rendering in one landscape A4 PDF', async () => {
     const aisles = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
     render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 

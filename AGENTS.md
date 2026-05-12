@@ -2,25 +2,28 @@
 
 ## Core Objective
 
-This project is A4 print-first. The primary and non-negotiable use case is printing barcode labels on A4 39mm SEL paper.
+This project is A4 print-first. The primary and non-negotiable use case is printing shelf edge labels on A4 SEL paper for mini labels and A4 73mm x 105mm  SEL paper for large labels.
 This has to be millimeter perfect to ensure the labels fit within the perforated lines on the paper.
-Protect physical barcode label accuracy and scan reliability before making UI/UX changes.
+Protect physical label accuracy and scan reliability before making UI/UX changes.
 
 ## Non-Negotiable Geometry Rules
 
 - Keep all label and page geometry in millimeters (mm).
 - Do not convert print geometry to px/rem/%.
 - Canonical values:
-  - Label: 39mm x 39mm
+  - Mini-label: 39mm x 39mm
   - A4 margins: left 11mm, right 12mm, top 7.5mm, bottom 7.5mm
+  - Large-label: 73mm x 105mm
+  - A4 margins: left 0mm, right 0mm, top 0mm, bottom 5mm
+
 
 ## Rendering Path Awareness
 
-- Screen preview and print portal use the same `BarcodeTile` render path.
+- Screen preview and print portal use the same `LabelTile` render path.
 - Download uses a calibrated vector PDF path by default, with raster fallback.
 - If print and download diverge, treat it as a rendering-path calibration issue first.
 
-## Barcode Safety Rules
+## Label Safety Rules
 
 - Preserve barcode module width/height and quiet-zone assumptions unless explicitly changing barcode spec.
 - Avoid changes that visually look better on screen but risk print scan reliability.
@@ -44,8 +47,8 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 
 ## Visual Regression Scope
 
-- Snapshot baselines live under `tests/e2e/barcode-regressions.spec.ts-snapshots`.
-- Keep at least one full-page (35 label) preview snapshot using default configuration.
+- Snapshot baselines live under `tests/e2e/label-regressions.spec.ts-snapshots`.
+- Keep at least one full-page (35 mini-labels) preview snapshot using default configuration.
 - Keep download regression checks in place (PDF contract snapshot) to catch export drift.
 
 ## Change Discipline
@@ -60,19 +63,19 @@ Protect physical barcode label accuracy and scan reliability before making UI/UX
 - Prefer function components with typed props interfaces; keep public prop contracts explicit and stable.
 - Use CSS Modules with `.module.css` files and generated `.module.css.d.ts` typings; do not reintroduce `.module.scss` unless explicitly requested.
 - Keep state as close as possible to where it is used, but lift shared configuration state to the nearest common parent.
-- Use controlled inputs for form fields so generated barcode output is deterministic and testable.
+- Use controlled inputs for form fields so generated label output is deterministic and testable.
 - Preserve existing data flow: input components collect values, generator components produce code arrays, and rendering components display labels.
 - Keep barcode formatting logic in pure helper functions where possible; avoid embedding formatting rules directly in JSX.
-- Reuse existing render paths (`BarcodeTile` and `BarcodeGenerator`) instead of creating parallel render trees for similar output.
+- Reuse existing render paths (`LabelTile` and `LabelGenerator`) instead of creating parallel render trees for similar output.
 - Use `useMemo` and `useEffect` only when they clarify behavior or prevent real recomputation; avoid adding hook complexity without benefit.
 - Preserve accessibility roles and labels used by tests (`tab`, `tabpanel`, `alert`, button names), and update tests if labels intentionally change.
-- Prefer small, targeted constants for tunable rendering values (text size, offsets, barcode dimensions) instead of magic literals in loops.
+- Prefer small, targeted constants for tunable rendering values (text size, offsets, label dimensions) instead of magic literals in loops.
 - Keep TypeScript changes strict enough to catch regressions, but avoid broad refactors unless explicitly requested.
 
 ## Testing Expectations For React Changes
 
 - For logic changes, add or update Vitest tests near the affected component/helper.
-- For UI behavior changes, add or update Playwright assertions in `tests/e2e/barcode-regressions.spec.ts`.
+- For UI behavior changes, add or update Playwright assertions in `tests/e2e/label-regressions.spec.ts`.
 - For visual/layout changes, update visual snapshots only when the change is intentional and verified.
 - When fixing uncovered defensive branches, write realistic tests that exercise the branch rather than removing the guard.
 
@@ -93,7 +96,7 @@ When tradeoffs are required, prioritize in this order:
 
 ## Render-Path Change Checklist
 
-Before completing any change that affects barcode output, verify:
+Before completing any change that affects label output, verify:
 
 - On-screen preview output
 - Print portal output
@@ -119,7 +122,7 @@ Before completing any change that affects barcode output, verify:
 
 ## Performance Guardrail
 
-- Avoid expensive per-item work inside render loops over barcode tiles unless required.
+- Avoid expensive per-item work inside render loops over label tiles unless required.
 - Prefer precomputed values and memoization when repeated calculations affect full-page barcode rendering.
 
 ## Documentation Sync Rule
