@@ -1,16 +1,16 @@
 import * as React from 'react';
-import styles from './AisleBarcode.module.css';
+import styles from './AisleLabelForm.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
-interface IBackBarcodeProps {
+interface IBackLabelFormProps {
     config: ILabelConfig;
     onOpenConfiguration: () => void;
 }
 
-const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration }) => {
+const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [barcodeStruct, setBarcodeStruct] = React.useState({
@@ -154,4 +154,4 @@ const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration 
     );
 };
 
-export default BackBarcode;
+export default BackLabelForm;

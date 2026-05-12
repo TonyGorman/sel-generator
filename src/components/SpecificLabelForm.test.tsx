@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import SpecificBarcode from './SpecificBarcode';
+import SpecificLabelForm from './SpecificLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
@@ -18,9 +18,9 @@ const defaultConfig: ILabelConfig = {
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
-describe('SpecificBarcode', () => {
+describe('SpecificLabelForm', () => {
   it('shows error when submitted without input', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
 
@@ -28,7 +28,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('shows error for invalid barcode values', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: '00L01A' },
@@ -39,7 +39,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('normalizes valid values and renders generated barcodes', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}-01-2 ` },
@@ -51,7 +51,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('accepts compact back wall values and renders generated list', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: `${DEFAULT_BACK_CODE_PREFIX}01A` },
@@ -63,7 +63,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('rejects values with invalid shelf tokens', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: '01L01AA' },
@@ -74,7 +74,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('accepts configured back wall prefix values', () => {
-    render(<SpecificBarcode config={{ ...defaultConfig, backCodePrefix: '99' }} />);
+    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: '99-01-A' },
@@ -86,7 +86,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('rejects back wall values when Back prefix is configured differently', () => {
-    render(<SpecificBarcode config={{ ...defaultConfig, backCodePrefix: '99' }} />);
+    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: `${DEFAULT_BACK_CODE_PREFIX}01A` },
@@ -97,7 +97,7 @@ describe('SpecificBarcode', () => {
   });
 
   it('always renders specific labels using mini-sel mode', () => {
-    render(<SpecificBarcode config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter barcodes'), {
       target: { value: '01L01A' },

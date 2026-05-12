@@ -5,11 +5,11 @@ import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
-interface ISpecificBarcodeProps {
+interface ISpecificLabelFormProps {
     config: ILabelConfig;
 }
 
-const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
+const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
     const [initBarcodeText, setBarcodeText] = React.useState("");
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -130,4 +130,4 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
     );
 };
 
-export default SpecificBarcode;
+export default SpecificLabelForm;

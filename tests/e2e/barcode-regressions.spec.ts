@@ -145,31 +145,31 @@ test.describe('Barcode Generator regressions', () => {
   test('loads and shows primary tabs', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('tab', { name: 'Specific barcode' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Aisle barcode' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Back barcode' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Specific Labels' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Aisle Labels' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Back Wall Labels' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Configuration' })).toBeVisible();
   });
 
   test('Aisle configuration link navigates to configuration tab', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
     await page.getByRole('link', { name: 'configuration section' }).click();
 
     await expect(page.getByRole('heading', { name: 'Label Configuration' })).toBeVisible();
   });
 
-  test('Specific barcode tab shows validation message for empty submission', async ({ page }) => {
+  test('Specific Labels tab shows validation message for empty submission', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
     await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Enter at least one barcode value.');
   });
 
-  test('Specific barcode generation downloads a PDF export', async ({ page }) => {
+  test('Specific Labels generation downloads a PDF export', async ({ page }) => {
     await page.goto('/');
 
     await page.getByPlaceholder('Enter barcodes').fill(`01L01A,${DEFAULT_BACK_CODE_PREFIX}01A`);
@@ -188,13 +188,13 @@ test.describe('Barcode Generator regressions', () => {
   test('Back tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Back barcode' }).click();
+    await page.getByRole('tab', { name: 'Back Wall Labels' }).click();
     await page.getByRole('button', { name: 'Generate Barcodes' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and shelves using whole numbers.');
   });
 
-  test('Aisle barcode generation updates the summary and invokes print', async ({ page }) => {
+  test('Aisle Labels generation updates the summary and invokes print', async ({ page }) => {
     await page.addInitScript(() => {
       (window as typeof window & { __printCalls?: number }).__printCalls = 0;
       window.print = () => {
@@ -204,7 +204,7 @@ test.describe('Barcode Generator regressions', () => {
 
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
 
     const visibleInputs = page.getByRole('textbox');
     await visibleInputs.nth(0).fill('1');
@@ -225,10 +225,10 @@ test.describe('Barcode Generator regressions', () => {
   test('Large SEL mode is only available from Aisle tab', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
     await expect(page.getByLabel('Large SEL')).toHaveCount(0);
 
-    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
     await expect(page.getByLabel('Large SEL')).toBeVisible();
     await expect(page.getByLabel('Mini SEL')).toBeVisible();
   });
@@ -237,7 +237,7 @@ test.describe('Barcode Generator regressions', () => {
     await page.setViewportSize({ width: 1800, height: 1600 });
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
     await page.getByLabel('Large SEL').click();
 
     const visibleInputs = page.getByRole('textbox');
@@ -268,7 +268,7 @@ test.describe('Barcode Generator regressions', () => {
   test('Aisle Large SEL download remains stable for regression snapshots', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Aisle barcode' }).click();
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
     await page.getByLabel('Large SEL').click();
 
     const visibleInputs = page.getByRole('textbox');
@@ -307,10 +307,10 @@ test.describe('Barcode Generator regressions', () => {
     expect(firstPagePng).toMatchSnapshot('aisle-large-sel-download-first-page.visual.png');
   });
 
-  test('Specific barcode download remains stable for regression snapshot', async ({ page }) => {
+  test('Specific Labels download remains stable for regression snapshot', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
     await page.getByPlaceholder('Enter barcodes').fill('01L01A');
     await page.getByRole('button', { name: 'Generate Barcodes' }).click();
     await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
@@ -328,10 +328,10 @@ test.describe('Barcode Generator regressions', () => {
     expect(JSON.stringify(contractSnapshot, null, 2)).toMatchSnapshot('specific-download.contract.json');
   });
 
-  test('Specific barcode download first page remains visually stable', async ({ page }) => {
+  test('Specific Labels download first page remains visually stable', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
     const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
     await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);
     await page.getByRole('button', { name: 'Generate Barcodes' }).click();
@@ -354,7 +354,7 @@ test.describe('Barcode Generator regressions', () => {
     await page.setViewportSize({ width: 1800, height: 1400 });
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific barcode' }).click();
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
 
     const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
     await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);

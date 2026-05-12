@@ -5,19 +5,19 @@ import Barcode from './Barcode';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
-vi.mock('./SpecificBarcode', () => ({
+vi.mock('./SpecificLabelForm', () => ({
   default: ({ config }: { config: ILabelConfig }) => (
     <div>Specific: {config.primaryCodeFormat}</div>
   ),
 }));
 
-vi.mock('./AisleBarcode', () => ({
+vi.mock('./AisleLabelForm', () => ({
   default: ({ onOpenConfiguration }: { onOpenConfiguration: () => void }) => (
     <button onClick={onOpenConfiguration}>Open config from aisle</button>
   ),
 }));
 
-vi.mock('./BackBarcode', () => ({
+vi.mock('./BackLabelForm', () => ({
   default: () => <div>Back Mock</div>,
 }));
 
@@ -47,7 +47,7 @@ describe('Barcode', () => {
   it('navigates to configuration tab when aisle requests it', () => {
     render(<Barcode />);
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Aisle barcode' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Aisle Labels' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open config from aisle' }));
 
     expect(screen.getByRole('button', { name: 'Set new config' })).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('Barcode', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
     fireEvent.click(screen.getByRole('button', { name: 'Set new config' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'Specific barcode' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Specific Labels' }));
 
     expect(screen.getByText('Specific: shelfOnly')).toBeInTheDocument();
   });

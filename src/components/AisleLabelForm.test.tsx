@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import AisleBarcode from './AisleBarcode';
+import AisleLabelForm from './AisleLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
@@ -18,7 +18,7 @@ const defaultConfig: ILabelConfig = {
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
-describe('AisleBarcode', () => {
+describe('AisleLabelForm', () => {
   const fillInputs = (values: Record<number, string>): void => {
     const inputs = screen.getAllByRole('textbox');
     Object.entries(values).forEach(([index, value]) => {
@@ -27,7 +27,7 @@ describe('AisleBarcode', () => {
   };
 
   it('shows required fields error when aisle and shelves are missing', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
 
@@ -35,7 +35,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows aisle range validation when aisle value is out of bounds', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '100', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -44,7 +44,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows shelf range validation before any range-order message', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 10: '21' });
 
@@ -55,7 +55,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows error when no side range is provided', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '2', 10: '5' });
 
@@ -65,7 +65,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows aisle order validation when start is greater than end', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '3', 1: '2', 2: '1', 3: '1', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -74,7 +74,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows side range order validation when side start is greater than side end', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '4', 3: '2', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -83,7 +83,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows bay upper bound validation when side range exceeds max', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '100', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -92,7 +92,7 @@ describe('AisleBarcode', () => {
   });
 
   it('generates labels and updates summary for valid Left and Right ranges', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({
       0: '1',
@@ -120,14 +120,14 @@ describe('AisleBarcode', () => {
       shelfStyle: 'number',
     };
 
-    render(<AisleBarcode config={numericConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={numericConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 10: '2' });
     expect(screen.getByText('1 – 2')).toBeInTheDocument();
   });
 
   it('generates labels for End and Front side ranges', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({
       0: '1',
@@ -147,7 +147,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows error when aisle start is 0 or less', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '0', 1: '1', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -156,7 +156,7 @@ describe('AisleBarcode', () => {
   });
 
   it('shows error when shelves value is 0 or less', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1', 10: '0' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
@@ -167,14 +167,14 @@ describe('AisleBarcode', () => {
   it('opens configuration tab when the inline configuration link is clicked', () => {
     const onOpenConfiguration = vi.fn();
 
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
 
     fireEvent.click(screen.getByRole('link', { name: 'configuration section' }));
     expect(onOpenConfiguration).toHaveBeenCalledTimes(1);
   });
 
   it('does not render NaN when a letter is entered into a numeric field', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: 'a' } });
@@ -184,7 +184,7 @@ describe('AisleBarcode', () => {
   });
 
   it('passes large-sel mode to generator when Large SEL is selected', () => {
-    render(<AisleBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.click(screen.getByLabelText('Large SEL'));
 

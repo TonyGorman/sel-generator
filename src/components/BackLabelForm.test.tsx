@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import BackBarcode from './BackBarcode';
+import BackLabelForm from './BackLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
@@ -18,9 +18,9 @@ const defaultConfig: ILabelConfig = {
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
-describe('BackBarcode', () => {
+describe('BackLabelForm', () => {
   it('shows validation error when fields are missing', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
 
@@ -28,7 +28,7 @@ describe('BackBarcode', () => {
   });
 
   it('shows validation error when start bay is greater than end bay', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '5' } });
@@ -40,7 +40,7 @@ describe('BackBarcode', () => {
   });
 
   it('generates expected back wall codes for range and shelves', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
@@ -53,7 +53,7 @@ describe('BackBarcode', () => {
   });
 
   it('shows validation error when bay start is below 1', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '0' } });
@@ -65,7 +65,7 @@ describe('BackBarcode', () => {
   });
 
   it('shows validation error when shelves exceeds max', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
@@ -77,7 +77,7 @@ describe('BackBarcode', () => {
   });
 
   it('generates codes with configured Back prefix', () => {
-    render(<BackBarcode config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
@@ -91,7 +91,7 @@ describe('BackBarcode', () => {
 
   it('opens configuration when configuration section link is clicked', () => {
     const onOpenConfiguration = vi.fn();
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
 
     fireEvent.click(screen.getByRole('link', { name: 'configuration section' }));
 
@@ -99,7 +99,7 @@ describe('BackBarcode', () => {
   });
 
   it('does not render NaN when a letter is entered into a numeric field', () => {
-    render(<BackBarcode config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: 'a' } });

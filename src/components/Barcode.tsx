@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styles from './Barcode.module.css';
 import Tabs from './Tabs';
-import AisleBarcode from './AisleBarcode';
-import BackBarcode from './BackBarcode';
-import SpecificBarcode from './SpecificBarcode';
+import AisleLabelForm from './AisleLabelForm';
+import BackLabelForm from './BackLabelForm';
+import SpecificLabelForm from './SpecificLabelForm';
 import Configuration from './Configuration';
 import { ITabItem } from '../models/ITabItem';
 import { ILabelConfig } from '../models/ILabelConfig';
@@ -25,18 +25,18 @@ const Barcode = (): React.ReactElement => {
   const tabItems: ITabItem[] = [
     {
       key: 'specific',
-      headerText: 'Specific barcode',
-      content: <SpecificBarcode config={config} />,
+      headerText: 'Specific Labels',
+      content: <SpecificLabelForm config={config} />,
     },
     {
       key: 'aisle',
-      headerText: 'Aisle barcode',
-      content: <AisleBarcode config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
+      headerText: 'Aisle Labels',
+      content: <AisleLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
     },
     {
       key: 'back',
-      headerText: 'Back barcode',
-      content: <BackBarcode config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
+      headerText: 'Back Wall Labels',
+      content: <BackLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
     },
     {
       key: 'config',

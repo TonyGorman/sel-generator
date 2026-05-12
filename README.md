@@ -142,13 +142,13 @@ The app supports two label sizes, selectable per print run.
 
 - Paper: A4 landscape, 39mm × 39mm labels
 - Layout: 7 columns × 5 rows (35 labels per page)
-- Available on: Aisle, Back, and Specific barcode tabs
+- Available on: Aisle Labels, Back Wall Labels, and Specific Labels tabs
 
 ### Large SEL
 
 - Paper: A4 portrait, 105mm × 73mm labels
 - Layout: 2 columns × 4 rows (8 labels per page)
-- Available on: Aisle barcode tab only
+- Available on: Aisle Labels tab only
 - Select using the **Mini SEL / Large SEL** radio buttons on the Aisle tab
 - Label content: mixed-size heading (aisle-side+bay-shelf) above a centred barcode
 

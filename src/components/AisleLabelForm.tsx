@@ -1,17 +1,17 @@
 import * as React from 'react';
-import styles from './AisleBarcode.module.css';
+import styles from './AisleLabelForm.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/barcodeConfig';
 import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
-interface IAisleBarcodeProps {
+interface IAisleLabelFormProps {
     config: ILabelConfig;
     onOpenConfiguration: () => void;
 }
 
-const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguration }) => {
+const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
     const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
@@ -357,4 +357,4 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
     );
 };
 
-export default AisleBarcode;
+export default AisleLabelForm;
