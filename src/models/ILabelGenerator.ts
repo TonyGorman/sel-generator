@@ -1,4 +1,4 @@
-import { ILabelConfig } from './IBarcodeConfig';
+import { ILabelConfig } from './ILabelConfig';
 import { LabelPrintMode } from './ILabelLayoutStrategy';
 
 export interface ILabelGenerator {

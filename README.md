@@ -11,6 +11,8 @@ Generate Shelf Edge Labels for printing.
 2. Start the development server:
    `npm run dev`
 
+`npm install` also installs the repository's Git hooks, including a `pre-push` hook that runs `npm run validate:ci`.
+
 ### Production build
 
 Generate a production-ready build with:
@@ -37,6 +39,10 @@ Quality checks run in CI:
 - `npm run styles:audit`
 - `npm run test:run`
 - `npm run build`
+
+Run the same gate locally with:
+
+`npm run validate:ci`
 
 Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
 
@@ -68,6 +74,20 @@ Audit CSS/SCSS module classes for unused declarations and missing references:
 Run all unit tests:
 
 `npm run test:run`
+
+This now includes a TypeScript import/typecheck pass before Vitest runs.
+
+Run the same combined checks used by GitHub Actions:
+
+`npm run validate:ci`
+
+### Git hooks
+
+This repo configures Git to use [.githooks/pre-push](/Users/tony.gorman/development/barcode-generator/.githooks/pre-push), installed automatically by `npm install` via the `prepare` script.
+
+The pre-push hook runs:
+
+`npm run validate:ci`
 
 ### Coverage
 
