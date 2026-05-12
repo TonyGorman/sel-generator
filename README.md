@@ -39,10 +39,15 @@ Quality checks run in CI:
 - `npm run styles:audit`
 - `npm run test:run`
 - `npm run build`
+- `npm run test:e2e` (after installing Playwright Chromium in CI)
 
-Run the same gate locally with:
+Run the same fast gate locally with:
 
 `npm run validate:ci`
+
+Run the consolidated release gate (matches deploy confidence) with:
+
+`npm run validate:release`
 
 Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
 
@@ -77,17 +82,24 @@ Run all unit tests:
 
 This now includes a TypeScript import/typecheck pass before Vitest runs.
 
-Run the same combined checks used by GitHub Actions:
+Run the same combined checks used by GitHub Actions (without E2E):
 
 `npm run validate:ci`
+
+Run full release-grade validation (includes E2E):
+
+`npm run validate:release`
 
 ### Git hooks
 
-This repo configures Git to use [.githooks/pre-push](/Users/tony.gorman/development/barcode-generator/.githooks/pre-push), installed automatically by `npm install` via the `prepare` script.
+This repo configures Git to use [.githooks/pre-push](/.githooks/pre-push), installed automatically by `npm install` via the `prepare` script.
 
-The pre-push hook runs:
+The pre-push hook is branch-aware:
 
-`npm run validate:ci`
+- **Pushing to `main`**: runs `npm run validate:release` (includes E2E).
+- **Pushing to other branches**: runs `npm run validate:ci` (fast validation without E2E).
+
+This ensures deploy-branch pushes have full confidence while keeping feature-branch iteration fast.
 
 ### Coverage
 
