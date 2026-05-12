@@ -25,16 +25,20 @@ class MiniSelLayoutStrategy implements ILabelLayoutStrategy {
     primaryLetterSpacingMm: 0.07,
     primaryBaselineFromContentTopMm: 11.5,
     secondaryBaselineFromContentTopMm: 22.2,
-    barcodeModuleWidthMm: 0.23,
+    barcodeModuleThicknessMm: 0.23,
     barcodeHeightMm: 8,
-    barcodeBottomMarginMm: 4,
-    barcodeMaxWidthRatio: 1,
     tilePaddingHorizontalMm: 1.2,
     tilePaddingTopMm: 1.5,
     tilePaddingBottomMm: 0.8,
     largePrefixTextSizeMm: 8,
     largeMainTextSizeMm: 12,
     largeSuffixTextSizeMm: 8,
+  };
+
+  barcodeGeometry = {
+    widthMm: 37,
+    heightMm: 8,
+    marginBottomMm: 4,
   };
 }
 
@@ -63,16 +67,20 @@ class LargeSelLayoutStrategy implements ILabelLayoutStrategy {
     primaryLetterSpacingMm: 0.07,
     primaryBaselineFromContentTopMm: 11.5,
     secondaryBaselineFromContentTopMm: 22.2,
-    barcodeModuleWidthMm: 0.51,
+    barcodeModuleThicknessMm: 0.51,
     barcodeHeightMm: 10,
-    barcodeBottomMarginMm: 3,
-    barcodeMaxWidthRatio: 0.39,
     tilePaddingHorizontalMm: 4,
     tilePaddingTopMm: 4,
     tilePaddingBottomMm: 2,
     largePrefixTextSizeMm: 12,
     largeMainTextSizeMm: 24,
     largeSuffixTextSizeMm: 12,
+  };
+
+  barcodeGeometry = {
+    widthMm: 37,
+    heightMm: 8,
+    marginBottomMm: 5,
   };
 }
 

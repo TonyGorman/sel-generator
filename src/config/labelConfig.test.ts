@@ -8,9 +8,9 @@ import {
   PDF_IMAGE_COMPRESSION,
   getShelfTokenForConfig,
   normalizeBackCodePrefix,
-} from './barcodeConfig';
+} from './labelConfig';
 
-describe('barcodeConfig', () => {
+describe('labelConfig', () => {
   it('keeps the published range limits stable', () => {
     expect(MAX_AISLE_VALUE).toBe(99);
     expect(MAX_BAY_VALUE).toBe(99);

@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
+import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 
 interface IBackLabelFormProps {
@@ -11,9 +11,9 @@ interface IBackLabelFormProps {
 }
 
 const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
-    const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
+    const [showLabel, setShowLabel] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [barcodeStruct, setBarcodeStruct] = React.useState({
+    const [labelStruct, setLabelStruct] = React.useState({
         bay_start: null as number | null,
         bay_end: null as number | null,
         shelves: null as number | null,
@@ -27,61 +27,61 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
         switch (type) {
             case 'bay_start':
-                setBarcodeStruct((prevState) => ({ ...prevState, bay_start: numericValue }))
+                setLabelStruct((prevState) => ({ ...prevState, bay_start: numericValue }))
                 break;
             case 'bay_end':
-                setBarcodeStruct((prevState) => ({ ...prevState, bay_end: numericValue }))
+                setLabelStruct((prevState) => ({ ...prevState, bay_end: numericValue }))
                 break;
             case 'shelves':
-                setBarcodeStruct((prevState) => ({ ...prevState, shelves: numericValue }))
+                setLabelStruct((prevState) => ({ ...prevState, shelves: numericValue }))
                 break;
         }
     }
 
-    const generateBarcodeText = (): string[] => {
-        const barcodeTexts: string[] = [];
+    const generateLabelText = (): string[] => {
+        const labelTexts: string[] = [];
         const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
 
-        if (!hasValue(barcodeStruct.bay_start) || !hasValue(barcodeStruct.bay_end) || !hasValue(barcodeStruct.shelves)) {
+        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !hasValue(labelStruct.shelves)) {
             return [];
         }
 
-        for (let i = barcodeStruct.bay_start; i <= barcodeStruct.bay_end; i++) {
-            for (let k = 0; k < barcodeStruct.shelves; k++) {
+        for (let i = labelStruct.bay_start; i <= labelStruct.bay_end; i++) {
+            for (let k = 0; k < labelStruct.shelves; k++) {
                 const shelfToken = getShelfTokenForConfig(k, config.shelfStyle);
-                const barcodeText = backCodePrefix + (i > 9 ? i : "0" + i) + shelfToken;
-                barcodeTexts.push(barcodeText);
+                const labelText = backCodePrefix + (i > 9 ? i : "0" + i) + shelfToken;
+                labelTexts.push(labelText);
             }
         }
 
-        return barcodeTexts;
+        return labelTexts;
     }
 
     const validateInput = (): string | null => {
-        if (!hasValue(barcodeStruct.bay_start) || !hasValue(barcodeStruct.bay_end) || !hasValue(barcodeStruct.shelves)) {
+        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !hasValue(labelStruct.shelves)) {
             return 'Please enter start bay, end bay, and shelves using whole numbers.';
         }
 
-        if (barcodeStruct.bay_start > barcodeStruct.bay_end) {
+        if (labelStruct.bay_start > labelStruct.bay_end) {
             return 'Start bay cannot be greater than end bay.';
         }
 
-        if (barcodeStruct.bay_start < 1 || barcodeStruct.bay_end < 1) {
+        if (labelStruct.bay_start < 1 || labelStruct.bay_end < 1) {
             return 'Bays must be between 1 and 99.';
         }
 
-        if (barcodeStruct.bay_end > MAX_BAY_VALUE) {
+        if (labelStruct.bay_end > MAX_BAY_VALUE) {
             return 'Bays must be between 1 and 99.';
         }
 
-        if (barcodeStruct.shelves < 1 || barcodeStruct.shelves > MAX_SHELF_VALUE) {
+        if (labelStruct.shelves < 1 || labelStruct.shelves > MAX_SHELF_VALUE) {
             return 'Shelves must be between 1 and 20.';
         }
 
         return null;
     }
 
-    const generateBarcode = (): void => {
+    const generateLabel = (): void => {
         const validationError = validateInput();
         if (validationError) {
             setErrorMessage(validationError);
@@ -89,7 +89,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         }
 
         setErrorMessage(null);
-        setShowBarcode(<LabelGenerator type='Back' aisles={generateBarcodeText()} config={config} layoutMode="mini-sel" />)
+        setShowLabel(<LabelGenerator type='Back' aisles={generateLabelText()} config={config} layoutMode="mini-sel" />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -99,7 +99,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
     return (
         <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate Back Wall Barcodes</h1>
+            <h1 className={styles.panelTitle}>Generate Back Wall Labels</h1>
             <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. The prefix can be customized in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
             <div className={styles.stackedSections}>
@@ -109,14 +109,14 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                         <div className={styles.fieldGroup}>
                             <label className={styles.fieldLabel}>Start</label>
                             <TextField
-                                value={barcodeStruct.bay_start?.toString() ?? ''}
+                                value={labelStruct.bay_start?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_start')}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
                             <label className={styles.fieldLabel}>End</label>
                             <TextField
-                                value={barcodeStruct.bay_end?.toString() ?? ''}
+                                value={labelStruct.bay_end?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_end')}
                             />
                         </div>
@@ -127,7 +127,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                     <h2 className={styles.sectionTitle}>Shelves Per Bay (1-20)</h2>
                     <div className={styles.singleField}>
                         <TextField
-                            value={barcodeStruct.shelves?.toString() ?? ''}
+                            value={labelStruct.shelves?.toString() ?? ''}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
                         />
                     </div>
@@ -135,7 +135,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
             </div>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateBarcode}>Generate Barcodes</Button>
+                <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
             </div>
 
             {errorMessage && (
@@ -146,7 +146,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
             <div className="App">
                 <div>
-                    {showBarcode}
+                    {showLabel}
                 </div>
 
             </div>

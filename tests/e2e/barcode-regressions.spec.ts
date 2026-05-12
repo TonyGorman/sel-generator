@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DEFAULT_BACK_CODE_PREFIX } from '../../src/config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../../src/config/labelConfig';
 
 const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
   return pdfBytes
@@ -140,7 +140,7 @@ const renderFirstPdfPageAsPng = async (page: Page, pdfBytes: Buffer, scale: numb
   }
 };
 
-test.describe('Barcode Generator regressions', () => {
+test.describe('Label Generator regressions', () => {
 
   test('loads and shows primary tabs', async ({ page }) => {
     await page.goto('/');
@@ -164,32 +164,32 @@ test.describe('Barcode Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
 
-    await expect(page.getByRole('alert')).toContainText('Enter at least one barcode value.');
+    await expect(page.getByRole('alert')).toContainText('Enter at least one label value.');
   });
 
   test('Specific Labels generation downloads a PDF export', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByPlaceholder('Enter barcodes').fill(`01L01A,${DEFAULT_BACK_CODE_PREFIX}01A`);
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await page.getByPlaceholder('Enter labels').fill(`01L01A,${DEFAULT_BACK_CODE_PREFIX}01A`);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
 
-    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    await page.getByRole('button', { name: 'Download Labels' }).click();
     const download = await downloadPromise;
 
-    expect(download.suggestedFilename()).toBe('barcodes.pdf');
+    expect(download.suggestedFilename()).toBe('labels.pdf');
   });
 
   test('Back tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Back Wall Labels' }).click();
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and shelves using whole numbers.');
   });
@@ -215,10 +215,10 @@ test.describe('Barcode Generator regressions', () => {
 
     await expect(page.getByText('Total labels: 1')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
-    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Print Barcodes' }).click();
+    await page.getByRole('button', { name: 'Print Labels' }).click();
     await expect.poll(async () => page.evaluate(() => (window as typeof window & { __printCalls?: number }).__printCalls ?? 0)).toBe(1);
   });
 
@@ -249,11 +249,11 @@ test.describe('Barcode Generator regressions', () => {
     await visibleInputs.nth(5).fill('2');
     await visibleInputs.nth(10).fill('2');
 
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
-    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
 
-    const barcodeRoot = page.locator('[class*="barcodeRoot"]').first();
-    await barcodeRoot.evaluate((element) => {
+    const labelAppRoot = page.locator('[class*="labelAppRoot"]').first();
+    await labelAppRoot.evaluate((element) => {
       element.scrollLeft = 0;
     });
 
@@ -280,11 +280,11 @@ test.describe('Barcode Generator regressions', () => {
     await visibleInputs.nth(5).fill('2');
     await visibleInputs.nth(10).fill('2');
 
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
-    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    await page.getByRole('button', { name: 'Download Labels' }).click();
     const download = await downloadPromise;
 
     const filePath = await download.path();
@@ -311,12 +311,12 @@ test.describe('Barcode Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await page.getByPlaceholder('Enter barcodes').fill('01L01A');
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
-    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+    await page.getByPlaceholder('Enter labels').fill('01L01A');
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    await page.getByRole('button', { name: 'Download Labels' }).click();
     const download = await downloadPromise;
 
     const filePath = await download.path();
@@ -332,13 +332,13 @@ test.describe('Barcode Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
-    await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
-    await expect(page.getByRole('button', { name: 'Download Barcodes' })).toBeVisible();
+    const labelValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
+    await page.getByPlaceholder('Enter labels').fill(labelValues);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download Barcodes' }).click();
+    await page.getByRole('button', { name: 'Download Labels' }).click();
     const download = await downloadPromise;
 
     const filePath = await download.path();
@@ -350,25 +350,25 @@ test.describe('Barcode Generator regressions', () => {
     expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
   });
 
-  test('captures full preview of 35 barcodes with default configuration', async ({ page }) => {
+  test('captures full preview of 35 labels with default configuration', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
 
-    const barcodeValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
-    await page.getByPlaceholder('Enter barcodes').fill(barcodeValues);
-    await page.getByRole('button', { name: 'Generate Barcodes' }).click();
+    const labelValues = Array.from({ length: 35 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`).join(',');
+    await page.getByPlaceholder('Enter labels').fill(labelValues);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
 
-    await expect(page.getByRole('button', { name: 'Print Barcodes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
 
-    const barcodeRoot = page.locator('[class*="barcodeRoot"]').first();
-    await barcodeRoot.evaluate((element) => {
+    const labelAppRoot = page.locator('[class*="labelAppRoot"]').first();
+    await labelAppRoot.evaluate((element) => {
       element.scrollLeft = 0;
     });
 
     const previewPage = page.locator('[class*="previewPage"]').first();
-    await expect(previewPage).toHaveScreenshot('default-config-35-barcodes.png', {
+    await expect(previewPage).toHaveScreenshot('default-config-35-labels.png', {
       animations: 'disabled',
     });
   });

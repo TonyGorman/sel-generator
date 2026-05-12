@@ -3,13 +3,8 @@ export type Styles = {
   'actionButton': string;
   'actionsRow': string;
   'alertError': string;
-  'barcodeBox': string;
-  'barcodeBoxLargeSel': string;
-  'barcodeDiv': string;
   'barcodeGraphic': string;
   'barcodeGraphicLargeSel': string;
-  'barcodeRoot': string;
-  'barcodeText': string;
   'configControlsColumn': string;
   'configExampleBox': string;
   'configExampleCard': string;
@@ -18,6 +13,11 @@ export type Styles = {
   'fieldLabel': string;
   'formStack': string;
   'generateButton': string;
+  'labelAppRoot': string;
+  'labelBox': string;
+  'labelBoxLargeSel': string;
+  'labelDiv': string;
+  'labelText': string;
   'largeSelHeading': string;
   'largeSelHeadingFallback': string;
   'largeSelHeadingMain': string;
@@ -30,7 +30,7 @@ export type Styles = {
   'pdfDiv': string;
   'previewPage': string;
   'primaryCode': string;
-  'printBarcodeDiv': string;
+  'printLabelDiv': string;
   'printPage': string;
   'printPortal': string;
   'secondaryCode': string;

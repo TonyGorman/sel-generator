@@ -1,15 +1,15 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 import { ILabelConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/labelConfig';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
 const MM_TO_PX = 96 / 25.4;
-const MINI_BARCODE_HEIGHT_MM = 8;
-const LARGE_BARCODE_HEIGHT_MM = 10;
-const BARCODE_MODULE_WIDTH_MM = 0.23;
+const MINI_LABEL_HEIGHT_MM = 8;
+const LARGE_LABEL_HEIGHT_MM = 10;
+const LABEL_MODULE_WIDTH_MM = 0.23;
 
 const mmToPx = (mm: number): number => mm * MM_TO_PX;
 
@@ -266,13 +266,13 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
     type,
     config.backCodePrefix,
   );
-  const barcodeValue = getDashedLabelCode(code, type, config.backCodePrefix);
+  const labelValue = getDashedLabelCode(code, type, config.backCodePrefix);
   const largeDisplayParts = getLargeSelDisplayParts(code, type, config.backCodePrefix);
   const isLargeSel = layoutMode === 'large-sel';
 
   return (
-    <div className={isLargeSel ? styles.barcodeBoxLargeSel : styles.barcodeBox}>
-      <div className={isLargeSel ? styles.largeSelLabelTextArea : styles.barcodeText}>
+    <div className={isLargeSel ? styles.labelBoxLargeSel : styles.labelBox}>
+      <div className={isLargeSel ? styles.largeSelLabelTextArea : styles.labelText}>
         {isLargeSel ? (
           <div className={styles.largeSelHeading}>
             {largeDisplayParts ? (
@@ -294,10 +294,10 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
       </div>
       <div className={isLargeSel ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
         <Barcode
-          value={barcodeValue}
+          value={labelValue}
           format="CODE128"
           displayValue={false}
-          width={mmToPx(layoutStrategy.typography.barcodeModuleWidthMm)}
+          width={mmToPx(layoutStrategy.typography.barcodeModuleThicknessMm)}
           height={mmToPx(layoutStrategy.typography.barcodeHeightMm)}
           margin={0}
         />

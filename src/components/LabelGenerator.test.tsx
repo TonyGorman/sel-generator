@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 const {
   addPageMock,
@@ -123,10 +123,10 @@ describe('BarcodeGenerator PDF export', () => {
     const aisles = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
     render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
-      expect(saveMock).toHaveBeenCalledWith('barcodes.pdf');
+      expect(saveMock).toHaveBeenCalledWith('labels.pdf');
     });
 
     expect(jsPDFConstructorMock).toHaveBeenCalledWith(
@@ -150,10 +150,10 @@ describe('BarcodeGenerator PDF export', () => {
     const aisles = ['01L01A'];
     render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
-      expect(saveMock).toHaveBeenCalledWith('barcodes.pdf');
+      expect(saveMock).toHaveBeenCalledWith('labels.pdf');
     });
 
     expect(html2CanvasMock).toHaveBeenCalledTimes(1);
@@ -175,10 +175,10 @@ describe('BarcodeGenerator PDF export', () => {
     const aisles = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
     render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
-      expect(saveMock).toHaveBeenCalledWith('barcodes.pdf');
+      expect(saveMock).toHaveBeenCalledWith('labels.pdf');
     });
 
     expect(jsPDFConstructorMock).toHaveBeenCalledWith(
@@ -200,7 +200,7 @@ describe('BarcodeGenerator PDF export', () => {
     const aisles = ['01L01A'];
     render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
@@ -211,7 +211,7 @@ describe('BarcodeGenerator PDF export', () => {
   it('shows an error when no print pages are available for export', async () => {
     render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
@@ -233,7 +233,7 @@ describe('BarcodeGenerator PDF export', () => {
 
     render(<LabelGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Print Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print Labels' }));
     expect(printSpy).toHaveBeenCalledTimes(1);
 
     printSpy.mockRestore();
@@ -243,7 +243,7 @@ describe('BarcodeGenerator PDF export', () => {
     // Empty aisles to trigger error with no print pages available
     render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(
       () => {

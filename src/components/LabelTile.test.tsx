@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import LabelTile, { getDashedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 
 const MM_TO_PX = 96 / 25.4;
@@ -11,7 +11,7 @@ const mmToPx = (mm: number): number => mm * MM_TO_PX;
 
 vi.mock('react-barcode', () => ({
   default: ({ value, width, height }: { value: string; width: number; height: number }) => (
-    <div data-testid="barcode-value" data-width={String(width)} data-height={String(height)}>{value}</div>
+    <div data-testid="label-value" data-width={String(width)} data-height={String(height)}>{value}</div>
   ),
 }));
 
@@ -166,21 +166,21 @@ describe('LabelTile helpers', () => {
 });
 
 describe('LabelTile', () => {
-  it('renders primary and secondary text with dashed barcode value', () => {
+  it('renders primary and secondary text with dashed label value', () => {
     render(<LabelTile code="01L01A" config={defaultConfig} type="Aisle" />);
 
     expect(screen.getByText('L01')).toBeInTheDocument();
     expect(screen.getAllByText('01-L01-A')).toHaveLength(2);
-    expect(screen.getByTestId('barcode-value')).toHaveTextContent('01-L01-A');
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01-L01-A');
   });
 
-  it('uses layout strategy barcode sizing for large-sel mode', () => {
+  it('uses layout strategy label sizing for large-sel mode', () => {
     render(<LabelTile code="01L01A" config={defaultConfig} type="Aisle" layoutMode="large-sel" />);
 
-    const barcode = screen.getByTestId('barcode-value');
+    const label = screen.getByTestId('label-value');
     const largeSelTypography = getLabelLayoutStrategy('large-sel').typography;
 
-    expect(barcode).toHaveAttribute('data-width', String(mmToPx(largeSelTypography.barcodeModuleWidthMm)));
-    expect(barcode).toHaveAttribute('data-height', String(mmToPx(largeSelTypography.barcodeHeightMm)));
+    expect(label).toHaveAttribute('data-width', String(mmToPx(largeSelTypography.barcodeModuleThicknessMm)));
+    expect(label).toHaveAttribute('data-height', String(mmToPx(largeSelTypography.barcodeHeightMm)));
   });
 });

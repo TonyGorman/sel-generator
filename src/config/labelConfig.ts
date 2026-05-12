@@ -3,7 +3,7 @@ export const MAX_BAY_VALUE = 99;
 export const MAX_SHELF_VALUE = 20;
 export const DEFAULT_BACK_CODE_PREFIX = 'BK';
 
-// Conservative raster export profile to preserve barcode edge fidelity.
+// Conservative raster export profile to preserve label edge fidelity.
 export const PDF_EXPORT_SCALE = 3;
 export const PDF_IMAGE_COMPRESSION = 'NONE' as const;
 

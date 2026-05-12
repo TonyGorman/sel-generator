@@ -1,8 +1,8 @@
 import * as React from 'react';
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 import { ILabelConfig } from '../models/ILabelConfig';
 import LabelTile from './LabelTile';
-import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
+import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
 import { RadioGroup, RadioOption, TextField } from './FormControls';
 
 export interface IConfigurationProps {

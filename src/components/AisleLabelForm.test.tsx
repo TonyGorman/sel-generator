@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
@@ -29,7 +29,7 @@ describe('AisleLabelForm', () => {
   it('shows required fields error when aisle and shelves are missing', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Please enter aisle start, aisle end, and shelves using whole numbers.');
   });
@@ -38,7 +38,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '100', 10: '1' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Aisles must be between 1 and 99.');
   });
@@ -48,7 +48,7 @@ describe('AisleLabelForm', () => {
 
     fillInputs({ 0: '1', 1: '1', 10: '21' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
     expect(screen.queryByText('Aisle start cannot be greater than aisle end.')).not.toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('AisleLabelForm', () => {
 
     fillInputs({ 0: '1', 1: '2', 10: '5' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Enter at least one complete side range');
   });
@@ -68,7 +68,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '3', 1: '2', 2: '1', 3: '1', 10: '1' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Aisle start cannot be greater than aisle end.');
   });
@@ -77,7 +77,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '4', 3: '2', 10: '1' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Side range start cannot be greater than side range end.');
   });
@@ -86,7 +86,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '100', 10: '1' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Bay values must be between 1 and 99.');
   });
@@ -108,7 +108,7 @@ describe('AisleLabelForm', () => {
     expect(screen.getByText('A – B')).toBeInTheDocument();
     expect(screen.getByText('Total labels: 6')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('6');
@@ -139,7 +139,7 @@ describe('AisleLabelForm', () => {
       10: '1',
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('2');
@@ -150,7 +150,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '0', 1: '1', 10: '1' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Aisles must be between 1 and 99.');
   });
@@ -159,7 +159,7 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1', 10: '0' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
   });
@@ -196,7 +196,7 @@ describe('AisleLabelForm', () => {
       10: '1',
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-count')).toHaveAttribute('data-layout-mode', 'large-sel');
   });

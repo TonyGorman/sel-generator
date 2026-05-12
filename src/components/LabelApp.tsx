@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 import Tabs from './Tabs';
 import AisleLabelForm from './AisleLabelForm';
 import BackLabelForm from './BackLabelForm';
@@ -7,9 +7,11 @@ import SpecificLabelForm from './SpecificLabelForm';
 import Configuration from './Configuration';
 import { ITabItem } from '../models/ITabItem';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+import { getBarcodeCssVarsForMode } from '../config/barcodeCssVars';
 
-const Barcode = (): React.ReactElement => {
+const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<ILabelConfig>({
     primaryCodeFormat: 'sideBay',
@@ -45,10 +47,17 @@ const Barcode = (): React.ReactElement => {
     },
   ];
 
+  const miniSelGeometry = getLabelLayoutStrategy('mini-sel').barcodeGeometry;
+  const largeSelGeometry = getLabelLayoutStrategy('large-sel').barcodeGeometry;
+  const appCssVars = {
+    ...getBarcodeCssVarsForMode('mini-sel', miniSelGeometry),
+    ...getBarcodeCssVarsForMode('large-sel', largeSelGeometry),
+  } as React.CSSProperties;
+
   return (
-    <section className={styles.barcodeRoot}>
+    <section className={styles.labelAppRoot} style={appCssVars}>
       <Tabs tabs={tabItems} selectedKey={selectedTabKey} onTabClick={handleTabClick} />
     </section>
   );
 }
-export default Barcode;
+export default LabelApp;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ICommonTabsProps } from '../models/ICommonTabsProps'
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 
 const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => {
   const buttonRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
@@ -48,7 +48,7 @@ const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => 
 
   return (
     <>
-      <div className={styles.tabList} role="tablist" aria-label="Barcode views">
+      <div className={styles.tabList} role="tablist" aria-label="Label views">
         {tabs.map((tab, index) => {
           const isSelected = tab.key === activeTab.key;
 

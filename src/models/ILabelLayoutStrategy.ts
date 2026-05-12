@@ -21,10 +21,8 @@ export interface ILabelTypographyGeometry {
   primaryLetterSpacingMm: number;
   primaryBaselineFromContentTopMm: number;
   secondaryBaselineFromContentTopMm: number;
-  barcodeModuleWidthMm: number;
+  barcodeModuleThicknessMm: number;
   barcodeHeightMm: number;
-  barcodeBottomMarginMm: number;
-  barcodeMaxWidthRatio: number;
   tilePaddingHorizontalMm: number;
   tilePaddingTopMm: number;
   tilePaddingBottomMm: number;
@@ -33,9 +31,16 @@ export interface ILabelTypographyGeometry {
   largeSuffixTextSizeMm: number;
 }
 
+export interface IBarcodeGeometry {
+  widthMm: number;
+  heightMm: number;
+  marginBottomMm: number;
+}
+
 export interface ILabelLayoutStrategy {
   mode: LabelPrintMode;
   displayName: string;
   page: ILabelPageGeometry;
   typography: ILabelTypographyGeometry;
+  barcodeGeometry: IBarcodeGeometry;
 }

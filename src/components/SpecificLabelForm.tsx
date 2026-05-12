@@ -1,8 +1,8 @@
 import * as React from 'react';
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/barcodeConfig';
+import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 
 interface ISpecificLabelFormProps {
@@ -10,12 +10,12 @@ interface ISpecificLabelFormProps {
 }
 
 const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
-    const [initBarcodeText, setBarcodeText] = React.useState("");
-    const [showBarcode, setShowBarcode] = React.useState<React.ReactElement>();
+    const [initLabelText, setLabelText] = React.useState("");
+    const [showLabel, setShowLabels] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
-        setBarcodeText(e.target.value)
+        setLabelText(e.target.value)
     }
 
     const isShelfTokenValid = (token: string): boolean => {
@@ -73,31 +73,31 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
         return false;
     };
 
-    const generateBarcode = ():void => {
-        const barcodeTexts = initBarcodeText
+    const generateLabel = ():void => {
+        const labelTexts = initLabelText
             .split(',')
             .map((text) => text.trim().toUpperCase())
             .filter((text) => text.length > 0);
 
-        if (barcodeTexts.length === 0) {
-            setErrorMessage('Enter at least one barcode value.');
+        if (labelTexts.length === 0) {
+            setErrorMessage('Enter at least one label value.');
             return;
         }
 
-        const hasInvalidCode = barcodeTexts.some((code) => !isValidSpecificCode(code));
+        const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.`);
+            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.`);
             return;
         }
 
         setErrorMessage(null);
-        setShowBarcode(<LabelGenerator aisles={barcodeTexts} config={config} layoutMode="mini-sel" />)
+        setShowLabels(<LabelGenerator aisles={labelTexts} config={config} layoutMode="mini-sel" />)
     }
 
     return (
         <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate Specific Barcodes</h1>
-            <p className={styles.sectionIntro}>Enter one barcode or a comma-separated list without spaces (for example: FRF03A,FRF047).</p>
+            <h1 className={styles.panelTitle}>Generate Specific Labels</h1>
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: FRF03A,FRF047).</p>
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
                     <div><span>{errorMessage}</span></div>
@@ -105,11 +105,11 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
             )}
 
             <section className={styles.sectionBox}>
-                <h2 className={styles.sectionTitle}>Barcode Input</h2>
+                <h2 className={styles.sectionTitle}>Label Input</h2>
                 <div className={styles.formStack}>
                     <TextField
-                        value={initBarcodeText}
-                        placeholder="Enter barcodes"
+                        value={initLabelText}
+                        placeholder="Enter labels"
                         onChange={onInputChange}
                     />
                     <p>Supported formats: 01L01A, 01-L01-A, {backCodePrefix}01A, {backCodePrefix}-01-A. Bay values must be 01-99 and shelves must be 1-20 or A-T.</p>
@@ -117,12 +117,12 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
             </section>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateBarcode}>Generate Barcodes</Button>
+                <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
             </div>
 
             <div className="App">
                 <div>
-                    {showBarcode}
+                    {showLabel}
                 </div>
 
             </div>

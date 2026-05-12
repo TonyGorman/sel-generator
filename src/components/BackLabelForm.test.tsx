@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackLabelForm from './BackLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles }: { aisles: string[] }) => (
@@ -22,7 +22,7 @@ describe('BackLabelForm', () => {
   it('shows validation error when fields are missing', () => {
     render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Please enter start bay, end bay, and shelves using whole numbers.');
   });
@@ -34,7 +34,7 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[0], { target: { value: '5' } });
     fireEvent.change(inputs[1], { target: { value: '3' } });
     fireEvent.change(inputs[2], { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Start bay cannot be greater than end bay.');
   });
@@ -46,7 +46,7 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[0], { target: { value: '1' } });
     fireEvent.change(inputs[1], { target: { value: '2' } });
     fireEvent.change(inputs[2], { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-barcodes')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX}01A|${DEFAULT_BACK_CODE_PREFIX}01B|${DEFAULT_BACK_CODE_PREFIX}02A|${DEFAULT_BACK_CODE_PREFIX}02B`);
@@ -59,7 +59,7 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[0], { target: { value: '0' } });
     fireEvent.change(inputs[1], { target: { value: '5' } });
     fireEvent.change(inputs[2], { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Bays must be between 1 and 99.');
   });
@@ -71,7 +71,7 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[0], { target: { value: '1' } });
     fireEvent.change(inputs[1], { target: { value: '5' } });
     fireEvent.change(inputs[2], { target: { value: '21' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
   });
@@ -83,7 +83,7 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[0], { target: { value: '1' } });
     fireEvent.change(inputs[1], { target: { value: '1' } });
     fireEvent.change(inputs[2], { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Barcodes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-barcodes')).toHaveTextContent('9901A|9901B');

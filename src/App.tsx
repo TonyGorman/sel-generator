@@ -1,11 +1,11 @@
 import React from 'react'
-import Barcode from './components/Barcode'
+import LabelApp from './components/LabelApp'
 import './App.css'
 
 function App() {
   return (
     <>
-      <Barcode />
+      <LabelApp />
     </>
   )
 }

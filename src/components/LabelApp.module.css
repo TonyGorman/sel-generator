@@ -1,16 +1,10 @@
-:global(:root) {
-  --tile-size-mm: 39mm;
-  --page-pad-left-mm: 11mm;
-  --page-pad-right-mm: 12mm;
-  --page-pad-top-mm: 7.5mm;
-  --page-pad-bottom-mm: 7.5mm;
-  --grid-width-mm: calc(var(--tile-size-mm) * 7);
-  --grid-height-mm: calc(var(--tile-size-mm) * 5);
-  --sheet-width-mm: 296mm;
-  --sheet-height-mm: 210mm;
-}
+/* 
+ * - Runtime layout vars: --current-* (injected from layoutStrategy page/typography values).
+ * - Barcode placement vars: --mini-sel-barcode-* and --large-sel-barcode-* (injected from
+ *   layoutStrategy.barcodeGeometry).
+ */
 
-.barcodeRoot {
+.labelAppRoot {
   overflow-x: auto;
   overflow-y: visible;
   width: min(1500px, calc(100% - 300px));
@@ -168,20 +162,21 @@
   margin-bottom: 10px;
 }
 
-.configExampleCard :global(.barcodeBox) {
+.configExampleCard :global(.labelBox) {
   margin: 0;
 }
 
-.configExampleCard :global(.barcodeBox) {
-  width: var(--tile-size-mm);
+.configExampleCard :global(.labelBox) {
+  --current-tile-width-mm: 39mm;
+  --current-tile-height-mm: 39mm;
 }
 
-.configExampleCard :global(.barcodeBox .barcodeGraphic) {
-  margin-bottom: 4mm;
+.configExampleCard :global(.labelBox .barcodeGraphic) {
+  margin-bottom: var(--mini-sel-barcode-margin-bottom-mm);
 }
 
 @media (max-width: 1024px) {
-  .barcodeRoot {
+  .labelAppRoot {
     width: calc(100% - 48px);
   }
 
@@ -202,7 +197,7 @@
 }
 
 @media (max-width: 640px) {
-  .barcodeRoot {
+  .labelAppRoot {
     width: calc(100% - 24px);
     padding-top: 12px;
   }
@@ -232,7 +227,7 @@
 }
 
 .pdfDiv {
-  width: var(--sheet-width-mm);
+  width: var(--current-sheet-width-mm);
   margin: 0 auto;
 }
 
@@ -245,10 +240,13 @@
 
 .previewPage,
 .printPage {
-  width: var(--sheet-width-mm);
-  height: var(--sheet-height-mm);
+  width: var(--current-sheet-width-mm);
+  height: var(--current-sheet-height-mm);
   box-sizing: border-box;
-  padding: var(--page-pad-top-mm) var(--page-pad-right-mm) var(--page-pad-bottom-mm) var(--page-pad-left-mm);
+  padding: var(--current-page-pad-top-mm)
+    var(--current-page-pad-right-mm)
+    var(--current-page-pad-bottom-mm)
+    var(--current-page-pad-left-mm);
   background: #fff;
   overflow: hidden;
 }
@@ -263,7 +261,7 @@
   page-break-after: auto;
 }
 
-.barcodeText {
+.labelText {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -271,7 +269,7 @@
   width: 100%;
   color: black;
   text-align: center;
-  z-index:999;
+  z-index: 999;
 }
 
 .primaryCode {
@@ -291,30 +289,34 @@
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
 }
 
-.barcodeBox {
-   display:flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: space-between;
-  width: var(--tile-size-mm);
-   min-width: 0;
-   height: var(--tile-size-mm);
-   padding: 1.5mm 1.2mm 0.8mm;
-   box-sizing: border-box;
-   border: 0.2mm solid #8c8c8c;
-   break-inside: avoid;
-   page-break-inside: avoid;
-}
-
-.barcodeBoxLargeSel {
+.labelBox {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 105mm;
+  width: var(--current-tile-width-mm);
   min-width: 0;
-  height: 73mm;
-  padding: 4mm 4mm 2mm;
+  height: var(--current-tile-height-mm);
+  padding: var(--current-tile-pad-top-mm, 1.5mm)
+    var(--current-tile-pad-horizontal-mm, 1.2mm)
+    var(--current-tile-pad-bottom-mm, 0.8mm);
+  box-sizing: border-box;
+  border: 0.2mm solid #8c8c8c;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.labelBoxLargeSel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--current-tile-width-mm, 105mm);
+  min-width: 0;
+  height: var(--current-tile-height-mm, 73mm);
+  padding: var(--current-tile-pad-top-mm, 4mm)
+    var(--current-tile-pad-horizontal-mm, 4mm)
+    var(--current-tile-pad-bottom-mm, 2mm);
   box-sizing: border-box;
   border: 0.2mm solid #8c8c8c;
   break-inside: avoid;
@@ -344,11 +346,11 @@
 .largeSelHeadingPrefix,
 .largeSelHeadingSuffix,
 .largeSelHeadingFallback {
-  font-size: 12mm;
+  font-size: var(--current-large-prefix-text-size-mm, 12mm);
 }
 
 .largeSelHeadingMain {
-  font-size: 24mm;
+  font-size: var(--current-large-main-text-size-mm, 24mm);
 }
 
 .barcodeGraphicLargeSel {
@@ -356,14 +358,14 @@
   justify-content: center;
   align-items: flex-end;
   width: 100%;
-  min-height: 10mm;
-  margin-bottom: 3mm;
+  min-height: var(--large-sel-barcode-height-mm);
+  margin-bottom: var(--large-sel-barcode-margin-bottom-mm);
 }
 
 .barcodeGraphicLargeSel :global(svg) {
   width: auto;
-  max-width: 39%;
-  height: 10mm;
+  max-width: var(--large-sel-barcode-width-mm);
+  height: var(--large-sel-barcode-height-mm);
 }
 
 .barcodeGraphicLargeSel :global(svg),
@@ -371,37 +373,36 @@
   shape-rendering: crispEdges;
 }
 
-.barcodeDiv {
+.labelDiv {
   display: grid;
-  grid-template-columns: repeat(7, var(--tile-size-mm));
-  grid-auto-rows: var(--tile-size-mm);
+  grid-template-columns: repeat(var(--current-grid-columns), var(--current-label-width-mm));
+  grid-auto-rows: var(--current-label-height-mm);
   width: 100%;
-  height: var(--grid-height-mm);
+  height: var(--current-grid-height-mm);
   margin: 0 auto;
 }
 
-.printBarcodeDiv {
+.printLabelDiv {
   display: grid;
-  grid-template-columns: repeat(7, var(--tile-size-mm));
-  grid-auto-rows: var(--tile-size-mm);
+  grid-template-columns: repeat(var(--current-grid-columns), var(--current-label-width-mm));
+  grid-auto-rows: var(--current-label-height-mm);
   width: 100%;
-  height: var(--grid-height-mm);
+  height: var(--current-grid-height-mm);
   margin: 0 auto;
 }
-
 .barcodeGraphic {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   width: 100%;
-  min-height: 8mm;
-  margin-bottom: 4mm;
+  min-height: var(--mini-sel-barcode-height-mm);
+  margin-bottom: var(--mini-sel-barcode-margin-bottom-mm);
 }
 
 .barcodeGraphic :global(svg) {
   width: auto;
-  max-width: 100%;
-  height: 8mm;
+  max-width: var(--mini-sel-barcode-width-mm);
+  height: var(--mini-sel-barcode-height-mm);
 }
 
 .barcodeGraphic :global(svg),
@@ -421,22 +422,22 @@
   min-width: 170px;
 }
 
-.loaderBox { 
-  background:rgba(0,0,0,0.8); 
-  position:fixed; 
-  bottom:0; 
-  left:0; 
-  width:100%; 
-  height:100%; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  color:white; 
-  font-size:18px; 
-  z-index:1000;
+.loaderBox {
+  background: rgba(0, 0, 0, 0.8);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  z-index: 1000;
 }
 
-.alertError{
+.alertError {
   background-color: #a50000;
   color: white;
   border-radius: 4px;

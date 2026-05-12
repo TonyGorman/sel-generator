@@ -1,9 +1,9 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import Barcode from './Barcode';
+import LabelApp from './LabelApp';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./SpecificLabelForm', () => ({
   default: ({ config }: { config: ILabelConfig }) => (
@@ -38,14 +38,14 @@ vi.mock('./Configuration', () => ({
   ),
 }));
 
-describe('Barcode', () => {
+describe('LabelApp', () => {
   it('shows specific tab by default', () => {
-    render(<Barcode />);
+    render(<LabelApp />);
     expect(screen.getByText('Specific: sideBay')).toBeInTheDocument();
   });
 
   it('navigates to configuration tab when aisle requests it', () => {
-    render(<Barcode />);
+    render(<LabelApp />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Aisle Labels' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open config from aisle' }));
@@ -54,7 +54,7 @@ describe('Barcode', () => {
   });
 
   it('propagates updated config to specific tab content', () => {
-    render(<Barcode />);
+    render(<LabelApp />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
     fireEvent.click(screen.getByRole('button', { name: 'Set new config' }));

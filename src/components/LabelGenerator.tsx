@@ -1,12 +1,13 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import styles from './Barcode.module.css';
+import styles from './LabelApp.module.css';
 
 import { ILabelGenerator } from '../models/ILabelGenerator';
 import Pagination from './Pagination';
 import LabelTile from './LabelTile';
 import { Button } from './FormControls';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+import { getBarcodeCssVarsForMode } from '../config/barcodeCssVars';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './LabelPdfExport';
 
@@ -103,7 +104,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         }
       }
 
-      pdf.save('barcodes.pdf');
+      pdf.save('labels.pdf');
     } catch {
       setDownloadError('Download failed. Please try again.');
     } finally {
@@ -120,29 +121,44 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   }
 
   const pageStyle = React.useMemo(
-    () => ({
-      width: toMmStyle(layoutStrategy.page.sheetWidthMm),
-      height: toMmStyle(layoutStrategy.page.sheetHeightMm),
-      paddingTop: toMmStyle(layoutStrategy.page.pagePadTopMm),
-      paddingRight: toMmStyle(layoutStrategy.page.pagePadRightMm),
-      paddingBottom: toMmStyle(layoutStrategy.page.pagePadBottomMm),
-      paddingLeft: toMmStyle(layoutStrategy.page.pagePadLeftMm),
-    }),
+    () => {
+      const geometry = layoutStrategy.barcodeGeometry;
+      const page = layoutStrategy.page;
+      const typography = layoutStrategy.typography;
+      const modeVars = getBarcodeCssVarsForMode(layoutStrategy.mode, geometry);
+
+      const pageVars: Record<string, string> = {
+        '--current-sheet-width-mm': toMmStyle(page.sheetWidthMm),
+        '--current-sheet-height-mm': toMmStyle(page.sheetHeightMm),
+        '--current-page-pad-top-mm': toMmStyle(page.pagePadTopMm),
+        '--current-page-pad-right-mm': toMmStyle(page.pagePadRightMm),
+        '--current-page-pad-bottom-mm': toMmStyle(page.pagePadBottomMm),
+        '--current-page-pad-left-mm': toMmStyle(page.pagePadLeftMm),
+        '--current-grid-columns': String(page.columns),
+        '--current-label-width-mm': toMmStyle(page.labelWidthMm),
+        '--current-label-height-mm': toMmStyle(page.labelHeightMm),
+        '--current-grid-height-mm': toMmStyle(page.labelHeightMm * page.rows),
+        '--current-tile-width-mm': toMmStyle(page.labelWidthMm),
+        '--current-tile-height-mm': toMmStyle(page.labelHeightMm),
+        '--current-tile-pad-top-mm': toMmStyle(typography.tilePaddingTopMm),
+        '--current-tile-pad-horizontal-mm': toMmStyle(typography.tilePaddingHorizontalMm),
+        '--current-tile-pad-bottom-mm': toMmStyle(typography.tilePaddingBottomMm),
+        '--current-large-prefix-text-size-mm': toMmStyle(typography.largePrefixTextSizeMm),
+        '--current-large-main-text-size-mm': toMmStyle(typography.largeMainTextSizeMm),
+        '--current-large-suffix-text-size-mm': toMmStyle(typography.largeSuffixTextSizeMm),
+      };
+
+      return {
+        ...pageVars,
+        ...modeVars,
+      } as React.CSSProperties;
+    },
     [layoutStrategy],
   );
 
-  const gridStyle = React.useMemo(
-    () => ({
-      gridTemplateColumns: `repeat(${layoutStrategy.page.columns}, ${toMmStyle(layoutStrategy.page.labelWidthMm)})`,
-      gridAutoRows: toMmStyle(layoutStrategy.page.labelHeightMm),
-      height: toMmStyle(layoutStrategy.page.labelHeightMm * layoutStrategy.page.rows),
-    }),
-    [layoutStrategy],
-  );
-
-  const renderLabelGrid = (barcodes: string[], className?: string): React.ReactElement => (
-    <div className={className ?? styles.barcodeDiv} style={gridStyle}>
-      {barcodes.map((aisle: string, index: number) => {
+  const renderLabelGrid = (labels: string[], className?: string): React.ReactElement => (
+    <div className={className ?? styles.labelDiv}>
+      {labels.map((aisle: string, index: number) => {
         return (
           <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} type={type} layoutMode={layoutStrategy.mode} />
         );
@@ -157,13 +173,13 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
 
       {loading && (
         <div className={styles.loaderBox} role="status" aria-live="polite" aria-atomic="true">
-          Downloading barcode PDF using barcode-safe export profile....
+          Downloading label PDF using barcode-safe export profile....
         </div>
       )}
       {!loading && (
         <div className={styles.actionBar}>
-          <Button className={styles.actionButton} onClick={handlePrint}>Print Barcodes</Button>
-          <Button className={styles.actionButton} onClick={handleGeneratePdf}>Download Barcodes</Button>
+          <Button className={styles.actionButton} onClick={handlePrint}>Print Labels</Button>
+          <Button className={styles.actionButton} onClick={handleGeneratePdf}>Download Labels</Button>
         </div>
       )}
       {downloadError && (
@@ -175,7 +191,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
       <div className={styles.exportSurface} ref={pdfRef} aria-hidden="true">
         {pagedItems.map((pageItems, pageIndex) => (
           <div key={`page-${pageIndex + 1}`} className={styles.printPage} style={pageStyle}>
-            {renderLabelGrid(pageItems, styles.printBarcodeDiv)}
+            {renderLabelGrid(pageItems, styles.printLabelDiv)}
           </div>
         ))}
       </div>
@@ -185,7 +201,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         <div className={styles.printPortal}>
           {pagedItems.map((pageItems, pageIndex) => (
             <div key={`page-${pageIndex + 1}`} className={styles.printPage} style={pageStyle}>
-              {renderLabelGrid(pageItems, styles.printBarcodeDiv)}
+              {renderLabelGrid(pageItems, styles.printLabelDiv)}
             </div>
           ))}
         </div>,

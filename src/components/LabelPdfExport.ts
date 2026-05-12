@@ -1,4 +1,4 @@
-import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/barcodeConfig';
+import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
 import { getDashedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { ILabelGenerator } from '../models/ILabelGenerator';
@@ -155,6 +155,7 @@ export const drawVectorPage = async (
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>,
 ): Promise<void> => {
   const { page, typography } = layoutStrategy;
+  const { barcodeGeometry } = layoutStrategy;
 
   pdf.setLineWidth(0.2);
   pdf.setDrawColor(140);
@@ -180,9 +181,13 @@ export const drawVectorPage = async (
     pdf.rect(x, y, page.labelWidthMm, page.labelHeightMm);
 
     if (layoutStrategy.mode === 'large-sel') {
-      const barcodeContainerWidth = (page.labelWidthMm - typography.tilePaddingHorizontalMm * 2) * typography.barcodeMaxWidthRatio;
-      const barcodeX = x + (page.labelWidthMm - barcodeContainerWidth) / 2;
-      const barcodeY = y + page.labelHeightMm - typography.tilePaddingBottomMm - typography.barcodeBottomMarginMm - typography.barcodeHeightMm;
+      const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
+      const barcodeY =
+        y +
+        page.labelHeightMm -
+        typography.tilePaddingBottomMm -
+        barcodeGeometry.marginBottomMm -
+        barcodeGeometry.heightMm;
       const topAreaStartY = y + typography.tilePaddingTopMm;
       const topAreaHeight = barcodeY - topAreaStartY;
 
@@ -205,9 +210,9 @@ export const drawVectorPage = async (
         getDashedLabelCode(code, type, config.backCodePrefix),
         barcodeX,
         barcodeY,
-        barcodeContainerWidth,
-        typography.barcodeHeightMm,
-        typography.barcodeModuleWidthMm,
+        barcodeGeometry.widthMm,
+        barcodeGeometry.heightMm,
+        typography.barcodeModuleThicknessMm,
       );
       continue;
     }
@@ -222,9 +227,13 @@ export const drawVectorPage = async (
     pdf.setCharSpace(0);
     pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.tilePaddingTopMm + typography.secondaryBaselineFromContentTopMm, { align: 'center' });
 
-    const barcodeY = y + page.labelHeightMm - typography.tilePaddingBottomMm - typography.barcodeBottomMarginMm - typography.barcodeHeightMm;
-    const barcodeWidth = (page.labelWidthMm - typography.tilePaddingHorizontalMm * 2) * typography.barcodeMaxWidthRatio;
-    const centeredBarcodeX = x + (page.labelWidthMm - barcodeWidth) / 2;
+    const barcodeY =
+      y +
+      page.labelHeightMm -
+      typography.tilePaddingBottomMm -
+      barcodeGeometry.marginBottomMm -
+      barcodeGeometry.heightMm;
+    const centeredBarcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
     await drawVectorBarcode(
       pdf,
       svg2pdf,
@@ -232,9 +241,9 @@ export const drawVectorPage = async (
       getDashedLabelCode(code, type, config.backCodePrefix),
       centeredBarcodeX,
       barcodeY,
-      barcodeWidth,
-      typography.barcodeHeightMm,
-      typography.barcodeModuleWidthMm,
+      barcodeGeometry.widthMm,
+      barcodeGeometry.heightMm,
+      typography.barcodeModuleThicknessMm,
     );
   }
 };
