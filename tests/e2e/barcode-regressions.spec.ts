@@ -260,6 +260,8 @@ test.describe('Barcode Generator regressions', () => {
     const previewPage = page.locator('[class*="previewPage"]').first();
     await expect(previewPage).toHaveScreenshot('aisle-large-sel-8-labels.png', {
       animations: 'disabled',
+      // Allow minor cross-platform anti-aliasing/font rasterization drift (macOS vs Linux).
+      maxDiffPixelRatio: 0.05,
     });
   });
 
