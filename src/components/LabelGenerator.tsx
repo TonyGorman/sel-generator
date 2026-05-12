@@ -2,13 +2,13 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import styles from './Barcode.module.css';
 
-import { IBarcodeGenerator } from '../models/IBarcodeGenerator';
+import { ILabelGenerator } from '../models/ILabelGenerator';
 import Pagination from './Pagination';
 import LabelTile from './LabelTile';
 import { Button } from './FormControls';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
-import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './labelPdfExport';
+import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './LabelPdfExport';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
@@ -16,7 +16,7 @@ const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
 
 const toMmStyle = (value: number): string => `${value}mm`;
 
-const BarcodeGenerator = (props: IBarcodeGenerator): React.ReactElement => {
+const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const { aisles, type, config, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
   const layoutStrategy = React.useMemo(() => getLabelLayoutStrategy(layoutMode), [layoutMode]);
   const itemsPerPage = React.useMemo(() => getItemsPerPage(layoutStrategy), [layoutStrategy]);
@@ -201,4 +201,4 @@ const BarcodeGenerator = (props: IBarcodeGenerator): React.ReactElement => {
   );
 };
 
-export default BarcodeGenerator;
+export default LabelGenerator;

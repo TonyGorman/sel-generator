@@ -1,7 +1,7 @@
 import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/barcodeConfig';
 import { getDashedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
-import { IBarcodeGenerator } from '../models/IBarcodeGenerator';
+import { ILabelGenerator } from '../models/ILabelGenerator';
 
 const MM_TO_PT = 72 / 25.4;
 const MM_TO_PX = 96 / 25.4;
@@ -149,7 +149,7 @@ export const drawVectorPage = async (
   pdf: JsPdfInstance,
   pageItems: string[],
   type: string | undefined,
-  config: IBarcodeGenerator['config'],
+  config: ILabelGenerator['config'],
   layoutStrategy: ILabelLayoutStrategy,
   jsBarcode: JsBarcodeFn,
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>,

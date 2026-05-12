@@ -2,11 +2,11 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Barcode from './Barcode';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 vi.mock('./SpecificBarcode', () => ({
-  default: ({ config }: { config: IBarcodeConfig }) => (
+  default: ({ config }: { config: ILabelConfig }) => (
     <div>Specific: {config.primaryCodeFormat}</div>
   ),
 }));
@@ -22,7 +22,7 @@ vi.mock('./BackBarcode', () => ({
 }));
 
 vi.mock('./Configuration', () => ({
-  default: ({ onConfigChange }: { onConfigChange: (config: IBarcodeConfig) => void }) => (
+  default: ({ onConfigChange }: { onConfigChange: (config: ILabelConfig) => void }) => (
     <button
       onClick={() =>
         onConfigChange({

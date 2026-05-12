@@ -1,13 +1,13 @@
 import * as React from 'react';
 import styles from './Barcode.module.css';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
-import BarcodeTile from './BarcodeTile';
+import { ILabelConfig } from '../models/ILabelConfig';
+import LabelTile from './LabelTile';
 import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { RadioGroup, RadioOption, TextField } from './FormControls';
 
 export interface IConfigurationProps {
-  config: IBarcodeConfig;
-  onConfigChange: (config: IBarcodeConfig) => void;
+  config: ILabelConfig;
+  onConfigChange: (config: ILabelConfig) => void;
 }
 
 const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }) => {
@@ -113,7 +113,7 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
           <section className={styles.sectionBox}>
             <h2 className={styles.sectionTitle}>Preview</h2>
             <div className={styles.configExampleCard}>
-              <BarcodeTile code={exampleLabelCode} config={config} type="Aisle" />
+              <LabelTile code={exampleLabelCode} config={config} type="Aisle" />
             </div>
           </section>
         </div>

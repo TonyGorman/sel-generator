@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styles from './Barcode.module.css';
-import BarcodeGenerator from './BarcodeGenerator';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import LabelGenerator from './LabelGenerator';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
 interface ISpecificBarcodeProps {
-    config: IBarcodeConfig;
+    config: ILabelConfig;
 }
 
 const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
@@ -91,7 +91,7 @@ const SpecificBarcode: React.FC<ISpecificBarcodeProps> = ({ config }) => {
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator aisles={barcodeTexts} config={config} layoutMode="mini-sel" />)
+        setShowBarcode(<LabelGenerator aisles={barcodeTexts} config={config} layoutMode="mini-sel" />)
     }
 
     return (

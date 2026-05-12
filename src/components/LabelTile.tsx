@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
 import styles from './Barcode.module.css';
-import { IBarcodeConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/IBarcodeConfig';
+import { ILabelConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
@@ -251,7 +251,7 @@ export const getLargeSelDisplayParts = (
 
 interface ILabelTileProps {
   code: string;
-  config: IBarcodeConfig;
+  config: ILabelConfig;
   type?: string;
   layoutMode?: LabelPrintMode;
 }
@@ -307,7 +307,3 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
 };
 
 export default LabelTile;
-
-// Temporary compatibility exports during LabelTile migration.
-export const getDashedCode = getDashedLabelCode;
-export const getPrimaryText = getPrimaryLabelText;

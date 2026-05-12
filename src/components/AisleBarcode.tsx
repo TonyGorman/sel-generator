@@ -1,13 +1,13 @@
 import * as React from 'react';
 import styles from './AisleBarcode.module.css';
-import BarcodeGenerator from './BarcodeGenerator';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import LabelGenerator from './LabelGenerator';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/barcodeConfig';
 import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
 interface IAisleBarcodeProps {
-    config: IBarcodeConfig;
+    config: ILabelConfig;
     onOpenConfiguration: () => void;
 }
 
@@ -235,7 +235,7 @@ const AisleBarcode: React.FC<IAisleBarcodeProps> = ({ config, onOpenConfiguratio
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator type='Aisle' aisles={generateBarcodeText()} config={config} layoutMode={labelPrintMode} />)
+        setShowBarcode(<LabelGenerator type='Aisle' aisles={generateBarcodeText()} config={config} layoutMode={labelPrintMode} />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {

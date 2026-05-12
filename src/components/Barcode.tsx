@@ -6,12 +6,12 @@ import BackBarcode from './BackBarcode';
 import SpecificBarcode from './SpecificBarcode';
 import Configuration from './Configuration';
 import { ITabItem } from '../models/ITabItem';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 const Barcode = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
-  const [config, setConfig] = React.useState<IBarcodeConfig>({
+  const [config, setConfig] = React.useState<ILabelConfig>({
     primaryCodeFormat: 'sideBay',
     shelfStyle: 'number',
     secondaryCodeFormat: 'dashes',

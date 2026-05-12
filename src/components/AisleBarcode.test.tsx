@@ -2,16 +2,16 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleBarcode from './AisleBarcode';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
-vi.mock('./BarcodeGenerator', () => ({
+vi.mock('./LabelGenerator', () => ({
   default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
     <div data-testid="generated-count" data-layout-mode={layoutMode}>{aisles.length}</div>
   ),
 }));
 
-const defaultConfig: IBarcodeConfig = {
+const defaultConfig: ILabelConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
@@ -115,7 +115,7 @@ describe('AisleBarcode', () => {
   });
 
   it('renders numeric shelf summary when shelf style is number', () => {
-    const numericConfig: IBarcodeConfig = {
+    const numericConfig: ILabelConfig = {
       ...defaultConfig,
       shelfStyle: 'number',
     };

@@ -2,14 +2,14 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Configuration from './Configuration';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
-vi.mock('./BarcodeTile', () => ({
+vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div data-testid="preview-code">{code}</div>,
 }));
 
-const defaultConfig: IBarcodeConfig = {
+const defaultConfig: ILabelConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
@@ -42,7 +42,7 @@ describe('Configuration', () => {
 
   it('updates preview code when shelf style changes in a stateful wrapper', () => {
     const Wrapper = () => {
-      const [config, setConfig] = React.useState<IBarcodeConfig>(defaultConfig);
+      const [config, setConfig] = React.useState<ILabelConfig>(defaultConfig);
       return <Configuration config={config} onConfigChange={setConfig} />;
     };
 

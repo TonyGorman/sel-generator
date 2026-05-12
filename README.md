@@ -89,18 +89,37 @@ Run only the barcode regression spec:
 
 Visual snapshots are part of the Playwright suite and are validated automatically when running `npm run test:e2e`.
 
-The barcode regression spec now validates two visual outputs:
+The barcode regression spec now validates visual outputs for both label sizes:
 
-- On-screen preview image snapshots (including a full-page 35-label default configuration capture)
-- Downloaded PDF first-page visual snapshot (rendered from the exported PDF and compared as a PNG baseline)
+- On-screen preview image snapshots for Mini SEL (35-label full page) and Large SEL (8-label full page)
+- Downloaded PDF first-page visual snapshots for both Mini SEL and Large SEL
+- PDF contract snapshots (page count, page dimensions, and orientation) for both label sizes
 
 If UI changes are intentional, update the snapshot baselines with:
 
-`npm run test:e2e -- tests/e2e/barcode-regressions.spec.ts --update-snapshots=all`
+`npm run test:visual:update`
 
 Snapshot files are stored under:
 
 `tests/e2e/barcode-regressions.spec.ts-snapshots`
+
+## Label Sizes
+
+The app supports two label sizes, selectable per print run.
+
+### Mini SEL (default)
+
+- Paper: A4 landscape, 39mm × 39mm labels
+- Layout: 7 columns × 5 rows (35 labels per page)
+- Available on: Aisle, Back, and Specific barcode tabs
+
+### Large SEL
+
+- Paper: A4 portrait, 105mm × 73mm labels
+- Layout: 2 columns × 4 rows (8 labels per page)
+- Available on: Aisle barcode tab only
+- Select using the **Mini SEL / Large SEL** radio buttons on the Aisle tab
+- Label content: mixed-size heading (aisle-side+bay-shelf) above a centred barcode
 
 ## Print and Scan Validation Protocol
 

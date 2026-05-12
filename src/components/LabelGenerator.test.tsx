@@ -1,8 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import BarcodeGenerator from './BarcodeGenerator';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import LabelGenerator from './LabelGenerator';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
 const {
@@ -92,7 +92,7 @@ vi.mock('./Pagination', () => ({
   ),
 }));
 
-const defaultConfig: IBarcodeConfig = {
+const defaultConfig: ILabelConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
@@ -121,7 +121,7 @@ describe('BarcodeGenerator PDF export', () => {
 
   it('exports all pages with vector barcode rendering in one landscape A4 PDF', async () => {
     const aisles = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 
@@ -148,7 +148,7 @@ describe('BarcodeGenerator PDF export', () => {
     svg2pdfMock.mockRejectedValueOnce(new Error('svg fail'));
 
     const aisles = ['01L01A'];
-    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 
@@ -173,7 +173,7 @@ describe('BarcodeGenerator PDF export', () => {
 
   it('exports large-sel pages using portrait A4 geometry', async () => {
     const aisles = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
+    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 
@@ -198,7 +198,7 @@ describe('BarcodeGenerator PDF export', () => {
     });
 
     const aisles = ['01L01A'];
-    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 
@@ -209,7 +209,7 @@ describe('BarcodeGenerator PDF export', () => {
   });
 
   it('shows an error when no print pages are available for export', async () => {
-    render(<BarcodeGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 
@@ -221,7 +221,7 @@ describe('BarcodeGenerator PDF export', () => {
 
   it('updates preview items through pagination callback', () => {
     const aisles = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<BarcodeGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByTestId('pagination-trigger'));
 
@@ -231,7 +231,7 @@ describe('BarcodeGenerator PDF export', () => {
   it('invokes window.print when print button is clicked', () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
 
-    render(<BarcodeGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Print Barcodes' }));
     expect(printSpy).toHaveBeenCalledTimes(1);
@@ -241,7 +241,7 @@ describe('BarcodeGenerator PDF export', () => {
 
   it('shows error alert when download fails', async () => {
     // Empty aisles to trigger error with no print pages available
-    render(<BarcodeGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+    render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Barcodes' }));
 

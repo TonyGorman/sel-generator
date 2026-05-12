@@ -2,16 +2,16 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackBarcode from './BackBarcode';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/barcodeConfig';
 
-vi.mock('./BarcodeGenerator', () => ({
+vi.mock('./LabelGenerator', () => ({
   default: ({ aisles }: { aisles: string[] }) => (
     <div data-testid="generated-barcodes">{aisles.join('|')}</div>
   ),
 }));
 
-const defaultConfig: IBarcodeConfig = {
+const defaultConfig: ILabelConfig = {
   primaryCodeFormat: 'sideBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styles from './AisleBarcode.module.css';
-import BarcodeGenerator from './BarcodeGenerator';
-import { IBarcodeConfig } from '../models/IBarcodeConfig';
+import LabelGenerator from './LabelGenerator';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/barcodeConfig';
 import { Button, TextField } from './FormControls';
 
 interface IBackBarcodeProps {
-    config: IBarcodeConfig;
+    config: ILabelConfig;
     onOpenConfiguration: () => void;
 }
 
@@ -89,7 +89,7 @@ const BackBarcode: React.FC<IBackBarcodeProps> = ({ config, onOpenConfiguration 
         }
 
         setErrorMessage(null);
-        setShowBarcode(<BarcodeGenerator type='Back' aisles={generateBarcodeText()} config={config} layoutMode="mini-sel" />)
+        setShowBarcode(<LabelGenerator type='Back' aisles={generateBarcodeText()} config={config} layoutMode="mini-sel" />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
