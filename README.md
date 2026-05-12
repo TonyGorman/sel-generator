@@ -39,7 +39,6 @@ Quality checks run in CI:
 - `npm run styles:audit`
 - `npm run test:run`
 - `npm run build`
-- `npm run test:e2e` (after installing Playwright Chromium in CI)
 
 Run the same fast gate locally with:
 
