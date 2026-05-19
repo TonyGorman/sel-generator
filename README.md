@@ -1,6 +1,36 @@
 # barcode-generator
 
-Generate Shelf Edge Labels for printing.  
+Generate Shelf Edge Labels for printing.
+
+## Features
+
+### Label Generation
+
+The app provides three workflows for generating barcode labels:
+
+- **Specific Labels**: Enter custom barcode values (one per line, comma-separated). Input is normalized to match your configuration settings.
+- **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
+- **Back Wall Labels**: Generate labels for back-wall merchandise, with custom prefix support.
+
+All labels display:
+- A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
+- Encoded barcode value as readable text below the barcode for visual verification
+- Configurable primary text (side+bay or shelf only)
+- Configurable secondary text format (dashes or spaces)
+
+### Configuration
+
+Configure label appearance in the **Configuration** tab:
+
+- **Primary Code Format**: Choose between side+bay display (e.g., "R01") or shelf only (e.g., "1" or "A")
+- **Shelf Style**: Display shelves as numbers (1–20) or letters (A–T). When set, all input is automatically coerced to this format.
+- **Secondary Code Format**: Display additional text with dashes (e.g., "01-R02-A") or spaces (e.g., "01 R02 A")
+- **Back Code Prefix**: Custom prefix for back-wall labels (e.g., "BK" or "99")
+
+### Print & Export
+
+- **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper
+- **Download**: Export labels as a PDF with vector graphics and scan-safe barcode encoding
 
 ## Build and Publish
 

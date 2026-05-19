@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import Configuration from './Configuration';
+import ConfigureLabelForm from './ConfigureLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
@@ -10,16 +10,16 @@ vi.mock('./LabelTile', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideBay',
+  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
-describe('Configuration', () => {
+describe('ConfigureLabelForm', () => {
   it('emits updated config values for each radio group', () => {
     const onConfigChange = vi.fn();
-    render(<Configuration config={defaultConfig} onConfigChange={onConfigChange} />);
+    render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
 
     fireEvent.click(screen.getByLabelText('Shelf only'));
     expect(onConfigChange).toHaveBeenCalledWith({
@@ -43,7 +43,7 @@ describe('Configuration', () => {
   it('updates preview code when shelf style changes in a stateful wrapper', () => {
     const Wrapper = () => {
       const [config, setConfig] = React.useState<ILabelConfig>(defaultConfig);
-      return <Configuration config={config} onConfigChange={setConfig} />;
+      return <ConfigureLabelForm config={config} onConfigChange={setConfig} />;
     };
 
     render(<Wrapper />);
@@ -56,7 +56,7 @@ describe('Configuration', () => {
 
   it('emits sanitized Back code prefix updates', () => {
     const onConfigChange = vi.fn();
-    render(<Configuration config={defaultConfig} onConfigChange={onConfigChange} />);
+    render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
 
     fireEvent.change(screen.getByLabelText('Prefix (letters or numbers)'), {
       target: { value: '99' },

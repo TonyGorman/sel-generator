@@ -15,12 +15,12 @@ const PREVIEW_STYLE = {
   '--mini-sel-barcode-margin-bottom-mm': `${miniGeo.marginBottomMm}mm`,
 } as React.CSSProperties;
 
-export interface IConfigurationProps {
+export interface IConfigureLabelFormProps {
   config: ILabelConfig;
   onConfigChange: (config: ILabelConfig) => void;
 }
 
-const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }) => {
+const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConfigChange }) => {
   const primaryCodeOptions: RadioOption[] = [
     { key: 'sideBay', text: 'Side + Bay (e.g., "R01")' },
     { key: 'shelfOnly', text: 'Shelf only' },
@@ -41,7 +41,7 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
   const handlePrimaryCodeFormatChange = (key: string) => {
     onConfigChange({
       ...config,
-      primaryCodeFormat: key as 'sideBay' | 'shelfOnly',
+      primaryCodeFormat: key as 'sideAndBay' | 'shelfOnly',
     });
   };
 
@@ -137,4 +137,4 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
   );
 };
 
-export default Configuration;
+export default ConfigureLabelForm;

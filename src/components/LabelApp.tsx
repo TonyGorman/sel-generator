@@ -4,7 +4,7 @@ import Tabs from './Tabs';
 import AisleLabelForm from './AisleLabelForm';
 import BackLabelForm from './BackLabelForm';
 import SpecificLabelForm from './SpecificLabelForm';
-import Configuration from './Configuration';
+import ConfigureLabelForm from './ConfigureLabelForm';
 import { ITabItem } from '../models/ITabItem';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
@@ -12,7 +12,7 @@ import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<ILabelConfig>({
-    primaryCodeFormat: 'sideBay',
+    primaryCodeFormat: 'sideAndBay',
     shelfStyle: 'number',
     secondaryCodeFormat: 'dashes',
     backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -41,7 +41,7 @@ const LabelApp = (): React.ReactElement => {
     {
       key: 'config',
       headerText: 'Configuration',
-      content: <Configuration config={config} onConfigChange={setConfig} />,
+      content: <ConfigureLabelForm config={config} onConfigChange={setConfig} />,
     },
   ];
 

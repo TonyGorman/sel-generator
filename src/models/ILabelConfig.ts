@@ -1,4 +1,4 @@
-export type PrimaryCodeFormat = 'sideBay' | 'shelfOnly';
+export type PrimaryCodeFormat = 'sideAndBay' | 'shelfOnly';
 export type ShelfStyle = 'number' | 'alphabetical';
 export type SecondaryCodeFormat = 'dashes' | 'spaces';
 

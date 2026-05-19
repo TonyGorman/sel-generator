@@ -12,7 +12,7 @@ vi.mock('./LabelGenerator', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideBay',
+  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,

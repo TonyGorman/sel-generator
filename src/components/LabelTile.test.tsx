@@ -16,7 +16,7 @@ vi.mock('react-barcode', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideBay',
+  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -78,7 +78,7 @@ describe('LabelTile helpers', () => {
 
   it('builds side and bay primary text with spaces secondary format', () => {
     expect(
-      getPrimaryLabelText('01L01A', 'sideBay', 'alphabetical', 'spaces', 'Aisle'),
+      getPrimaryLabelText('01L01A', 'sideAndBay', 'alphabetical', 'spaces', 'Aisle'),
     ).toEqual({
       primary: 'L01',
       secondary: '01 L01 A',
@@ -105,16 +105,16 @@ describe('LabelTile helpers', () => {
 
   it('returns raw fallback primary and secondary for unknown shape values', () => {
     expect(
-      getPrimaryLabelText('AA-BB', 'sideBay', 'alphabetical', 'dashes', 'Aisle'),
+      getPrimaryLabelText('AA-BB', 'sideAndBay', 'alphabetical', 'dashes', 'Aisle'),
     ).toEqual({
       primary: 'AA-BB',
       secondary: 'AA-BB',
     });
   });
 
-  it('returns compact back wall primary text when primary format is sideBay', () => {
+  it('returns compact back wall primary text when primary format is sideAndBay', () => {
     expect(
-      getPrimaryLabelText(`${DEFAULT_BACK_CODE_PREFIX}01A`, 'sideBay', 'alphabetical', 'dashes', 'Back'),
+      getPrimaryLabelText(`${DEFAULT_BACK_CODE_PREFIX}01A`, 'sideAndBay', 'alphabetical', 'dashes', 'Back'),
     ).toEqual({
       primary: `${DEFAULT_BACK_CODE_PREFIX}01`,
       secondary: `${DEFAULT_BACK_CODE_PREFIX}-01-A`,
@@ -123,7 +123,7 @@ describe('LabelTile helpers', () => {
 
   it('renders dashed back wall input with back wall secondary text', () => {
     expect(
-      getPrimaryLabelText(`${DEFAULT_BACK_CODE_PREFIX}-01-A`, 'sideBay', 'alphabetical', 'dashes'),
+      getPrimaryLabelText(`${DEFAULT_BACK_CODE_PREFIX}-01-A`, 'sideAndBay', 'alphabetical', 'dashes'),
     ).toEqual({
       primary: `${DEFAULT_BACK_CODE_PREFIX}01`,
       secondary: `${DEFAULT_BACK_CODE_PREFIX}-01-A`,
@@ -132,7 +132,7 @@ describe('LabelTile helpers', () => {
 
   it('renders custom Back prefix for primary and secondary text', () => {
     expect(
-      getPrimaryLabelText('9901A', 'sideBay', 'alphabetical', 'dashes', 'Back', '99'),
+      getPrimaryLabelText('9901A', 'sideAndBay', 'alphabetical', 'dashes', 'Back', '99'),
     ).toEqual({
       primary: '9901',
       secondary: '99-01-A',
@@ -142,7 +142,7 @@ describe('LabelTile helpers', () => {
   it('returns unchanged output for plain non-matching values', () => {
     expect(getDashedLabelCode('XYZ')).toBe('XYZ');
     expect(
-      getPrimaryLabelText('XYZ', 'sideBay', 'alphabetical', 'dashes', 'Aisle'),
+      getPrimaryLabelText('XYZ', 'sideAndBay', 'alphabetical', 'dashes', 'Aisle'),
     ).toEqual({
       primary: 'XYZ',
       secondary: 'XYZ',
@@ -192,6 +192,7 @@ describe('LabelTile', () => {
     expect(screen.getByText('L01')).toBeInTheDocument();
     expect(screen.getByText('01-L01-A')).toBeInTheDocument();
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getAllByText('01L01A')).toHaveLength(2);
   });
 
   it('uses layout strategy label sizing for large-sel mode', () => {
@@ -202,6 +203,7 @@ describe('LabelTile', () => {
 
     expect(label).toHaveAttribute('data-width', String(mmToPx(largeSelTypography.barcodeModuleThicknessMm)));
     expect(label).toHaveAttribute('data-height', String(mmToPx(largeSelTypography.barcodeHeightMm)));
+    expect(screen.getAllByText('01L01A')).toHaveLength(2);
   });
 
   it('barcode payload stays compact with dashes secondary format', () => {

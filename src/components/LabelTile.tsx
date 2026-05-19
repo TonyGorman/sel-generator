@@ -346,6 +346,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
           height={mmToPx(layoutStrategy.typography.barcodeHeightMm)}
           margin={0}
         />
+        <div className={isLargeSel ? styles.encodedValueLargeSel : styles.encodedValue}>{labelValue}</div>
       </div>
     </div>
   );

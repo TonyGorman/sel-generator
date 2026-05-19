@@ -38,6 +38,37 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return numericValue >= 1 && numericValue <= max;
     };
 
+    const convertShelfTokenToNumber = (token: string): string => {
+        if (/^\d+$/.test(token)) {
+            return String(Number(token));
+        }
+
+        if (/^[A-Z]$/.test(token)) {
+            return String(token.charCodeAt(0) - 64);
+        }
+
+        return token;
+    };
+
+    const convertShelfTokenToLetter = (token: string): string => {
+        if (/^\d+$/.test(token)) {
+            const numericShelf = Number(token);
+            if (numericShelf >= 1 && numericShelf <= 26) {
+                return String.fromCharCode(64 + numericShelf);
+            }
+        }
+
+        if (/^[A-Z]$/.test(token)) {
+            return token;
+        }
+
+        return token;
+    };
+
+    const normalizeShelfTokenForConfig = (token: string): string => {
+        return config.shelfStyle === 'number' ? convertShelfTokenToNumber(token) : convertShelfTokenToLetter(token);
+    };
+
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
 
     const isValidSpecificCode = (code: string): boolean => {
@@ -74,6 +105,36 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return false;
     };
 
+    const normalizeSpecificCodeForConfig = (code: string): string => {
+        const normalizedCode = code.toUpperCase();
+
+        const compactAisleMatch = normalizedCode.match(/^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/);
+        if (compactAisleMatch) {
+            const [, aisle, side, bay, shelf] = compactAisleMatch;
+            return `${aisle}${side}${bay}${normalizeShelfTokenForConfig(shelf)}`;
+        }
+
+        const dashedAisleMatch = normalizedCode.match(/^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/);
+        if (dashedAisleMatch) {
+            const [, aisle, side, bay, shelf] = dashedAisleMatch;
+            return `${aisle}-${side}${bay}-${normalizeShelfTokenForConfig(shelf)}`;
+        }
+
+        const compactBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}(\\d{2})([A-Z0-9]+)$`));
+        if (compactBackMatch) {
+            const [, bay, shelf] = compactBackMatch;
+            return `${backCodePrefix}${bay}${normalizeShelfTokenForConfig(shelf)}`;
+        }
+
+        const dashedBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}-(\\d{2})-([A-Z0-9]+)$`));
+        if (dashedBackMatch) {
+            const [, bay, shelf] = dashedBackMatch;
+            return `${backCodePrefix}-${bay}-${normalizeShelfTokenForConfig(shelf)}`;
+        }
+
+        return normalizedCode;
+    };
+
     const generateLabel = ():void => {
         const labelTexts = initLabelText
             .split(',')
@@ -91,8 +152,10 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
             return;
         }
 
+        const normalizedLabelTexts = labelTexts.map((code) => normalizeSpecificCodeForConfig(code));
+
         setErrorMessage(null);
-        setShowLabels(<LabelGenerator aisles={labelTexts} config={config} layoutMode="mini-sel" />)
+        setShowLabels(<LabelGenerator aisles={normalizedLabelTexts} config={config} layoutMode="mini-sel" />)
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {

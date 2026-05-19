@@ -351,6 +351,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  position: relative;
   width: 100%;
   min-height: var(--large-sel-barcode-height-mm);
   margin-bottom: var(--large-sel-barcode-margin-bottom-mm);
@@ -388,9 +389,38 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  position: relative;
   width: 100%;
   min-height: var(--mini-sel-barcode-height-mm);
   margin-bottom: var(--mini-sel-barcode-margin-bottom-mm);
+}
+
+.encodedValue {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + (var(--mini-sel-barcode-margin-bottom-mm) / 2));
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-encoded-text-size-mm, 2.4mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.02mm;
+  white-space: nowrap;
+}
+
+.encodedValueLargeSel {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + (var(--large-sel-barcode-margin-bottom-mm) / 2));
+  transform: translate(-50%, -50%);
+  font-size: var(--current-large-encoded-text-size-mm, 3mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.02mm;
+  white-space: nowrap;
 }
 
 .barcodeGraphic :global(svg) {

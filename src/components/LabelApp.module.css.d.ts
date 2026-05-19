@@ -9,6 +9,8 @@ export type Styles = {
   'configExampleBox': string;
   'configExampleCard': string;
   'configLayout': string;
+  'encodedValue': string;
+  'encodedValueLargeSel': string;
   'exportSurface': string;
   'fieldLabel': string;
   'formStack': string;

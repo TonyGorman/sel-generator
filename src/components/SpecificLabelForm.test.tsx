@@ -12,7 +12,7 @@ vi.mock('./LabelGenerator', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideBay',
+  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -38,7 +38,7 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('normalizes valid values and renders generated labels', () => {
+  it('normalizes valid values and coerces shelves to configured format', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
@@ -47,7 +47,7 @@ describe('SpecificLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}-01-2`);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}-01-B`);
   });
 
   it('accepts compact back wall values and renders generated list', () => {
@@ -105,6 +105,30 @@ describe('SpecificLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'mini-sel');
+  });
+
+  it('coerces numeric shelf input to alphabetical shelf when configured', () => {
+    render(<SpecificLabelForm config={{ ...defaultConfig, shelfStyle: 'alphabetical' }} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01-L22-1' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('01-L22-A');
+  });
+
+  it('coerces alphabetical shelf input to numeric shelf when configured', () => {
+    render(<SpecificLabelForm config={{ ...defaultConfig, shelfStyle: 'number' }} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01-L22-A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('01-L22-1');
   });
 
   it('opens configuration when configuration section link is clicked', () => {

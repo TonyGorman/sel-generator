@@ -21,7 +21,7 @@ vi.mock('./BackLabelForm', () => ({
   default: () => <div>Back Mock</div>,
 }));
 
-vi.mock('./Configuration', () => ({
+vi.mock('./ConfigureLabelForm', () => ({
   default: ({ onConfigChange }: { onConfigChange: (config: ILabelConfig) => void }) => (
     <button
       onClick={() =>
@@ -41,7 +41,7 @@ vi.mock('./Configuration', () => ({
 describe('LabelApp', () => {
   it('shows specific tab by default', () => {
     render(<LabelApp />);
-    expect(screen.getByText('Specific: sideBay')).toBeInTheDocument();
+    expect(screen.getByText('Specific: sideAndBay')).toBeInTheDocument();
   });
 
   it('navigates to configuration tab when aisle requests it', () => {
