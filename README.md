@@ -134,6 +134,32 @@ Snapshot files are stored under:
 
 `tests/e2e/label-regressions.spec.ts-snapshots`
 
+## Barcode Format
+
+The barcode payload is always stored and encoded in **compact format (no dashes or spaces)**, regardless of how users input or display the label code.
+
+### Input Format Normalization
+
+Users can input label codes in any supported format—the barcode encoder normalizes all to compact form:
+
+| Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Dashes) | Display (Spaces) |
+|---|---|---|---|---|
+| Compact | `01L01A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
+| Dashed | `01-L01-A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
+| Spaced | `01 L01 A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
+
+### Configuration Impact
+
+The **Secondary Code Format** setting in Configuration controls only the **display text** (what humans see on the printed label), not the barcode payload:
+
+- **Dashes option** → Display: `01-L01-A`
+- **Spaces option** → Display: `01 L01 A`
+- **Barcode in both cases** → Always: `01L01A` (compact, no separators)
+
+### Why Compact Encoding
+
+Scanner reliability requires consistent, separator-free barcode payloads. The compact format ensures all scans decode to the same canonical form regardless of user input style.
+
 ## Label Sizes
 
 The app supports two label sizes, selectable per print run.

@@ -29,6 +29,20 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - Avoid changes that visually look better on screen but risk print scan reliability.
 - Validate scan-critical changes with real print output whenever possible.
 
+## Barcode Encoding Rules
+
+- **Barcode payload must ALWAYS be compact (no dashes or spaces)**, regardless of user input format or display preferences.
+- Input normalization:
+  - Compact input (`01L01A`) → Barcode: `01L01A`
+  - Dashed input (`01-L01-A`) → Barcode: `01L01A`
+  - Spaced input (`01 L01 A`) → Barcode: `01L01A`
+- Display text (what humans see) is formatted per Configuration settings:
+  - Dashes format → `01-L01-A`
+  - Spaces format → `01 L01 A`
+- Encoding logic lives in `LabelTile.tsx`: `getEncodedLabelCode()` normalizes all input to compact form.
+- PDF export uses the same compact encoding via `LabelPdfExport.ts`.
+- Scanner reliability depends on compact, separator-free payloads.
+
 ## PDF Calibration Rules
 
 - Change vector text/barcode constants in small increments.

@@ -82,6 +82,7 @@ vi.mock('html2canvas', () => ({ default: html2CanvasMock }));
 vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div>{code}</div>,
   getDashedLabelCode: (code: string) => code,
+  getEncodedLabelCode: (code: string) => code,
   getPrimaryLabelText: (code: string) => ({ primary: code, secondary: code }),
   getLargeSelDisplayParts: () => null,
 }));

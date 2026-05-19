@@ -1,5 +1,5 @@
 import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
-import { getDashedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
+import { getDashedLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { ILabelGenerator } from '../models/ILabelGenerator';
 
@@ -34,7 +34,7 @@ export type JsBarcodeFn = (
   element: SVGElement,
   value: string,
   options: {
-    format: 'CODE128';
+    format: 'CODE128' | 'CODE128B';
     displayValue: boolean;
     width: number;
     height: number;
@@ -70,7 +70,7 @@ const drawVectorBarcode = async (
 ): Promise<void> => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   jsBarcode(svg, barcodeValue, {
-    format: 'CODE128',
+    format: 'CODE128B',
     displayValue: false,
     width: mmToPx(moduleWidthMm),
     height: mmToPx(height),
@@ -207,7 +207,7 @@ export const drawVectorPage = async (
         pdf,
         svg2pdf,
         jsBarcode,
-        getDashedLabelCode(code, type, config.backCodePrefix),
+        getEncodedLabelCode(code, type, config.backCodePrefix),
         barcodeX,
         barcodeY,
         barcodeGeometry.widthMm,
@@ -238,7 +238,7 @@ export const drawVectorPage = async (
       pdf,
       svg2pdf,
       jsBarcode,
-      getDashedLabelCode(code, type, config.backCodePrefix),
+      getEncodedLabelCode(code, type, config.backCodePrefix),
       centeredBarcodeX,
       barcodeY,
       barcodeGeometry.widthMm,

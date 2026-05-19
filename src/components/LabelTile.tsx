@@ -139,6 +139,28 @@ export const getDashedLabelCode = (code: string, type?: string, backCodePrefix: 
   return code;
 };
 
+export const getEncodedLabelCode = (code: string, type?: string, backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX): string => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  // Normalize spaces to dashes for consistent processing
+  const normalizedCode = code.replace(/ /g, '-');
+  const dashedCode = getDashedLabelCode(normalizedCode, type, normalizedPrefix);
+
+  const dashedAisleMatch = dashedCode.match(/^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/i);
+  if (dashedAisleMatch) {
+    const [, zone, side, bay, shelf] = dashedAisleMatch;
+    return `${zone}${side.toUpperCase()}${bay}${shelf.toUpperCase()}`;
+  }
+
+  const dashedBackPattern = new RegExp(`^${escapeRegExp(normalizedPrefix)}-(\\d{2})-([A-Z0-9]+)$`, 'i');
+  const dashedBackMatch = dashedCode.match(dashedBackPattern);
+  if (dashedBackMatch) {
+    const [, bay, shelf] = dashedBackMatch;
+    return `${normalizedPrefix}${bay}${shelf.toUpperCase()}`;
+  }
+
+  return dashedCode;
+};
+
 export const getPrimaryLabelText = (
   code: string,
   primaryCodeFormat: PrimaryCodeFormat,
@@ -266,7 +288,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
     type,
     config.backCodePrefix,
   );
-  const labelValue = getDashedLabelCode(code, type, config.backCodePrefix);
+  const labelValue = getEncodedLabelCode(code, type, config.backCodePrefix);
   const largeDisplayParts = getLargeSelDisplayParts(code, type, config.backCodePrefix);
   const isLargeSel = layoutMode === 'large-sel';
 
@@ -295,7 +317,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({ code, config, type, layoutMode =
       <div className={isLargeSel ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
         <Barcode
           value={labelValue}
-          format="CODE128"
+          format="CODE128B"
           displayValue={false}
           width={mmToPx(layoutStrategy.typography.barcodeModuleThicknessMm)}
           height={mmToPx(layoutStrategy.typography.barcodeHeightMm)}

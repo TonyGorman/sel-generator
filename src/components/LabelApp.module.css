@@ -469,7 +469,8 @@
     display: none !important;
   }
 
-  /* Show only the portal container that sits as a direct body child */
+  /* Show only the portal container that sits as a direct body child. */
+  :global(#label-print-surface),
   :global(#barcode-print-surface) {
     display: block !important;
   }

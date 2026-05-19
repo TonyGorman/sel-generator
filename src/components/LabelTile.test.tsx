@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import LabelTile, { getDashedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
+import LabelTile, { getDashedLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
@@ -33,6 +33,26 @@ describe('LabelTile helpers', () => {
 
   it('formats compact back wall code into dashed output', () => {
     expect(getDashedLabelCode(`${DEFAULT_BACK_CODE_PREFIX}01A`)).toBe(`${DEFAULT_BACK_CODE_PREFIX}-01-A`);
+  });
+
+  it('encodes compact aisle values without separators for scanners', () => {
+    expect(getEncodedLabelCode('01L01A')).toBe('01L01A');
+  });
+
+  it('encodes dashed aisle values to compact scanner payload', () => {
+    expect(getEncodedLabelCode('01-L01-A')).toBe('01L01A');
+  });
+
+  it('encodes dashed back wall values to compact scanner payload', () => {
+    expect(getEncodedLabelCode(`${DEFAULT_BACK_CODE_PREFIX}-01-A`, 'Back')).toBe(`${DEFAULT_BACK_CODE_PREFIX}01A`);
+  });
+
+  it('encodes spaced aisle values to compact scanner payload', () => {
+    expect(getEncodedLabelCode('01 L01 A')).toBe('01L01A');
+  });
+
+  it('encodes spaced back wall values to compact scanner payload', () => {
+    expect(getEncodedLabelCode(`${DEFAULT_BACK_CODE_PREFIX} 01 A`, 'Back')).toBe(`${DEFAULT_BACK_CODE_PREFIX}01A`);
   });
 
   it('formats compact custom back wall prefix code into dashed output', () => {
@@ -170,8 +190,8 @@ describe('LabelTile', () => {
     render(<LabelTile code="01L01A" config={defaultConfig} type="Aisle" />);
 
     expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getAllByText('01-L01-A')).toHaveLength(2);
-    expect(screen.getByTestId('label-value')).toHaveTextContent('01-L01-A');
+    expect(screen.getByText('01-L01-A')).toBeInTheDocument();
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
   });
 
   it('uses layout strategy label sizing for large-sel mode', () => {
@@ -182,5 +202,73 @@ describe('LabelTile', () => {
 
     expect(label).toHaveAttribute('data-width', String(mmToPx(largeSelTypography.barcodeModuleThicknessMm)));
     expect(label).toHaveAttribute('data-height', String(mmToPx(largeSelTypography.barcodeHeightMm)));
+  });
+
+  it('barcode payload stays compact with dashes secondary format', () => {
+    const dashesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'dashes' };
+    render(<LabelTile code="01L01A" config={dashesConfig} type="Aisle" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getByText('01-L01-A')).toBeInTheDocument();
+  });
+
+  it('barcode payload stays compact with spaces secondary format', () => {
+    const spacesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'spaces' };
+    render(<LabelTile code="01L01A" config={spacesConfig} type="Aisle" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+  });
+
+  it('barcode payload identical regardless of secondary format selection', () => {
+    const dashesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'dashes' };
+    const spacesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'spaces' };
+
+    const { rerender } = render(<LabelTile code="01L01A" config={dashesConfig} type="Aisle" />);
+    const dashesBarcode = screen.getByTestId('label-value').textContent;
+
+    rerender(<LabelTile code="01L01A" config={spacesConfig} type="Aisle" />);
+    const spacesBarcode = screen.getByTestId('label-value').textContent;
+
+    expect(dashesBarcode).toBe(spacesBarcode);
+    expect(dashesBarcode).toBe('01L01A');
+  });
+
+  it('Specific label with dashed input produces compact barcode payload', () => {
+    const spacesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'spaces' };
+    render(<LabelTile code="01-L01-A" config={spacesConfig} type="Specific" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+  });
+
+  it('Specific label with spaced input produces compact barcode payload', () => {
+    const spacesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'spaces' };
+    render(<LabelTile code="01 L01 A" config={spacesConfig} type="Specific" />);
+
+    // Core requirement: barcode payload must always be compact, regardless of input format
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+  });
+
+  it('Specific label with compact input produces compact barcode payload', () => {
+    const dashesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'dashes' };
+    render(<LabelTile code="01L01A" config={dashesConfig} type="Specific" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getByText('01-L01-A')).toBeInTheDocument();
+  });
+
+  it('Specific back label with dashed input produces compact barcode payload', () => {
+    const dashesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'dashes' };
+    render(<LabelTile code="BK-01-A" config={dashesConfig} type="Specific" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('BK01A');
+  });
+
+  it('Specific back label with compact input produces compact barcode payload', () => {
+    const dashesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'dashes' };
+    render(<LabelTile code="BK01A" config={dashesConfig} type="Specific" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('BK01A');
   });
 });
