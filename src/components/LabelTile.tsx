@@ -101,6 +101,33 @@ const parseDashedBackCode = (parts: string[], backCodePrefix: string, type?: str
   return { bay, shelf };
 };
 
+const DASHED_AISLE_CODE_PATTERN = /^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/i;
+
+const normalizeSeparatorsForEncoding = (code: string): string => {
+  return code.replace(/ /g, '-');
+};
+
+const tryEncodeDashedAisleCode = (dashedCode: string): string | null => {
+  const dashedAisleMatch = dashedCode.match(DASHED_AISLE_CODE_PATTERN);
+  if (!dashedAisleMatch) {
+    return null;
+  }
+
+  const [, zone, side, bay, shelf] = dashedAisleMatch;
+  return `${zone}${side.toUpperCase()}${bay}${shelf.toUpperCase()}`;
+};
+
+const tryEncodeDashedBackCode = (dashedCode: string, backCodePrefix: string): string | null => {
+  const dashedBackPattern = new RegExp(`^${escapeRegExp(backCodePrefix)}-(\\d{2})-([A-Z0-9]+)$`, 'i');
+  const dashedBackMatch = dashedCode.match(dashedBackPattern);
+  if (!dashedBackMatch) {
+    return null;
+  }
+
+  const [, bay, shelf] = dashedBackMatch;
+  return `${backCodePrefix}${bay}${shelf.toUpperCase()}`;
+};
+
 export const getDashedLabelCode = (code: string, type?: string, backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX): string => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
 
@@ -141,21 +168,17 @@ export const getDashedLabelCode = (code: string, type?: string, backCodePrefix: 
 
 export const getEncodedLabelCode = (code: string, type?: string, backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX): string => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  // Normalize spaces to dashes for consistent processing
-  const normalizedCode = code.replace(/ /g, '-');
+  const normalizedCode = normalizeSeparatorsForEncoding(code);
   const dashedCode = getDashedLabelCode(normalizedCode, type, normalizedPrefix);
 
-  const dashedAisleMatch = dashedCode.match(/^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/i);
-  if (dashedAisleMatch) {
-    const [, zone, side, bay, shelf] = dashedAisleMatch;
-    return `${zone}${side.toUpperCase()}${bay}${shelf.toUpperCase()}`;
+  const encodedAisleCode = tryEncodeDashedAisleCode(dashedCode);
+  if (encodedAisleCode) {
+    return encodedAisleCode;
   }
 
-  const dashedBackPattern = new RegExp(`^${escapeRegExp(normalizedPrefix)}-(\\d{2})-([A-Z0-9]+)$`, 'i');
-  const dashedBackMatch = dashedCode.match(dashedBackPattern);
-  if (dashedBackMatch) {
-    const [, bay, shelf] = dashedBackMatch;
-    return `${normalizedPrefix}${bay}${shelf.toUpperCase()}`;
+  const encodedBackCode = tryEncodeDashedBackCode(dashedCode, normalizedPrefix);
+  if (encodedBackCode) {
+    return encodedBackCode;
   }
 
   return dashedCode;

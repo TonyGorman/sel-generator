@@ -7,9 +7,10 @@ import { Button, TextField } from './FormControls';
 
 interface ISpecificLabelFormProps {
     config: ILabelConfig;
+    onOpenConfiguration: () => void;
 }
 
-const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
+const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const [initLabelText, setLabelText] = React.useState("");
     const [showLabel, setShowLabels] = React.useState<React.ReactElement>();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -94,10 +95,18 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config }) => {
         setShowLabels(<LabelGenerator aisles={labelTexts} config={config} layoutMode="mini-sel" />)
     }
 
+    const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+        event.preventDefault();
+        onOpenConfiguration();
+    };
+
     return (
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: 01L01A,01-L01-A).</p>
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: 01L01A,01-L01-A). 
+                <br/>Regardless of what value you enter, the barcode itself will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes. 
+                <br/>Label formats can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
+            </p>
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
                     <div><span>{errorMessage}</span></div>

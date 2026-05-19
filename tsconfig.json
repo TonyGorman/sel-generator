@@ -21,7 +21,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "include": ["src/vite-env.d.ts", "src/components", "src/models", "src/test", "src/App.tsx", "src/main.tsx"],
+  "include": ["src/vite-env.d.ts", "src/components", "src/config", "src/models", "src/test", "src/App.tsx", "src/main.tsx"],
   "exclude": ["src/webparts", "src/index.ts", "tests"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

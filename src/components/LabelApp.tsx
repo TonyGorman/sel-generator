@@ -26,7 +26,7 @@ const LabelApp = (): React.ReactElement => {
     {
       key: 'specific',
       headerText: 'Specific Labels',
-      content: <SpecificLabelForm config={config} />,
+      content: <SpecificLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
     },
     {
       key: 'aisle',

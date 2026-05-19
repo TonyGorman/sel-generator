@@ -20,7 +20,7 @@ const defaultConfig: ILabelConfig = {
 
 describe('SpecificLabelForm', () => {
   it('shows error when submitted without input', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
@@ -28,7 +28,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('shows error for invalid label values', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: '00L01A' },
@@ -39,7 +39,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('normalizes valid values and renders generated labels', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}-01-2 ` },
@@ -51,7 +51,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('accepts compact back wall values and renders generated list', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: `${DEFAULT_BACK_CODE_PREFIX}01A` },
@@ -63,7 +63,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('rejects values with invalid shelf tokens', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: '01L01AA' },
@@ -74,7 +74,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('accepts configured back wall prefix values', () => {
-    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} />);
+    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: '99-01-A' },
@@ -86,7 +86,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('rejects back wall values when Back prefix is configured differently', () => {
-    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} />);
+    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: `${DEFAULT_BACK_CODE_PREFIX}01A` },
@@ -97,7 +97,7 @@ describe('SpecificLabelForm', () => {
   });
 
   it('always renders specific labels using mini-sel mode', () => {
-    render(<SpecificLabelForm config={defaultConfig} />);
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: '01L01A' },
@@ -105,5 +105,14 @@ describe('SpecificLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'mini-sel');
+  });
+
+  it('opens configuration when configuration section link is clicked', () => {
+    const onOpenConfiguration = vi.fn();
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'configuration section' }));
+
+    expect(onOpenConfiguration).toHaveBeenCalledTimes(1);
   });
 });

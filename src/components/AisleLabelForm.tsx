@@ -248,6 +248,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             <h1 className={styles.panelTitle}>Generate Aisle Labels</h1>
             <div className={styles.sectionIntro}>
                 <p><strong>Enter values for:</strong> aisles from 1 to 99, Sides (Left, Right, End, Front), Bays from 1 to 99 and Shelves (which can be letters or numbers) from 1 to 20.</p>
+                <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
                 <p>Label formats can be changed in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
                 </p>

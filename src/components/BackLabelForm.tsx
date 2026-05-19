@@ -100,7 +100,9 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     return (
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Back Wall Labels</h1>
-            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. The prefix can be customized in the{' '}
+            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. 
+                <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
+                <p>The prefix can be customized in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
             <div className={styles.stackedSections}>
                 <section className={styles.sectionBox}>

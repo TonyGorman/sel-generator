@@ -69,6 +69,11 @@ const Configuration: React.FC<IConfigurationProps> = ({ config, onConfigChange }
   return (
     <div className={styles.panel}>
       <h1 className={styles.panelTitle}>Label Configuration</h1>
+      <p className={styles.sectionIntro}>
+        Configure how the text values appear.
+        The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p> 
+            
+
       <div className={styles.configLayout}>
         <div className={styles.configControlsColumn}>
           <section className={styles.sectionBox}>
