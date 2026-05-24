@@ -6,6 +6,7 @@ import {
   MAX_SHELF_VALUE,
   PDF_EXPORT_SCALE,
   PDF_IMAGE_COMPRESSION,
+  formatTwoDigitValue,
   getShelfTokenForConfig,
   normalizeBackCodePrefix,
 } from './labelConfig';
@@ -30,6 +31,11 @@ describe('labelConfig', () => {
     expect(normalizeBackCodePrefix('bk')).toBe('BK');
     expect(normalizeBackCodePrefix('9-9')).toBe('99');
     expect(normalizeBackCodePrefix('')).toBe(DEFAULT_BACK_CODE_PREFIX);
+  });
+
+  it('formats two-digit values with leading zeros for label code consistency', () => {
+    expect(formatTwoDigitValue(1)).toBe('01');
+    expect(formatTwoDigitValue(10)).toBe('10');
   });
 
   it('returns numeric shelf labels when shelf style is number', () => {

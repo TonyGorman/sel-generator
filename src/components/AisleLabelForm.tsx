@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig } from '../config/labelConfig';
+import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig } from '../config/labelConfig';
 import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
@@ -82,13 +82,17 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
 
     const generateText = (i: number, start: number, end: number, shelfTokens: string[], midText: string): string[] => {
         const barcodes = [];
-        for (let j = start; j <= end; j++) {
-            for (let k = 0; k < shelfTokens.length; k++) {
+        const aisleText = formatTwoDigitValue(i);
 
-                const labelText = (i > 9 ? i : "0" + i) + midText + (j > 9 ? j : "0" + j) + shelfTokens[k]
+        for (let j = start; j <= end; j++) {
+            const bayText = formatTwoDigitValue(j);
+
+            for (let k = 0; k < shelfTokens.length; k++) {
+                const labelText = `${aisleText}${midText}${bayText}${shelfTokens[k]}`;
                 barcodes.push(labelText);
             }
         }
+
         return barcodes;
     }
 
@@ -188,7 +192,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             return '--';
         }
 
-        return value.toString().padStart(2, '0');
+        return formatTwoDigitValue(value);
     };
 
     const formatShelfSummary = (): string => {

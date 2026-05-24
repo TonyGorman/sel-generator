@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_BAY_VALUE, MAX_SHELF_VALUE, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
+import { MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 
 interface IBackLabelFormProps {
@@ -53,9 +53,11 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         }
 
         for (let i = labelStruct.bay_start; i <= labelStruct.bay_end; i++) {
+            const bayText = formatTwoDigitValue(i);
+
             for (let k = 0; k < labelStruct.shelves; k++) {
                 const shelfToken = getShelfTokenForConfig(k, config.shelfStyle);
-                const labelText = backCodePrefix + (i > 9 ? i : "0" + i) + shelfToken;
+                const labelText = `${backCodePrefix}${bayText}${shelfToken}`;
                 labelTexts.push(labelText);
             }
         }

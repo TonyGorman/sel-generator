@@ -47,6 +47,25 @@ retrieval:
 
 Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 64 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.
 
+## Short Safe Subset Checklist (Use First)
+
+Use this checklist first for this repository to keep reviews print-first and low-noise.
+
+- Protect scan reliability first: do not alter barcode encoding compactness or quiet-zone/module assumptions without explicit requirement and validation.
+- Keep print geometry in mm only; do not convert label/page layout dimensions to px/rem/%.
+- Preserve render-path parity: preview, print, and PDF paths should remain behaviorally aligned.
+- Prefer minimal, targeted changes; avoid broad refactors during functional fixes.
+- Keep formatting/encoding rules in typed helper functions, not ad-hoc JSX logic.
+- Use controlled inputs and deterministic state updates; avoid effect-driven derived state when a render calculation is sufficient.
+- Keep accessibility stable: every input must be labeled, and key roles/names used by tests must remain intact unless intentionally changed.
+- Treat generic perf patterns (memoization/transitions/new deps) as optional and apply only with a measured bottleneck.
+
+### Not Default In This Repository
+
+- Next.js-specific patterns (Server Actions, RSC boundaries, `next/dynamic`, `next/script`, `next/server`, `after()`).
+- Framework-specific caching/data-fetching patterns that require runtime assumptions.
+- New dependency adoption (for example SWR, better-all, LRU cache) without explicit need.
+
 ## When to Apply
 
 Reference these guidelines when:

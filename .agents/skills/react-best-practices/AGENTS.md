@@ -12,6 +12,62 @@ January 2026
 
 ---
 
+## Repository Safe Subset (Print-First)
+
+Use this section as the default guidance for this repository.
+
+### Short Safe Subset Checklist (Use First)
+
+- Protect scan reliability first: do not alter barcode encoding compactness or quiet-zone/module assumptions without explicit requirement and validation.
+- Keep print geometry in mm only; do not convert label/page layout dimensions to px/rem/%.
+- Preserve render-path parity: preview, print, and PDF paths should remain behaviorally aligned.
+- Prefer minimal, targeted changes; avoid broad refactors during functional fixes.
+- Keep formatting/encoding rules in typed helper functions, not ad-hoc JSX logic.
+- Use controlled inputs and deterministic state updates; avoid effect-driven derived state when a render calculation is sufficient.
+- Keep accessibility stable: every input must be labeled, and key roles/names used by tests must remain intact unless intentionally changed.
+- Treat generic perf patterns (memoization/transitions/new deps) as optional and apply only with a measured bottleneck.
+
+### Priority Order (Non-Negotiable)
+
+When guidance conflicts, follow this order:
+
+1. Scan reliability and barcode readability
+2. Physical print geometry accuracy (mm-based layout)
+3. Print/download/render-path parity
+4. Accessibility and deterministic testability
+5. Generic React performance/style optimization
+
+### Always-Applicable Checklist
+
+- Keep all print geometry and label sizing in mm values only.
+- Preserve barcode payload normalization and quiet-zone/module sizing assumptions.
+- Prefer small, targeted constants over scattered magic literals.
+- Keep render paths unified; avoid parallel implementations for equivalent output.
+- Prefer pure helpers for formatting/encoding rules over JSX-embedded logic.
+- Keep state close to usage and use controlled inputs for deterministic output.
+- Use functional state updates when derived from previous state.
+- Avoid unnecessary effect-driven derived state; compute during render when simple.
+- Keep accessibility semantics stable: labeled inputs, tab/tablist/tabpanel roles, alert semantics.
+- Preserve existing selectors and accessible names used by tests unless change is intentional.
+
+### Apply With Caution (Only When Problem Is Real)
+
+- Memoization, transitions, deferred values, and advanced render optimizations.
+- Bundle micro-optimizations that add complexity without measured benefit.
+- New third-party dependencies for patterns that native React/TypeScript can already cover.
+
+### Not Default For This Repository
+
+The following guidance in this document is framework/runtime specific and should not be used by default in this Vite print-first app unless explicitly requested:
+
+- Next.js Server Actions and Route Handler patterns
+- RSC boundary serialization guidance
+- next/dynamic, next/script, next/server utilities
+- Next.js-specific fetch memoization and after() patterns
+- Framework-specific caching patterns that require runtime assumptions
+
+---
+
 ## Abstract
 
 Comprehensive performance optimization guide for React and Next.js applications, designed for AI agents and LLMs. Contains 40+ rules across 8 categories, prioritized by impact from critical (eliminating waterfalls, reducing bundle size) to incremental (advanced patterns). Each rule includes detailed explanations, real-world examples comparing incorrect vs. correct implementations, and specific impact metrics to guide automated refactoring and code generation.

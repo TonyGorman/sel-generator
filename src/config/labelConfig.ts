@@ -12,6 +12,10 @@ export const normalizeBackCodePrefix = (value: string): string => {
 	return sanitized.length > 0 ? sanitized : DEFAULT_BACK_CODE_PREFIX;
 };
 
+export const formatTwoDigitValue = (value: number): string => {
+	return value.toString().padStart(2, '0');
+};
+
 export const getShelfTokenForConfig = (index: number, shelfStyle: 'number' | 'alphabetical'): string => {
 	if (shelfStyle === 'number') {
 		return `${index + 1}`;
