@@ -12,7 +12,7 @@ interface ISpecificLabelFormProps {
 
 const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const [initLabelText, setLabelText] = React.useState("");
-    const [showLabel, setShowLabels] = React.useState<React.ReactElement>();
+    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
@@ -143,19 +143,21 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
         if (labelTexts.length === 0) {
             setErrorMessage('Enter at least one label value.');
+            setGeneratedLabels(null);
             return;
         }
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
             setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.`);
+            setGeneratedLabels(null);
             return;
         }
 
         const normalizedLabelTexts = labelTexts.map((code) => normalizeSpecificCodeForConfig(code));
 
         setErrorMessage(null);
-        setShowLabels(<LabelGenerator aisles={normalizedLabelTexts} config={config} layoutMode="mini-sel" />)
+        setGeneratedLabels(normalizedLabelTexts);
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -192,12 +194,13 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
                 <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
             </div>
 
-            <div className="App">
-                <div>
-                    {showLabel}
+            {generatedLabels && (
+                <div className="App">
+                    <div>
+                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                    </div>
                 </div>
-
-            </div>
+            )}
         </div>
     );
 };

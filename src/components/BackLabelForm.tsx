@@ -11,7 +11,7 @@ interface IBackLabelFormProps {
 }
 
 const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
-    const [showLabel, setShowLabel] = React.useState<React.ReactElement>();
+    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [labelStruct, setLabelStruct] = React.useState({
         bay_start: null as number | null,
@@ -85,11 +85,12 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         const validationError = validateInput();
         if (validationError) {
             setErrorMessage(validationError);
+            setGeneratedLabels(null);
             return;
         }
 
         setErrorMessage(null);
-        setShowLabel(<LabelGenerator type='Back' aisles={generateLabelText()} config={config} layoutMode="mini-sel" />)
+        setGeneratedLabels(generateLabelText());
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -146,12 +147,13 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                 </div>
             )}
 
-            <div className="App">
-                <div>
-                    {showLabel}
+            {generatedLabels && (
+                <div className="App">
+                    <div>
+                        <LabelGenerator type='Back' aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                    </div>
                 </div>
-
-            </div>
+            )}
         </div>
     );
 };

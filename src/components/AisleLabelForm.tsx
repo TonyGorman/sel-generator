@@ -13,7 +13,7 @@ interface IAisleLabelFormProps {
 
 const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [showLabel, setShowLabel] = React.useState<React.ReactElement>();
+    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
     const idPrefix = React.useId();
     const [labelStruct, setLabelStruct] = React.useState({
@@ -231,11 +231,12 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         const validationError = validateInput();
         if (validationError) {
             setErrorMessage(validationError);
+            setGeneratedLabels(null);
             return;
         }
 
         setErrorMessage(null);
-        setShowLabel(<LabelGenerator type='Aisle' aisles={generateLabelText()} config={config} layoutMode={labelPrintMode} />)
+        setGeneratedLabels(generateLabelText());
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -351,9 +352,13 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
             </div>
 
-            <div className="App">
-                <div>{showLabel}</div>
-            </div>
+            {generatedLabels && (
+                <div className="App">
+                    <div>
+                        <LabelGenerator type='Aisle' aisles={generatedLabels} config={config} layoutMode={labelPrintMode} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

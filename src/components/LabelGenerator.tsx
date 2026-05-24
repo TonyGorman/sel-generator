@@ -23,7 +23,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const pdfRef = React.useRef<HTMLDivElement>(null);
   const [loading, setLoading] = React.useState(false);
   const [downloadError, setDownloadError] = React.useState<string | null>(null);
-  const [items, setItems] = React.useState<string[]>(aisles.slice(0, itemsPerPage));
+  const [items, setItems] = React.useState<string[]>(() => aisles.slice(0, itemsPerPage));
   const [printContainer, setPrintContainer] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
@@ -55,7 +55,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     setItems(aisles.slice(0, itemsPerPage));
   }, [aisles, itemsPerPage]);
 
-  const handleGeneratePdf = async (): Promise<void> => {
+  const handleGeneratePdf = React.useCallback(async (): Promise<void> => {
     setDownloadError(null);
     setLoading(true);
 
@@ -109,15 +109,15 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [config, layoutStrategy, pagedItems, type]);
 
-  const handlePageChange = (currentItems: string[]): void => {
-    setItems(currentItems)
-  }
+  const handlePageChange = React.useCallback((currentItems: string[]): void => {
+    setItems(currentItems);
+  }, []);
 
-  const handlePrint = (): void => {
+  const handlePrint = React.useCallback((): void => {
     window.print();
-  }
+  }, []);
 
   const pageStyle = React.useMemo(
     () => {
@@ -155,14 +155,17 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     [layoutStrategy],
   );
 
-  const renderLabelGrid = (labels: string[], className?: string): React.ReactElement => (
-    <div className={className ?? styles.labelDiv}>
-      {labels.map((aisle: string, index: number) => {
-        return (
-          <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} type={type} layoutMode={layoutStrategy.mode} />
-        );
-      })}
-    </div>
+  const renderLabelGrid = React.useCallback(
+    (labels: string[], className?: string): React.ReactElement => (
+      <div className={className ?? styles.labelDiv}>
+        {labels.map((aisle: string, index: number) => {
+          return (
+            <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} type={type} layoutMode={layoutStrategy.mode} />
+          );
+        })}
+      </div>
+    ),
+    [config, layoutStrategy.mode, type],
   );
 
 

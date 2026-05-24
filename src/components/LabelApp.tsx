@@ -18,32 +18,36 @@ const LabelApp = (): React.ReactElement => {
     backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
   });
 
-  const handleTabClick = (key: string): void => {
+  const handleTabClick = React.useCallback((key: string): void => {
     setSelectedTabKey(key);
-  };
+  }, []);
 
-  const tabItems: ITabItem[] = [
+  const openConfigurationTab = React.useCallback((): void => {
+    setSelectedTabKey('config');
+  }, []);
+
+  const tabItems: ITabItem[] = React.useMemo(() => [
     {
       key: 'specific',
       headerText: 'Specific Labels',
-      content: <SpecificLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
+      content: <SpecificLabelForm config={config} onOpenConfiguration={openConfigurationTab} />,
     },
     {
       key: 'aisle',
       headerText: 'Aisle Labels',
-      content: <AisleLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
+      content: <AisleLabelForm config={config} onOpenConfiguration={openConfigurationTab} />,
     },
     {
       key: 'back',
       headerText: 'Back Wall Labels',
-      content: <BackLabelForm config={config} onOpenConfiguration={() => setSelectedTabKey('config')} />,
+      content: <BackLabelForm config={config} onOpenConfiguration={openConfigurationTab} />,
     },
     {
       key: 'config',
       headerText: 'Configuration',
       content: <ConfigureLabelForm config={config} onConfigChange={setConfig} />,
     },
-  ];
+  ], [config, openConfigurationTab]);
 
   return (
     <section className={styles.labelAppRoot}>
