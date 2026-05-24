@@ -68,6 +68,7 @@ Quality checks run in CI:
 - `npm run styles:types:check`
 - `npm run styles:audit`
 - `npm run test:run`
+- `npm run test:a11y`
 - `npm run build`
 
 Run the same fast gate locally with:
@@ -118,6 +119,14 @@ Run the same combined checks used by GitHub Actions (without E2E):
 Run full release-grade validation (includes E2E):
 
 `npm run validate:release`
+
+### Accessibility tests
+
+Run accessibility checks (axe) against key views:
+
+`npm run test:a11y`
+
+This is required by the release validation gate (`npm run validate:release`) and must pass before release is considered complete.
 
 ### Git hooks
 

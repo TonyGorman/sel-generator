@@ -266,15 +266,17 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                     <h2 className={styles.sectionTitle}>Aisle Range ({aisleRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel}>From</label>
+                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
                             <TextField
+                                id={`${idPrefix}-aisle-start`}
                                 value={labelStruct.aisle_start?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisle_start')}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel}>To</label>
+                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-aisle-end`}>To</label>
                             <TextField
+                                id={`${idPrefix}-aisle-end`}
                                 value={labelStruct.aisle_end?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisle_end')}
                             />
@@ -290,15 +292,17 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                                 <div className={styles.sideLabel}>{side.label}</div>
                                 <div className={styles.sideInputGroup}>
                                     <div className={styles.fieldGroup}>
-                                        <label className={styles.fieldLabel}>From</label>
+                                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-${side.startKey}`}>From</label>
                                         <TextField
+                                            id={`${idPrefix}-${side.startKey}`}
                                             value={labelStruct[side.startKey]?.toString() ?? ''}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, side.startKey)}
                                         />
                                     </div>
                                     <div className={styles.fieldGroup}>
-                                        <label className={styles.fieldLabel}>To</label>
+                                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-${side.endKey}`}>To</label>
                                         <TextField
+                                            id={`${idPrefix}-${side.endKey}`}
                                             value={labelStruct[side.endKey]?.toString() ?? ''}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, side.endKey)}
                                         />
@@ -312,7 +316,9 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 <section className={styles.sectionBox}>
                     <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
+                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
                         <TextField
+                            id={`${idPrefix}-shelves`}
                             value={labelStruct.shelves?.toString() ?? ''}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
                         />

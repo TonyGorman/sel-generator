@@ -15,6 +15,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
     const bayValidationMessage = `Bays must be between 1 and ${MAX_BAY_VALUE}.`;
     const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
+    const idPrefix = React.useId();
 
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -115,15 +116,17 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                     <h2 className={styles.sectionTitle}>Bay Range ({bayRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel}>Start</label>
+                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
                             <TextField
+                                id={`${idPrefix}-bay-start`}
                                 value={labelStruct.bay_start?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_start')}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel}>End</label>
+                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-bay-end`}>End</label>
                             <TextField
+                                id={`${idPrefix}-bay-end`}
                                 value={labelStruct.bay_end?.toString() ?? ''}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_end')}
                             />
@@ -134,7 +137,9 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                 <section className={styles.sectionBox}>
                     <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
+                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
                         <TextField
+                            id={`${idPrefix}-shelves`}
                             value={labelStruct.shelves?.toString() ?? ''}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
                         />

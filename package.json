@@ -1,5 +1,5 @@
 {
-  "name": "barcode-generator",
+  "name": "label-generator",
   "version": "1.0.4",
   "private": true,
   "engines": {
@@ -11,7 +11,7 @@
     "build": "npm run typecheck && npm run build:bundle",
     "build:bundle": "vite build",
     "validate:ci": "npm run styles:types:check && npm run styles:audit && npm run typecheck && npm run test:unit && npm run build:bundle",
-    "validate:release": "npm run validate:ci && npm run test:e2e",
+    "validate:release": "npm run validate:ci && npm run test:a11y && npm run test:e2e",
     "preview": "vite preview",
     "prepare": "node scripts/setup-git-hooks.mjs",
     "styles:types": "node scripts/generate-css-module-types.mjs",
@@ -21,6 +21,7 @@
     "test:unit": "vitest run",
     "typecheck": "tsc --noEmit",
     "test:run": "npm run typecheck && npm run test:unit",
+    "test:a11y": "vitest run src/components/accessibility.test.tsx",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:visual": "playwright test tests/e2e/label-regressions.spec.ts",
@@ -47,10 +48,12 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.5",
+    "axe-core": "^4.11.4",
     "jsdom": "^29.1.1",
     "pdfjs-dist": "^5.7.284",
     "typescript": "^6.0.3",
     "vite": "^8.0.11",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "vitest-axe": "^0.1.0"
   }
 }
