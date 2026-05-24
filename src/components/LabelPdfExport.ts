@@ -5,6 +5,9 @@ import { ILabelGenerator } from '../models/ILabelGenerator';
 
 const MM_TO_PT = 72 / 25.4;
 const MM_TO_PX = 96 / 25.4;
+const MINI_ENCODED_TEXT_SIZE_MM = 2.4;
+const LARGE_ENCODED_TEXT_SIZE_MM = 3;
+const ENCODED_TEXT_LETTER_SPACING_MM = 0.02;
 
 export type JsPdfInstance = {
   addPage: (size: [number, number], orientation: 'landscape' | 'portrait') => void;
@@ -179,6 +182,7 @@ export const drawVectorPage = async (
     );
 
     pdf.rect(x, y, page.labelWidthMm, page.labelHeightMm);
+    const encodedValue = getEncodedLabelCode(code, type, config.backCodePrefix);
 
     if (layoutStrategy.mode === 'large-sel') {
       const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
@@ -207,13 +211,25 @@ export const drawVectorPage = async (
         pdf,
         svg2pdf,
         jsBarcode,
-        getEncodedLabelCode(code, type, config.backCodePrefix),
+        encodedValue,
         barcodeX,
         barcodeY,
         barcodeGeometry.widthMm,
         barcodeGeometry.heightMm,
         typography.barcodeModuleThicknessMm,
       );
+
+      // Keep encoded payload visible under the barcode for print/download parity.
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(mmToPt(LARGE_ENCODED_TEXT_SIZE_MM));
+      pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
+      pdf.text(
+        encodedValue,
+        x + page.labelWidthMm / 2,
+        barcodeY + barcodeGeometry.heightMm + barcodeGeometry.marginBottomMm / 2 + LARGE_ENCODED_TEXT_SIZE_MM * 0.34,
+        { align: 'center' },
+      );
+
       continue;
     }
 
@@ -238,12 +254,23 @@ export const drawVectorPage = async (
       pdf,
       svg2pdf,
       jsBarcode,
-      getEncodedLabelCode(code, type, config.backCodePrefix),
+      encodedValue,
       centeredBarcodeX,
       barcodeY,
       barcodeGeometry.widthMm,
       barcodeGeometry.heightMm,
       typography.barcodeModuleThicknessMm,
+    );
+
+    // Keep encoded payload visible under the barcode for print/download parity.
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(mmToPt(MINI_ENCODED_TEXT_SIZE_MM));
+    pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
+    pdf.text(
+      encodedValue,
+      x + page.labelWidthMm / 2,
+      barcodeY + barcodeGeometry.heightMm + barcodeGeometry.marginBottomMm / 2 + MINI_ENCODED_TEXT_SIZE_MM * 0.34,
+      { align: 'center' },
     );
   }
 };
