@@ -22,7 +22,7 @@ export interface IConfigureLabelFormProps {
 
 const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConfigChange }) => {
   const primaryCodeOptions: RadioOption[] = [
-    { key: 'sideBay', text: 'Side + Bay (e.g., "R01")' },
+    { key: 'sideAndBay', text: 'Side + Bay (e.g., "R01")' },
     { key: 'shelfOnly', text: 'Shelf only' },
   ];
   const shelfStyleOptions: RadioOption[] = [
