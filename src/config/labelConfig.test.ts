@@ -6,7 +6,10 @@ import {
   MAX_SHELF_VALUE,
   PDF_EXPORT_SCALE,
   PDF_IMAGE_COMPRESSION,
+  convertShelfTokenToLetter,
+  convertShelfTokenToNumber,
   formatTwoDigitValue,
+  formatShelfTokenForStyle,
   getShelfTokenForConfig,
   normalizeBackCodePrefix,
 } from './labelConfig';
@@ -36,6 +39,23 @@ describe('labelConfig', () => {
   it('formats two-digit values with leading zeros for label code consistency', () => {
     expect(formatTwoDigitValue(1)).toBe('01');
     expect(formatTwoDigitValue(10)).toBe('10');
+  });
+
+  it('converts shelf tokens to number format', () => {
+    expect(convertShelfTokenToNumber('01')).toBe('1');
+    expect(convertShelfTokenToNumber('A')).toBe('1');
+    expect(convertShelfTokenToNumber('a')).toBe('1');
+  });
+
+  it('converts shelf tokens to letter format', () => {
+    expect(convertShelfTokenToLetter('1')).toBe('A');
+    expect(convertShelfTokenToLetter('26')).toBe('Z');
+    expect(convertShelfTokenToLetter('a')).toBe('A');
+  });
+
+  it('formats shelf tokens based on selected shelf style', () => {
+    expect(formatShelfTokenForStyle('A', 'number')).toBe('1');
+    expect(formatShelfTokenForStyle('1', 'alphabetical')).toBe('A');
   });
 
   it('returns numeric shelf labels when shelf style is number', () => {

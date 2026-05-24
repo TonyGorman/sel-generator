@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './LabelApp.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, normalizeBackCodePrefix } from '../config/labelConfig';
+import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatShelfTokenForStyle, normalizeBackCodePrefix } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 
 interface ISpecificLabelFormProps {
@@ -44,35 +44,8 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return numericValue >= 1 && numericValue <= max;
     };
 
-    const convertShelfTokenToNumber = (token: string): string => {
-        if (/^\d+$/.test(token)) {
-            return String(Number(token));
-        }
-
-        if (/^[A-Z]$/.test(token)) {
-            return String(token.charCodeAt(0) - 64);
-        }
-
-        return token;
-    };
-
-    const convertShelfTokenToLetter = (token: string): string => {
-        if (/^\d+$/.test(token)) {
-            const numericShelf = Number(token);
-            if (numericShelf >= 1 && numericShelf <= 26) {
-                return String.fromCharCode(64 + numericShelf);
-            }
-        }
-
-        if (/^[A-Z]$/.test(token)) {
-            return token;
-        }
-
-        return token;
-    };
-
     const normalizeShelfTokenForConfig = (token: string): string => {
-        return config.shelfStyle === 'number' ? convertShelfTokenToNumber(token) : convertShelfTokenToLetter(token);
+        return formatShelfTokenForStyle(token, config.shelfStyle);
     };
 
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);

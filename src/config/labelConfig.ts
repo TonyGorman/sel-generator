@@ -16,6 +16,37 @@ export const formatTwoDigitValue = (value: number): string => {
 	return value.toString().padStart(2, '0');
 };
 
+export const convertShelfTokenToNumber = (token: string): string => {
+	if (/^\d+$/.test(token)) {
+		return String(Number(token));
+	}
+
+	if (/^[A-Z]$/i.test(token)) {
+		return String(token.toUpperCase().charCodeAt(0) - 64);
+	}
+
+	return token;
+};
+
+export const convertShelfTokenToLetter = (token: string): string => {
+	if (/^\d+$/.test(token)) {
+		const numericValue = Number(token);
+		if (numericValue >= 1 && numericValue <= 26) {
+			return String.fromCharCode(64 + numericValue);
+		}
+	}
+
+	if (/^[A-Z]$/i.test(token)) {
+		return token.toUpperCase();
+	}
+
+	return token;
+};
+
+export const formatShelfTokenForStyle = (token: string, shelfStyle: 'number' | 'alphabetical'): string => {
+	return shelfStyle === 'number' ? convertShelfTokenToNumber(token) : convertShelfTokenToLetter(token);
+};
+
 export const getShelfTokenForConfig = (index: number, shelfStyle: 'number' | 'alphabetical'): string => {
 	if (shelfStyle === 'number') {
 		return `${index + 1}`;

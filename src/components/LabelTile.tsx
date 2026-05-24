@@ -2,7 +2,7 @@ import * as React from 'react';
 import Barcode from 'react-barcode';
 import styles from './LabelApp.module.css';
 import { ILabelConfig, PrimaryCodeFormat, SecondaryCodeFormat, ShelfStyle } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, formatShelfTokenForStyle, normalizeBackCodePrefix } from '../config/labelConfig';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
@@ -13,35 +13,8 @@ const LABEL_MODULE_WIDTH_MM = 0.23;
 
 const mmToPx = (mm: number): number => mm * MM_TO_PX;
 
-const convertShelfTokenToNumber = (token: string): string => {
-  if (/^\d+$/.test(token)) {
-    return String(Number(token));
-  }
-
-  if (/^[A-Z]$/i.test(token)) {
-    return String(token.toUpperCase().charCodeAt(0) - 64);
-  }
-
-  return token;
-};
-
-const convertShelfTokenToLetter = (token: string): string => {
-  if (/^\d+$/.test(token)) {
-    const numericValue = Number(token);
-    if (numericValue >= 1 && numericValue <= 26) {
-      return String.fromCharCode(64 + numericValue);
-    }
-  }
-
-  if (/^[A-Z]$/i.test(token)) {
-    return token.toUpperCase();
-  }
-
-  return token;
-};
-
 const formatShelfToken = (token: string, shelfStyle: ShelfStyle): string => {
-  return shelfStyle === 'number' ? convertShelfTokenToNumber(token) : convertShelfTokenToLetter(token);
+  return formatShelfTokenForStyle(token, shelfStyle);
 };
 
 const AISLE_CODE_PATTERN = /^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/;
