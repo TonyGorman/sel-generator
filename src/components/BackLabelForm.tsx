@@ -11,6 +11,11 @@ interface IBackLabelFormProps {
 }
 
 const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
+    const bayRangeText = `1-${MAX_BAY_VALUE}`;
+    const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
+    const bayValidationMessage = `Bays must be between 1 and ${MAX_BAY_VALUE}.`;
+    const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
+
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [labelStruct, setLabelStruct] = React.useState({
@@ -67,15 +72,15 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         }
 
         if (labelStruct.bay_start < 1 || labelStruct.bay_end < 1) {
-            return 'Bays must be between 1 and 99.';
+            return bayValidationMessage;
         }
 
         if (labelStruct.bay_end > MAX_BAY_VALUE) {
-            return 'Bays must be between 1 and 99.';
+            return bayValidationMessage;
         }
 
         if (labelStruct.shelves < 1 || labelStruct.shelves > MAX_SHELF_VALUE) {
-            return 'Shelves must be between 1 and 20.';
+            return shelfValidationMessage;
         }
 
         return null;
@@ -107,7 +112,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
             <div className={styles.stackedSections}>
                 <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Bay Range (1-99)</h2>
+                    <h2 className={styles.sectionTitle}>Bay Range ({bayRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={styles.fieldLabel}>Start</label>
@@ -127,7 +132,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                 </section>
 
                 <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Shelves Per Bay (1-20)</h2>
+                    <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
                         <TextField
                             value={labelStruct.shelves?.toString() ?? ''}

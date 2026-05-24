@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackLabelForm from './BackLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, MAX_BAY_VALUE, MAX_SHELF_VALUE } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles }: { aisles: string[] }) => (
@@ -61,7 +61,9 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[2], { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Bays must be between 1 and 99.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(/Bays must be between/i);
+    expect(alert).toHaveTextContent(String(MAX_BAY_VALUE));
   });
 
   it('shows validation error when shelves exceeds max', () => {
@@ -73,7 +75,8 @@ describe('BackLabelForm', () => {
     fireEvent.change(inputs[2], { target: { value: '21' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_SHELF_VALUE));
   });
 
   it('generates codes with configured Back prefix', () => {

@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
@@ -40,7 +40,8 @@ describe('AisleLabelForm', () => {
     fillInputs({ 0: '1', 1: '100', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Aisles must be between 1 and 99.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_AISLE_VALUE));
   });
 
   it('shows shelf range validation before any range-order message', () => {
@@ -50,7 +51,8 @@ describe('AisleLabelForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_SHELF_VALUE));
     expect(screen.queryByText('Aisle start cannot be greater than aisle end.')).not.toBeInTheDocument();
   });
 
@@ -88,7 +90,8 @@ describe('AisleLabelForm', () => {
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '100', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Bay values must be between 1 and 99.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_BAY_VALUE));
   });
 
   it('generates labels and updates summary for valid Left and Right ranges', () => {
@@ -152,7 +155,8 @@ describe('AisleLabelForm', () => {
     fillInputs({ 0: '0', 1: '1', 10: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Aisles must be between 1 and 99.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_AISLE_VALUE));
   });
 
   it('shows error when shelves value is 0 or less', () => {
@@ -161,7 +165,8 @@ describe('AisleLabelForm', () => {
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1', 10: '0' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Shelves must be between 1 and 20.');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MAX_SHELF_VALUE));
   });
 
   it('opens configuration tab when the inline configuration link is clicked', () => {

@@ -12,6 +12,13 @@ interface IAisleLabelFormProps {
 }
 
 const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfiguration }) => {
+    const aisleRangeText = `1-${MAX_AISLE_VALUE}`;
+    const bayRangeText = `1-${MAX_BAY_VALUE}`;
+    const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
+    const aisleValidationMessage = `Aisles must be between 1 and ${MAX_AISLE_VALUE}.`;
+    const bayValidationMessage = `Bay values must be between 1 and ${MAX_BAY_VALUE}.`;
+    const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
+
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
@@ -93,11 +100,11 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         }
 
         if (labelStruct.aisle_start < 1 || labelStruct.aisle_end < 1 || labelStruct.aisle_end > MAX_AISLE_VALUE) {
-            return 'Aisles must be between 1 and 99.';
+            return aisleValidationMessage;
         }
 
-        if (labelStruct.shelves <= 0 || labelStruct.shelves > MAX_SHELF_VALUE) {
-            return 'Shelves must be between 1 and 20.';
+        if (labelStruct.shelves < 1 || labelStruct.shelves > MAX_SHELF_VALUE) {
+            return shelfValidationMessage;
         }
 
         if (labelStruct.aisle_start > labelStruct.aisle_end) {
@@ -122,7 +129,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             }
 
             if (hasValue(end) && end > MAX_BAY_VALUE) {
-                return 'Bay values must be between 1 and 99.';
+                return bayValidationMessage;
             }
         }
 
@@ -248,7 +255,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         <div className={styles.panel}>
             <h1 className={styles.panelTitle}>Generate Aisle Labels</h1>
             <div className={styles.sectionIntro}>
-                <p><strong>Enter values for:</strong> aisles from 1 to 99, Sides (Left, Right, End, Front), Bays from 1 to 99 and Shelves (which can be letters or numbers) from 1 to 20.</p>
+                <p><strong>Enter values for:</strong> aisles from 1 to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (which can be letters or numbers) from 1 to {MAX_SHELF_VALUE}.</p>
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
                 <p>Label formats can be changed in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
@@ -256,7 +263,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             </div>
             <div className={styles.configLayout}>
                 <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Aisle Range (1-99)</h2>
+                    <h2 className={styles.sectionTitle}>Aisle Range ({aisleRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={styles.fieldLabel}>From</label>
@@ -276,7 +283,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 </section>
 
                 <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Bay Configuration (1-99)</h2>
+                    <h2 className={styles.sectionTitle}>Bay Configuration ({bayRangeText})</h2>
                     <div className={styles.sideGrid}>
                         {sideRows.map((side) => (
                             <div key={side.label} className={styles.sideRow}>
@@ -303,7 +310,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 </section>
 
                 <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Shelves Per Bay (1-20)</h2>
+                    <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
                         <TextField
                             value={labelStruct.shelves?.toString() ?? ''}

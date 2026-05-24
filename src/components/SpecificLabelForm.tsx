@@ -11,6 +11,12 @@ interface ISpecificLabelFormProps {
 }
 
 const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
+    const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
+    const maxShelfLetter = MAX_SHELF_VALUE <= 26
+        ? String.fromCharCode(64 + MAX_SHELF_VALUE)
+        : 'Z';
+    const shelfRangeText = `1-${MAX_SHELF_VALUE} or A-${maxShelfLetter}`;
+
     const [initLabelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -149,7 +155,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be 01-99 and shelf must be 1-20 or A-T.`);
+            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
             setGeneratedLabels(null);
             return;
         }
@@ -186,7 +192,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
                         placeholder="Enter labels"
                         onChange={onInputChange}
                     />
-                    <p>Supported formats: 01L01A, 01-L01-A, {backCodePrefix}01A, {backCodePrefix}-01-A. Bay values must be 01-99 and shelves must be 1-20 or A-T.</p>
+                    <p>Supported formats: 01L01A, 01-L01-A, {backCodePrefix}01A, {backCodePrefix}-01-A. Bay values must be {bayRangeText} and shelves must be {shelfRangeText}.</p>
                 </div>
             </section>
 
