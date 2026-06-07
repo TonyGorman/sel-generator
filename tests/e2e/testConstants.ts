@@ -1,0 +1,1 @@
+export const DEFAULT_BACK_CODE_PREFIX = 'BACK';

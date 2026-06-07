@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { Buffer } from 'buffer';
-import { DEFAULT_BACK_CODE_PREFIX } from '../../src/config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX } from './testConstants';
 
 const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
   return pdfBytes
