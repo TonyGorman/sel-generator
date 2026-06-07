@@ -4,10 +4,12 @@ import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
-    buildCompactAisleCodePattern,
+    buildCompactLabelCodePattern,
     buildCompactBackCodePattern,
-    buildDashedAisleCodePattern,
+    buildDashedLabelCodePattern,
     buildDashedBackCodePattern,
+    buildSpacedLabelCodePattern,
+    buildSpacedBackCodePattern,
 } from './labelCodePatterns';
 import { ILabelConfig } from '../models/ILabelConfig';
 import {
@@ -62,15 +64,17 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return numericValue >= min && numericValue <= max;
     };
 
-    const normalizeSpecificInputSeparators = (code: string): string => {
-        return code.trim().toUpperCase().replace(/\s+/g, '-');
+    const normalizeSpecificInput = (code: string): string => {
+        return code.trim().toUpperCase();
     };
 
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
-    const compactAislePattern = buildCompactAisleCodePattern();
-    const dashedAislePattern = buildDashedAisleCodePattern();
+    const compactAislePattern = buildCompactLabelCodePattern();
+    const dashedAislePattern = buildDashedLabelCodePattern();
+    const spacedAislePattern = buildSpacedLabelCodePattern();
     const compactBackPattern = buildCompactBackCodePattern(backCodePrefix);
     const dashedBackPattern = buildDashedBackCodePattern(backCodePrefix);
+    const spacedBackPattern = buildSpacedBackCodePattern(backCodePrefix);
 
     const isAisleTokenValid = (aisleToken: string): boolean => {
         if (/^\d{2}$/.test(aisleToken)) {
@@ -103,6 +107,14 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
                 && isShelfTokenValid(shelf);
         }
 
+        const spacedAisleMatch = normalizedCode.match(spacedAislePattern);
+        if (spacedAisleMatch) {
+            const [, aisleToken, , bay, shelf] = spacedAisleMatch;
+            return isAisleTokenValid(aisleToken)
+                && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
+                && isShelfTokenValid(shelf);
+        }
+
         const compactBackMatch = normalizedCode.match(compactBackPattern);
         if (compactBackMatch) {
             const [, bay, shelf] = compactBackMatch;
@@ -112,6 +124,12 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         const dashedBackMatch = normalizedCode.match(dashedBackPattern);
         if (dashedBackMatch) {
             const [, bay, shelf] = dashedBackMatch;
+            return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
+        }
+
+        const spacedBackMatch = normalizedCode.match(spacedBackPattern);
+        if (spacedBackMatch) {
+            const [, bay, shelf] = spacedBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
         }
 
@@ -156,7 +174,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
     const generateLabel = ():void => {
         const labelTexts = initLabelText
             .split(',')
-            .map((text) => normalizeSpecificInputSeparators(text))
+            .map((text) => normalizeSpecificInput(text))
             .filter((text) => text.length > 0);
 
         if (labelTexts.length === 0) {
@@ -216,7 +234,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                        <LabelGenerator type='Specific' aisles={generatedLabels} config={config} layoutMode="mini-sel" />
                     </div>
                 </div>
             )}

@@ -273,7 +273,7 @@ describe('LabelTile', () => {
     render(<LabelTile code="01-L01-A" config={spacesConfig} type="Specific" />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
-    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+    expect(screen.getByText('01-L01-A')).toBeInTheDocument();
   });
 
   it('Specific label with spaced input produces compact barcode payload', () => {
@@ -282,6 +282,8 @@ describe('LabelTile', () => {
 
     // Core requirement: barcode payload must always be compact, regardless of input format
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getByText('L01')).toBeInTheDocument();
+    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
   });
 
   it('Specific label with compact input produces compact barcode payload', () => {
@@ -289,7 +291,16 @@ describe('LabelTile', () => {
     render(<LabelTile code="01L01A" config={dashesConfig} type="Specific" />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
-    expect(screen.getByText('01-L01-A')).toBeInTheDocument();
+    expect(screen.getAllByText('01L01A').length).toBeGreaterThan(1);
+  });
+
+  it('Specific label with compact input does not adopt spaced display formatting', () => {
+    const spacesConfig: ILabelConfig = { ...defaultConfig, secondaryCodeFormat: 'spaces' };
+    render(<LabelTile code="01L01A" config={spacesConfig} type="Specific" />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
+    expect(screen.getAllByText('01L01A').length).toBeGreaterThan(1);
+    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
   });
 
   it('Specific back label with dashed input produces compact barcode payload', () => {

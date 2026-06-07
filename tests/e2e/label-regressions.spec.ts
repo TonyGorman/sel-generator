@@ -186,6 +186,34 @@ test.describe('Label Generator regressions', () => {
     expect(download.suggestedFilename()).toBe('labels.pdf');
   });
 
+  test('Specific Labels accepts mixed compact, dashed, and spaced inputs', async ({ page }) => {
+    await page.goto('/');
+
+    const mixedInput = [
+      '01L01A',
+      '01-L02-A',
+      '01 L03 A',
+      `${DEFAULT_BACK_CODE_PREFIX}01A`,
+      `${DEFAULT_BACK_CODE_PREFIX}-02-A`,
+      `${DEFAULT_BACK_CODE_PREFIX} 03 A`,
+    ].join(',');
+
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
+    await page.getByPlaceholder('Enter labels').fill(mixedInput);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
+
+    await expect(page.getByText('01L01A', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('01-L02-A', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('01 L03 A', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX}01A`, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX}-02-A`, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX} 03 A`, { exact: true }).first()).toBeVisible();
+  });
+
   test('Back tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 

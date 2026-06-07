@@ -1,34 +1,43 @@
 export const AISLE_TOKEN_PATTERN = '\\d{2}';
-export const AISLE_SIDE_PATTERN = '[LREF]';
+export const SIDE_TOKEN_PATTERN = '[LREF]';
+export const BAY_TOKEN_PATTERN = '\\d{2}';
+export const SHELF_TOKEN_PATTERN = '[A-Z0-9]+'; // Revisit if we drop configurable letter or number
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-export const buildCompactAisleCodePattern = (): RegExp => {
-  return new RegExp(`^(${AISLE_TOKEN_PATTERN})(${AISLE_SIDE_PATTERN})(\\d{2})([A-Z0-9]+)$`);
+export const buildCompactLabelCodePattern = (): RegExp => {
+  return new RegExp(`^(${AISLE_TOKEN_PATTERN})(${SIDE_TOKEN_PATTERN})(${BAY_TOKEN_PATTERN})(${SHELF_TOKEN_PATTERN})$`);
 };
 
-export const buildDashedAisleCodePattern = (ignoreCase: boolean = false): RegExp => {
+export const buildDashedLabelCodePattern = (ignoreCase: boolean = false): RegExp => {
   return ignoreCase
-    ? new RegExp(`^(${AISLE_TOKEN_PATTERN})-(${AISLE_SIDE_PATTERN})(\\d{2})-([A-Z0-9]+)$`, 'i')
-    : new RegExp(`^(${AISLE_TOKEN_PATTERN})-(${AISLE_SIDE_PATTERN})(\\d{2})-([A-Z0-9]+)$`);
+    ? new RegExp(`^(${AISLE_TOKEN_PATTERN})-(${SIDE_TOKEN_PATTERN})(${BAY_TOKEN_PATTERN})-(${SHELF_TOKEN_PATTERN})$`, 'i')
+    : new RegExp(`^(${AISLE_TOKEN_PATTERN})-(${SIDE_TOKEN_PATTERN})(${BAY_TOKEN_PATTERN})-(${SHELF_TOKEN_PATTERN})$`);
 };
 
-export const buildDashedAisleSideBayPattern = (ignoreCase: boolean = false): RegExp => {
+export const buildSpacedLabelCodePattern = (ignoreCase: boolean = false): RegExp => {
   return ignoreCase
-    ? new RegExp(`^(${AISLE_TOKEN_PATTERN})-([A-Z]\\d{2})-([A-Z0-9]+)$`, 'i')
-    : new RegExp(`^(${AISLE_TOKEN_PATTERN})-([A-Z]\\d{2})-([A-Z0-9]+)$`);
+    ? new RegExp(`^(${AISLE_TOKEN_PATTERN}) (${SIDE_TOKEN_PATTERN})(${BAY_TOKEN_PATTERN}) (${SHELF_TOKEN_PATTERN})$`, 'i')
+    : new RegExp(`^(${AISLE_TOKEN_PATTERN}) (${SIDE_TOKEN_PATTERN})(${BAY_TOKEN_PATTERN}) (${SHELF_TOKEN_PATTERN})$`);
 };
 
 export const buildCompactBackCodePattern = (backCodePrefix: string, ignoreCase: boolean = true): RegExp => {
   const escapedPrefix = escapeRegExp(backCodePrefix);
   return ignoreCase
-    ? new RegExp(`^${escapedPrefix}(\\d{2})([A-Z0-9]+)$`, 'i')
-    : new RegExp(`^${escapedPrefix}(\\d{2})([A-Z0-9]+)$`);
+    ? new RegExp(`^${escapedPrefix}(${BAY_TOKEN_PATTERN})(${SHELF_TOKEN_PATTERN})$`, 'i')
+    : new RegExp(`^${escapedPrefix}(${BAY_TOKEN_PATTERN})(${SHELF_TOKEN_PATTERN})$`);
 };
 
 export const buildDashedBackCodePattern = (backCodePrefix: string, ignoreCase: boolean = true): RegExp => {
   const escapedPrefix = escapeRegExp(backCodePrefix);
   return ignoreCase
-    ? new RegExp(`^${escapedPrefix}-(\\d{2})-([A-Z0-9]+)$`, 'i')
-    : new RegExp(`^${escapedPrefix}-(\\d{2})-([A-Z0-9]+)$`);
+    ? new RegExp(`^${escapedPrefix}-(${BAY_TOKEN_PATTERN})-(${SHELF_TOKEN_PATTERN})$`, 'i')
+    : new RegExp(`^${escapedPrefix}-(${BAY_TOKEN_PATTERN})-(${SHELF_TOKEN_PATTERN})$`);
+};
+
+export const buildSpacedBackCodePattern = (backCodePrefix: string, ignoreCase: boolean = true): RegExp => {
+  const escapedPrefix = escapeRegExp(backCodePrefix);
+  return ignoreCase
+    ? new RegExp(`^${escapedPrefix} (${BAY_TOKEN_PATTERN}) (${SHELF_TOKEN_PATTERN})$`, 'i')
+    : new RegExp(`^${escapedPrefix} (${BAY_TOKEN_PATTERN}) (${SHELF_TOKEN_PATTERN})$`);
 };

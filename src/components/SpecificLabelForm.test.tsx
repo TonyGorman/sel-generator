@@ -6,8 +6,8 @@ import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
-  default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
-    <div data-testid="generated-labels" data-layout-mode={layoutMode}>{aisles.join('|')}</div>
+  default: ({ aisles, layoutMode, type }: { aisles: string[]; layoutMode?: string; type?: string }) => (
+    <div data-testid="generated-labels" data-layout-mode={layoutMode} data-type={type}>{aisles.join('|')}</div>
   ),
 }));
 
@@ -84,6 +84,41 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}-01-2`);
   });
 
+  it('preserves space-separated input instead of coercing it to dashes', () => {
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01 l01 1' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('01 L01 1');
+  });
+
+  it('accepts spaced back wall values and preserves spaces in output', () => {
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: `${DEFAULT_BACK_CODE_PREFIX} 01 A` },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX} 01 A`);
+  });
+
+  it('rejects mixed separators instead of coercing them during validation', () => {
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01-L01 A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
+  });
+
   it('accepts compact back wall values and renders generated list', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
@@ -139,6 +174,7 @@ describe('SpecificLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'mini-sel');
+    expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-type', 'Specific');
   });
 
   it('opens configuration when configuration section link is clicked', () => {

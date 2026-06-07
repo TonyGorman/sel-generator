@@ -6,10 +6,9 @@ import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix, normalizeSpecialAisl
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
-  buildCompactAisleCodePattern,
+  buildCompactLabelCodePattern,
   buildCompactBackCodePattern,
-  buildDashedAisleCodePattern,
-  buildDashedAisleSideBayPattern,
+  buildDashedLabelCodePattern,
   buildDashedBackCodePattern,
 } from './labelCodePatterns';
 import {
@@ -66,7 +65,7 @@ export const getMiniPrimaryFontSizeMm = (primaryText: string, layoutStrategy: IL
   return fitMiniPrimaryFontSizeMm(primaryText, layoutStrategy, measurePrimaryTextWidthMm);
 };
 
-const AISLE_CODE_PATTERN = buildCompactAisleCodePattern();
+const AISLE_CODE_PATTERN = buildCompactLabelCodePattern();
 
 const parseAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
   const match = code.match(AISLE_CODE_PATTERN);
@@ -117,14 +116,14 @@ const parseDashedBackCode = (parts: string[], backCodePrefix: string, type?: str
   return { bay, shelf };
 };
 
-const DASHED_AISLE_CODE_PATTERN = buildDashedAisleCodePattern(true);
+const DASHED_LABEL_CODE_PATTERN = buildDashedLabelCodePattern(true);
 
 const normalizeSeparatorsForEncoding = (code: string): string => {
   return code.replace(/ /g, '-');
 };
 
 const tryEncodeDashedAisleCode = (dashedCode: string): string | null => {
-  const dashedAisleMatch = dashedCode.match(DASHED_AISLE_CODE_PATTERN);
+  const dashedAisleMatch = dashedCode.match(DASHED_LABEL_CODE_PATTERN);
   if (!dashedAisleMatch) {
     return null;
   }
@@ -223,9 +222,12 @@ export const getPrimaryLabelText = (
   specialAisleValues?: readonly string[],
 ): { primary: string; secondary: string } => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  const specialAisle = normalizeSpecialAisleValue(code, specialAisleValues);
-  const dashedCode = getDashedLabelCode(code, type, normalizedPrefix, specialAisleValues);
-  const secondaryDisplayValue = getSecondaryDisplayValue(code, dashedCode, secondaryCodeFormat, type);
+  const parsingCode = type === 'Specific' ? normalizeSeparatorsForEncoding(code.toUpperCase()) : code;
+  const specialAisle = normalizeSpecialAisleValue(parsingCode, specialAisleValues);
+  const dashedCode = getDashedLabelCode(parsingCode, type, normalizedPrefix, specialAisleValues);
+  const secondaryDisplayValue = type === 'Specific'
+    ? code.toUpperCase()
+    : getSecondaryDisplayValue(parsingCode, dashedCode, secondaryCodeFormat, type);
 
   if (specialAisle) {
     return {
@@ -234,8 +236,8 @@ export const getPrimaryLabelText = (
     };
   }
 
-  if (code.includes('-')) {
-    const parts = code.split('-');
+  if (parsingCode.includes('-')) {
+    const parts = parsingCode.split('-');
 
     const dashedBackCode = parseDashedBackCode(parts, normalizedPrefix, type);
     if (dashedBackCode) {
@@ -254,7 +256,7 @@ export const getPrimaryLabelText = (
     }
   }
 
-  const aisleCode = parseAisleCode(code);
+  const aisleCode = parseAisleCode(parsingCode);
   if (aisleCode) {
     const { side, bay } = aisleCode;
     return {
@@ -263,7 +265,7 @@ export const getPrimaryLabelText = (
     };
   }
 
-  const backCode = parseBackCode(code, normalizedPrefix);
+  const backCode = parseBackCode(parsingCode, normalizedPrefix);
   if (backCode) {
     const { bay } = backCode;
     return {
@@ -273,7 +275,7 @@ export const getPrimaryLabelText = (
   }
 
   if (type === 'Back') {
-    const fallbackBackCode = parseBackCode(code, normalizedPrefix);
+    const fallbackBackCode = parseBackCode(parsingCode, normalizedPrefix);
     if (fallbackBackCode) {
       const { bay } = fallbackBackCode;
       return {
@@ -283,7 +285,7 @@ export const getPrimaryLabelText = (
     }
 
     const prefixLength = normalizedPrefix.length;
-    const bayToken = code.slice(prefixLength, prefixLength + 2);
+    const bayToken = parsingCode.slice(prefixLength, prefixLength + 2);
 
     return {
       primary: `${normalizedPrefix}${bayToken}`,
@@ -292,7 +294,7 @@ export const getPrimaryLabelText = (
   }
 
   return {
-    primary: code,
+    primary: parsingCode,
     secondary: secondaryDisplayValue,
   };
 };
@@ -311,14 +313,14 @@ export const getLargeSelDisplayParts = (
   secondaryCodeFormat: SecondaryCodeFormat = 'dashes',
 ): ILargeLabelDisplayParts | null => {
   const dashedCode = getDashedLabelCode(code, type, backCodePrefix, specialAisleValues);
-  const dashedAisleMatch = dashedCode.match(buildDashedAisleSideBayPattern());
+  const dashedAisleMatch = dashedCode.match(DASHED_LABEL_CODE_PATTERN);
 
   if (dashedAisleMatch) {
-    const [, aisle, sideBay, shelf] = dashedAisleMatch;
+    const [, aisle, side, bay, shelf] = dashedAisleMatch;
     const separator = secondaryCodeFormat === 'spaces' ? ' ' : '-';
     return {
       prefix: `${aisle}${separator}`,
-      main: sideBay,
+      main: `${side.toUpperCase()}${bay}`,
       suffix: `${separator}${shelf}`,
     };
   }
