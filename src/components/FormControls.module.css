@@ -49,6 +49,12 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 244, 0.16);
 }
 
+.inputMultiline {
+  resize: none;
+  overflow: hidden;
+  min-height: calc(1.4em * 2 + 24px);
+}
+
 .radioGroup {
   display: grid;
   gap: 12px;

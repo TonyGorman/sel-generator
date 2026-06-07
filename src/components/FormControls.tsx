@@ -3,6 +3,17 @@ import styles from './FormControls.module.css';
 
 const joinClasses = (...classNames: Array<string | undefined>): string => classNames.filter(Boolean).join(' ');
 
+const setForwardedRef = <T,>(ref: React.ForwardedRef<T>, value: T | null): void => {
+  if (typeof ref === 'function') {
+    ref(value);
+    return;
+  }
+
+  if (ref) {
+    ref.current = value;
+  }
+};
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
@@ -15,13 +26,65 @@ export const Button: React.FC<ButtonProps> = ({ className, type = 'button', chil
   );
 };
 
-export type TextFieldProps = React.InputHTMLAttributes<HTMLInputElement>;
+type SharedTextFieldProps = {
+  className?: string;
+  multiline?: boolean;
+  autoGrow?: boolean;
+};
 
-export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { className, ...props },
+type SingleLineTextFieldProps = SharedTextFieldProps & React.InputHTMLAttributes<HTMLInputElement>;
+type MultilineTextFieldProps = SharedTextFieldProps & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+export type TextFieldProps = SingleLineTextFieldProps | MultilineTextFieldProps;
+
+export const TextField = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, TextFieldProps>(function TextField(
+  { className, multiline = false, autoGrow = false, ...props },
   ref,
 ) {
-  return <input {...props} ref={ref} className={joinClasses(styles.input, className)} />;
+  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+  const resizeTextarea = React.useCallback(() => {
+    if (!autoGrow || !textareaRef.current) {
+      return;
+    }
+
+    textareaRef.current.style.height = 'auto';
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  }, [autoGrow]);
+
+  React.useLayoutEffect(() => {
+    resizeTextarea();
+  }, [resizeTextarea, multiline, props.value]);
+
+  if (multiline) {
+    const textareaProps = props as React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+    const onInput = textareaProps.onInput;
+    const handleInput: NonNullable<React.TextareaHTMLAttributes<HTMLTextAreaElement>['onInput']> = (event) => {
+      resizeTextarea();
+      onInput?.(event);
+    };
+
+    return (
+      <textarea
+        {...textareaProps}
+        rows={textareaProps.rows ?? 2}
+        ref={(element) => {
+          textareaRef.current = element;
+          setForwardedRef(ref as React.ForwardedRef<HTMLTextAreaElement>, element);
+        }}
+        className={joinClasses(styles.input, styles.inputMultiline, className)}
+        onInput={handleInput}
+      />
+    );
+  }
+
+  return (
+    <input
+      {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+      ref={(element) => setForwardedRef(ref as React.ForwardedRef<HTMLInputElement>, element)}
+      className={joinClasses(styles.input, className)}
+    />
+  );
 });
 
 export interface RadioOption {

@@ -1,8 +1,10 @@
 import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
+import alertStyles from './Alert.module.css';
+import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig } from '../config/labelConfig';
+import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig } from '../config/labelConfig';
 import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
@@ -12,10 +14,10 @@ interface IAisleLabelFormProps {
 }
 
 const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfiguration }) => {
-    const aisleRangeText = `1-${MAX_AISLE_VALUE}`;
+    const aisleRangeText = `${MIN_AISLE_VALUE}-${MAX_AISLE_VALUE}`;
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
-    const aisleValidationMessage = `Aisles must be between 1 and ${MAX_AISLE_VALUE}.`;
+    const aisleValidationMessage = `Aisles must be between ${MIN_AISLE_VALUE} and ${MAX_AISLE_VALUE}.`;
     const bayValidationMessage = `Bay values must be between 1 and ${MAX_BAY_VALUE}.`;
     const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
 
@@ -103,7 +105,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             return 'Please enter aisle start, aisle end, and shelves using whole numbers.';
         }
 
-        if (labelStruct.aisle_start < 1 || labelStruct.aisle_end < 1 || labelStruct.aisle_end > MAX_AISLE_VALUE) {
+        if (labelStruct.aisle_start < MIN_AISLE_VALUE || labelStruct.aisle_end < MIN_AISLE_VALUE || labelStruct.aisle_end > MAX_AISLE_VALUE) {
             return aisleValidationMessage;
         }
 
@@ -256,21 +258,21 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
     };
 
     return (
-        <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate Aisle Labels</h1>
+        <div className={shellStyles.panel}>
+            <h1 className={shellStyles.panelTitle}>Generate Aisle Labels</h1>
             <div className={styles.sectionIntro}>
-                <p><strong>Enter values for:</strong> aisles from 1 to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (which can be letters or numbers) from 1 to {MAX_SHELF_VALUE}.</p>
+                <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (which can be letters or numbers) from 1 to {MAX_SHELF_VALUE}.</p>
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
                 <p>Label formats can be changed in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
                 </p>
             </div>
             <div className={styles.configLayout}>
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Aisle Range ({aisleRangeText})</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Aisle Range ({aisleRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
                             <TextField
                                 id={`${idPrefix}-aisle-start`}
                                 value={labelStruct.aisle_start?.toString() ?? ''}
@@ -278,7 +280,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                             />
                         </div>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-aisle-end`}>To</label>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-end`}>To</label>
                             <TextField
                                 id={`${idPrefix}-aisle-end`}
                                 value={labelStruct.aisle_end?.toString() ?? ''}
@@ -288,15 +290,15 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                     </div>
                 </section>
 
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Bay Configuration ({bayRangeText})</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Bay Configuration ({bayRangeText})</h2>
                     <div className={styles.sideGrid}>
                         {sideRows.map((side) => (
                             <div key={side.label} className={styles.sideRow}>
                                 <div className={styles.sideLabel}>{side.label}</div>
                                 <div className={styles.sideInputGroup}>
                                     <div className={styles.fieldGroup}>
-                                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-${side.startKey}`}>From</label>
+                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.startKey}`}>From</label>
                                         <TextField
                                             id={`${idPrefix}-${side.startKey}`}
                                             value={labelStruct[side.startKey]?.toString() ?? ''}
@@ -304,7 +306,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                                         />
                                     </div>
                                     <div className={styles.fieldGroup}>
-                                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-${side.endKey}`}>To</label>
+                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.endKey}`}>To</label>
                                         <TextField
                                             id={`${idPrefix}-${side.endKey}`}
                                             value={labelStruct[side.endKey]?.toString() ?? ''}
@@ -317,10 +319,10 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                     </div>
                 </section>
 
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
-                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
+                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
                         <TextField
                             id={`${idPrefix}-shelves`}
                             value={labelStruct.shelves?.toString() ?? ''}
@@ -329,8 +331,8 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                     </div>
                 </section>
 
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Label Size</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Label Size</h2>
                     <RadioGroup
                         name={`${idPrefix}-label-print-mode`}
                         options={printModeOptions}
@@ -339,8 +341,8 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                     />
                 </section>
 
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Summary</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Summary</h2>
                     <div className={styles.summaryBox}>
                         <div className={styles.summaryRow}>
                             <span>Aisles:</span>
@@ -363,7 +365,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 </section>
             </div>
 
-            {errorMessage && <div role="alert" className={styles.alertError}><div><span>{errorMessage}</span></div></div>}
+            {errorMessage && <div role="alert" className={alertStyles.alertError}><div><span>{errorMessage}</span></div></div>}
 
             <div className={styles.actionsRow}>
                 <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>

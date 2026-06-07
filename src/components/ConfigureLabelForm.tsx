@@ -1,19 +1,19 @@
 import * as React from 'react';
 import styles from './LabelApp.module.css';
+import shellStyles from './FormShell.module.css';
 import { ILabelConfig } from '../models/ILabelConfig';
 import LabelTile from './LabelTile';
-import { getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
+import {
+  getShelfTokenForConfig,
+  normalizeBackCodePrefix,
+  normalizeSpecialAisleValues,
+  SPECIAL_AISLE_VALUES,
+} from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { RadioGroup, RadioOption, TextField } from './FormControls';
+import { buildLayoutCssVars } from './labelLayoutCssVars';
 
-const { page: miniPage, barcodeGeometry: miniGeo } = getLabelLayoutStrategy('mini-sel');
-const PREVIEW_STYLE = {
-  '--current-tile-width-mm': `${miniPage.labelWidthMm}mm`,
-  '--current-tile-height-mm': `${miniPage.labelHeightMm}mm`,
-  '--mini-sel-barcode-width-mm': `${miniGeo.widthMm}mm`,
-  '--mini-sel-barcode-height-mm': `${miniGeo.heightMm}mm`,
-  '--mini-sel-barcode-margin-bottom-mm': `${miniGeo.marginBottomMm}mm`,
-} as React.CSSProperties;
+const PREVIEW_STYLE = buildLayoutCssVars(getLabelLayoutStrategy('mini-sel'));
 
 export interface IConfigureLabelFormProps {
   config: ILabelConfig;
@@ -21,10 +21,6 @@ export interface IConfigureLabelFormProps {
 }
 
 const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConfigChange }) => {
-  const primaryCodeOptions: RadioOption[] = [
-    { key: 'sideAndBay', text: 'Side + Bay (e.g., "R01")' },
-    { key: 'shelfOnly', text: 'Shelf only' },
-  ];
   const shelfStyleOptions: RadioOption[] = [
     { key: 'number', text: 'Shelf as Number (e.g., "1")' },
     { key: 'alphabetical', text: 'Shelf as Alphabetical (e.g., "A")' },
@@ -34,16 +30,17 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
     { key: 'spaces', text: 'Use spaces (e.g., "01 R02 3")' },
   ];
   const idPrefix = React.useId();
+  const defaultSpecialAisles = React.useMemo(() => [...SPECIAL_AISLE_VALUES], []);
+  const [specialAisleInputValue, setSpecialAisleInputValue] = React.useState(
+    (config.specialAisleValues ?? defaultSpecialAisles).join(', '),
+  );
+
+  React.useEffect(() => {
+    setSpecialAisleInputValue((config.specialAisleValues ?? defaultSpecialAisles).join(', '));
+  }, [config.specialAisleValues, defaultSpecialAisles]);
 
   const exampleShelfToken = getShelfTokenForConfig(2, config.shelfStyle);
   const exampleLabelCode = `01R02${exampleShelfToken}`;
-
-  const handlePrimaryCodeFormatChange = (key: string) => {
-    onConfigChange({
-      ...config,
-      primaryCodeFormat: key as 'sideAndBay' | 'shelfOnly',
-    });
-  };
 
   const handleShelfStyleChange = (key: string) => {
     onConfigChange({
@@ -66,9 +63,29 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
     });
   };
 
+  const commitSpecialAisleValues = (rawInput: string) => {
+    const parsedValues = rawInput.split(',');
+    const normalizedValues = normalizeSpecialAisleValues(parsedValues);
+
+    onConfigChange({
+      ...config,
+      specialAisleValues: normalizedValues,
+    });
+
+    setSpecialAisleInputValue(normalizedValues.join(', '));
+  };
+
+  const handleSpecialAisleValuesChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSpecialAisleInputValue(event.target.value);
+  };
+
+  const handleSpecialAisleValuesBlur = () => {
+    commitSpecialAisleValues(specialAisleInputValue);
+  };
+
   return (
-    <div className={styles.panel}>
-      <h1 className={styles.panelTitle}>Label Configuration</h1>
+    <div className={shellStyles.panel}>
+      <h1 className={shellStyles.panelTitle}>Label Configuration</h1>
       <p className={styles.sectionIntro}>
         Configure how the text values appear.
         The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p> 
@@ -76,18 +93,8 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
 
       <div className={styles.configLayout}>
         <div className={styles.configControlsColumn}>
-          <section className={styles.sectionBox}>
-            <h2 className={styles.sectionTitle}>Primary Code Format</h2>
-            <RadioGroup
-              name={`${idPrefix}-primary-code-format`}
-              options={primaryCodeOptions}
-              selectedKey={config.primaryCodeFormat}
-              onChange={handlePrimaryCodeFormatChange}
-            />
-          </section>
-
-          <section className={styles.sectionBox}>
-            <h2 className={styles.sectionTitle}>Shelf Style</h2>
+          <section className={shellStyles.sectionBox}>
+            <h2 className={shellStyles.sectionTitle}>Shelf Style</h2>
             <RadioGroup
               name={`${idPrefix}-shelf-style`}
               options={shelfStyleOptions}
@@ -96,8 +103,8 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
             />
           </section>
 
-          <section className={styles.sectionBox}>
-            <h2 className={styles.sectionTitle}>Secondary Code Format</h2>
+          <section className={shellStyles.sectionBox}>
+            <h2 className={shellStyles.sectionTitle}>Secondary Code Format</h2>
             <RadioGroup
               name={`${idPrefix}-secondary-code-format`}
               options={secondaryCodeOptions}
@@ -106,27 +113,46 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
             />
           </section>
 
-          <section className={styles.sectionBox}>
-            <h2 className={styles.sectionTitle}>Back Code Prefix</h2>
-            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-back-code-prefix`}>
+          <section className={shellStyles.sectionBox}>
+            <h2 className={shellStyles.sectionTitle}>Back Code Prefix</h2>
+            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-back-code-prefix`}>
               Prefix (letters or numbers)
             </label>
             <TextField
               id={`${idPrefix}-back-code-prefix`}
               value={config.backCodePrefix}
-              maxLength={2}
+              maxLength={4}
               onChange={handleBackCodePrefixChange}
               aria-describedby={`${idPrefix}-back-code-prefix-help`}
             />
             <p id={`${idPrefix}-back-code-prefix-help`}>
-              Example: BK or 99.
+              Example: BACK, BK, or 99.
+            </p>
+          </section>
+
+          <section className={shellStyles.sectionBox}>
+            <h2 className={shellStyles.sectionTitle}>Special Aisle Values</h2>
+            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-special-aisle-values`}>
+              Comma-separated names (letters only, max 8 chars each)
+            </label>
+            <TextField
+              id={`${idPrefix}-special-aisle-values`}
+              value={specialAisleInputValue}
+              multiline
+              autoGrow
+              onChange={handleSpecialAisleValuesChange}
+              onBlur={handleSpecialAisleValuesBlur}
+              aria-describedby={`${idPrefix}-special-aisle-values-help`}
+            />
+            <p id={`${idPrefix}-special-aisle-values-help`}>
+              Example: KIOSK, FLORAL, BACKWALL
             </p>
           </section>
         </div>
 
         <div className={styles.configExampleBox}>
-          <section className={styles.sectionBox}>
-            <h2 className={styles.sectionTitle}>Preview</h2>
+          <section className={shellStyles.sectionBox}>
+            <h2 className={shellStyles.sectionTitle}>Preview</h2>
             <div className={styles.configExampleCard} style={PREVIEW_STYLE}>
               <LabelTile code={exampleLabelCode} config={config} type="Aisle" />
             </div>

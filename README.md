@@ -13,24 +13,31 @@ The app provides three workflows for generating barcode labels:
 - **Back Wall Labels**: Generate labels for back-wall merchandise, with custom prefix support.
 
 All labels display:
+
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
 - Encoded barcode value as readable text below the barcode for visual verification
-- Configurable primary text (side+bay or shelf only)
+- Primary text shown as side+bay (e.g., "R01")
 - Configurable secondary text format (dashes or spaces)
 
 ### Configuration
 
 Configure label appearance in the **Configuration** tab:
 
-- **Primary Code Format**: Choose between side+bay display (e.g., "R01") or shelf only (e.g., "1" or "A")
 - **Shelf Style**: Display shelves as numbers (1–20) or letters (A–T). When set, all input is automatically coerced to this format.
 - **Secondary Code Format**: Display additional text with dashes (e.g., "01-R02-A") or spaces (e.g., "01 R02 A")
 - **Back Code Prefix**: Custom prefix for back-wall labels (e.g., "BK" or "99")
+- **Special Aisle Values**: Configure explicit named aisle labels (comma-separated, letters only, max 8 chars each)
 
 ### Print & Export
 
 - **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper
 - **Download**: Export labels as a PDF with vector graphics and scan-safe barcode encoding
+
+### PDF Font Compatibility
+
+- The vector PDF export path uses jsPDF built-in **Helvetica** for label text.
+- This is intentional for broad cross-platform support (Windows/macOS/Linux) without requiring system fonts.
+- Do not switch to non-built-in font names (for example Calibri) unless the font is explicitly embedded/registered in jsPDF.
 
 ## Build and Publish
 
@@ -194,6 +201,8 @@ The **Secondary Code Format** setting in Configuration controls only the **displ
 - **Dashes option** → Display: `01-L01-A`
 - **Spaces option** → Display: `01 L01 A`
 - **Barcode in both cases** → Always: `01L01A` (compact, no separators)
+
+Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`, `BACKWALL`) rather than inferred from generic alphabetic input.
 
 ### Why Compact Encoding
 

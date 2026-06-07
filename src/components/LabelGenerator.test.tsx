@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 
 const {
   addPageMock,
@@ -83,6 +84,7 @@ vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div>{code}</div>,
   getDashedLabelCode: (code: string) => code,
   getEncodedLabelCode: (code: string) => code,
+  getMiniPrimaryFontSizeMm: () => 13,
   getPrimaryLabelText: (code: string) => ({ primary: code, secondary: code }),
   getLargeSelDisplayParts: () => null,
 }));
@@ -94,7 +96,6 @@ vi.mock('./Pagination', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -218,6 +219,20 @@ describe('LabelGenerator PDF export', () => {
       expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
     });
     expect(saveMock).not.toHaveBeenCalled();
+  });
+
+  it('exposes shared Mini SEL secondary anchor geometry on the preview page style', () => {
+    const { container } = render(<LabelGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
+    const miniTypography = getLabelLayoutStrategy('mini-sel').typography;
+
+    const previewPage = container.querySelector('[class*="previewPage"]');
+
+    expect(previewPage).not.toBeNull();
+    expect(previewPage).toHaveStyle({
+      '--current-primary-center-from-tile-top-mm': `${miniTypography.primaryCenterFromTileTopMm}mm`,
+      '--current-secondary-baseline-from-tile-top-mm': `${miniTypography.secondaryBaselineFromTileTopMm}mm`,
+      '--current-secondary-dom-top-offset-mm': `${miniTypography.secondaryDomTopOffsetMm}mm`,
+    });
   });
 
   it('updates preview items through pagination callback', () => {

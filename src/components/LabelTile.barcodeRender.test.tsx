@@ -6,7 +6,6 @@ import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -42,10 +41,10 @@ describe('LabelTile barcode visual encoding', () => {
   });
 
   it('renders identical barcode bars for compact and dashed back-wall values', () => {
-    const compact = render(<LabelTile code="BK01A" config={defaultConfig} type="Specific" />);
+    const compact = render(<LabelTile code={`${DEFAULT_BACK_CODE_PREFIX}01A`} config={defaultConfig} type="Specific" />);
     const compactSignature = getBarcodeSignature(compact.container);
 
-    const dashed = render(<LabelTile code="BK-01-A" config={defaultConfig} type="Specific" />);
+    const dashed = render(<LabelTile code={`${DEFAULT_BACK_CODE_PREFIX}-01-A`} config={defaultConfig} type="Specific" />);
     const dashedSignature = getBarcodeSignature(dashed.container);
 
     expect(dashedSignature).toBe(compactSignature);

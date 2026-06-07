@@ -1,0 +1,11 @@
+.alertError {
+  background-color: #a50000;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  font-size: 1rem;
+  font-weight: 400;
+  justify-content: space-between;
+  padding: 12px;
+  width: 100%;
+}

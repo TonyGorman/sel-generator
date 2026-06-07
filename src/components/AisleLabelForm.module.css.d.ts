@@ -1,15 +1,9 @@
 export type Styles = {
   'actionsRow': string;
-  'alertError': string;
   'configLayout': string;
   'fieldGroup': string;
-  'fieldLabel': string;
   'generateButton': string;
-  'panel': string;
-  'panelTitle': string;
-  'sectionBox': string;
   'sectionIntro': string;
-  'sectionTitle': string;
   'sideGrid': string;
   'sideInputGroup': string;
   'sideLabel': string;

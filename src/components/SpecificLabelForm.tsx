@@ -1,8 +1,24 @@
 import * as React from 'react';
 import styles from './LabelApp.module.css';
+import alertStyles from './Alert.module.css';
+import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
+import {
+    buildCompactAisleCodePattern,
+    buildCompactBackCodePattern,
+    buildDashedAisleCodePattern,
+    buildDashedBackCodePattern,
+} from './labelCodePatterns';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatShelfTokenForStyle, normalizeBackCodePrefix } from '../config/labelConfig';
+import {
+    MIN_AISLE_VALUE,
+    MAX_AISLE_VALUE,
+    MAX_BAY_VALUE,
+    MAX_SHELF_VALUE,
+    SPECIAL_AISLE_VALUES,
+    normalizeSpecialAisleValue,
+    normalizeBackCodePrefix,
+} from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 
 interface ISpecificLabelFormProps {
@@ -11,11 +27,13 @@ interface ISpecificLabelFormProps {
 }
 
 const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
+    const specialAisleValues = config.specialAisleValues ?? [...SPECIAL_AISLE_VALUES];
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
     const maxShelfLetter = MAX_SHELF_VALUE <= 26
         ? String.fromCharCode(64 + MAX_SHELF_VALUE)
         : 'Z';
     const shelfRangeText = `1-${MAX_SHELF_VALUE} or A-${maxShelfLetter}`;
+    const namedAisleExamples = specialAisleValues.join(', ');
 
     const [initLabelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
@@ -39,43 +57,59 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return false;
     };
 
-    const isBoundedTwoDigitNumber = (value: string, max: number): boolean => {
+    const isBoundedTwoDigitNumber = (value: string, max: number, min: number = 1): boolean => {
         const numericValue = Number(value);
-        return numericValue >= 1 && numericValue <= max;
+        return numericValue >= min && numericValue <= max;
     };
 
-    const normalizeShelfTokenForConfig = (token: string): string => {
-        return formatShelfTokenForStyle(token, config.shelfStyle);
+    const normalizeSpecificInputSeparators = (code: string): string => {
+        return code.trim().toUpperCase().replace(/\s+/g, '-');
     };
 
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
+    const compactAislePattern = buildCompactAisleCodePattern();
+    const dashedAislePattern = buildDashedAisleCodePattern();
+    const compactBackPattern = buildCompactBackCodePattern(backCodePrefix);
+    const dashedBackPattern = buildDashedBackCodePattern(backCodePrefix);
+
+    const isAisleTokenValid = (aisleToken: string): boolean => {
+        if (/^\d{2}$/.test(aisleToken)) {
+            return isBoundedTwoDigitNumber(aisleToken, MAX_AISLE_VALUE, MIN_AISLE_VALUE);
+        }
+
+        return false;
+    };
 
     const isValidSpecificCode = (code: string): boolean => {
         const normalizedCode = code.toUpperCase();
 
-        const compactAisleMatch = normalizedCode.match(/^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/);
+        if (normalizeSpecialAisleValue(normalizedCode, specialAisleValues)) {
+            return true;
+        }
+
+        const compactAisleMatch = normalizedCode.match(compactAislePattern);
         if (compactAisleMatch) {
-            const [, aisle, , bay, shelf] = compactAisleMatch;
-            return isBoundedTwoDigitNumber(aisle, MAX_AISLE_VALUE)
+            const [, aisleToken, , bay, shelf] = compactAisleMatch;
+            return isAisleTokenValid(aisleToken)
                 && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
                 && isShelfTokenValid(shelf);
         }
 
-        const dashedAisleMatch = normalizedCode.match(/^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/);
+        const dashedAisleMatch = normalizedCode.match(dashedAislePattern);
         if (dashedAisleMatch) {
-            const [, aisle, , bay, shelf] = dashedAisleMatch;
-            return isBoundedTwoDigitNumber(aisle, MAX_AISLE_VALUE)
+            const [, aisleToken, , bay, shelf] = dashedAisleMatch;
+            return isAisleTokenValid(aisleToken)
                 && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
                 && isShelfTokenValid(shelf);
         }
 
-        const compactBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}(\\d{2})([A-Z0-9]+)$`));
+        const compactBackMatch = normalizedCode.match(compactBackPattern);
         if (compactBackMatch) {
             const [, bay, shelf] = compactBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
         }
 
-        const dashedBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}-(\\d{2})-([A-Z0-9]+)$`));
+        const dashedBackMatch = normalizedCode.match(dashedBackPattern);
         if (dashedBackMatch) {
             const [, bay, shelf] = dashedBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
@@ -86,29 +120,34 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
     const normalizeSpecificCodeForConfig = (code: string): string => {
         const normalizedCode = code.toUpperCase();
+        const specialAisle = normalizeSpecialAisleValue(normalizedCode, specialAisleValues);
 
-        const compactAisleMatch = normalizedCode.match(/^(\d{2})([A-Z])(\d{2})([A-Z0-9]+)$/);
+        if (specialAisle) {
+            return specialAisle;
+        }
+
+        const compactAisleMatch = normalizedCode.match(compactAislePattern);
         if (compactAisleMatch) {
-            const [, aisle, side, bay, shelf] = compactAisleMatch;
-            return `${aisle}${side}${bay}${normalizeShelfTokenForConfig(shelf)}`;
+            const [, aisleToken, side, bay, shelf] = compactAisleMatch;
+            return `${aisleToken}${side}${bay}${shelf}`;
         }
 
-        const dashedAisleMatch = normalizedCode.match(/^(\d{2})-([A-Z])(\d{2})-([A-Z0-9]+)$/);
+        const dashedAisleMatch = normalizedCode.match(dashedAislePattern);
         if (dashedAisleMatch) {
-            const [, aisle, side, bay, shelf] = dashedAisleMatch;
-            return `${aisle}-${side}${bay}-${normalizeShelfTokenForConfig(shelf)}`;
+            const [, aisleToken, side, bay, shelf] = dashedAisleMatch;
+            return `${aisleToken}-${side}${bay}-${shelf}`;
         }
 
-        const compactBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}(\\d{2})([A-Z0-9]+)$`));
+        const compactBackMatch = normalizedCode.match(compactBackPattern);
         if (compactBackMatch) {
             const [, bay, shelf] = compactBackMatch;
-            return `${backCodePrefix}${bay}${normalizeShelfTokenForConfig(shelf)}`;
+            return `${backCodePrefix}${bay}${shelf}`;
         }
 
-        const dashedBackMatch = normalizedCode.match(new RegExp(`^${backCodePrefix}-(\\d{2})-([A-Z0-9]+)$`));
+        const dashedBackMatch = normalizedCode.match(dashedBackPattern);
         if (dashedBackMatch) {
             const [, bay, shelf] = dashedBackMatch;
-            return `${backCodePrefix}-${bay}-${normalizeShelfTokenForConfig(shelf)}`;
+            return `${backCodePrefix}-${bay}-${shelf}`;
         }
 
         return normalizedCode;
@@ -117,7 +156,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
     const generateLabel = ():void => {
         const labelTexts = initLabelText
             .split(',')
-            .map((text) => text.trim().toUpperCase())
+            .map((text) => normalizeSpecificInputSeparators(text))
             .filter((text) => text.length > 0);
 
         if (labelTexts.length === 0) {
@@ -128,7 +167,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
+            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
             setGeneratedLabels(null);
             return;
         }
@@ -145,27 +184,28 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
     };
 
     return (
-        <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list without spaces (for example: 01L01A,01-L01-A). 
+        <div className={shellStyles.panel}>
+            <h1 className={shellStyles.panelTitle}>Generate Specific Labels</h1>
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, 01-L01-1, {backCodePrefix}01A,{backCodePrefix}-01-1,{SPECIAL_AISLE_VALUES[0]}). 
                 <br/>Regardless of what value you enter, the barcode itself will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes. 
+                <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
                 <br/>Label formats can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
             </p>
             {errorMessage && (
-                <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
+                <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
                     <div><span>{errorMessage}</span></div>
                 </div>
             )}
 
-            <section className={styles.sectionBox}>
-                <h2 className={styles.sectionTitle}>Label Input</h2>
+            <section className={shellStyles.sectionBox}>
+                <h2 className={shellStyles.sectionTitle}>Label Input</h2>
                 <div className={styles.formStack}>
                     <TextField
                         value={initLabelText}
                         placeholder="Enter labels"
                         onChange={onInputChange}
                     />
-                    <p>Supported formats: 01L01A, 01-L01-A, {backCodePrefix}01A, {backCodePrefix}-01-A. Bay values must be {bayRangeText} and shelves must be {shelfRangeText}.</p>
+                    <p>Bay values must be {bayRangeText} and shelves must be {shelfRangeText}.</p>
                 </div>
             </section>
 

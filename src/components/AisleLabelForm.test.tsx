@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
@@ -12,7 +12,6 @@ vi.mock('./LabelGenerator', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
@@ -41,6 +40,7 @@ describe('AisleLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(String(MIN_AISLE_VALUE));
     expect(alert).toHaveTextContent(String(MAX_AISLE_VALUE));
   });
 
@@ -149,14 +149,15 @@ describe('AisleLabelForm', () => {
     expect(screen.getByText('End 01 – 01, Front 02 – 02')).toBeInTheDocument();
   });
 
-  it('shows error when aisle start is 0 or less', () => {
+  it('accepts aisle start at 0 and generates labels', () => {
     render(<AisleLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fillInputs({ 0: '0', 1: '1', 10: '1' });
+    fillInputs({ 2: '1', 3: '1' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveTextContent(String(MAX_AISLE_VALUE));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-count')).toHaveTextContent('2');
   });
 
   it('shows error when shelves value is 0 or less', () => {

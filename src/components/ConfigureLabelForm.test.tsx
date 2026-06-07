@@ -10,22 +10,16 @@ vi.mock('./LabelTile', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  primaryCodeFormat: 'sideAndBay',
   shelfStyle: 'alphabetical',
   secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
+  specialAisleValues: ['KIOSK', 'FLORAL', 'BACKWALL'],
 };
 
 describe('ConfigureLabelForm', () => {
   it('emits updated config values for each radio group', () => {
     const onConfigChange = vi.fn();
     render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
-
-    fireEvent.click(screen.getByLabelText('Shelf only'));
-    expect(onConfigChange).toHaveBeenCalledWith({
-      ...defaultConfig,
-      primaryCodeFormat: 'shelfOnly',
-    });
 
     fireEvent.click(screen.getByLabelText('Shelf as Number (e.g., "1")'));
     expect(onConfigChange).toHaveBeenCalledWith({
@@ -65,6 +59,21 @@ describe('ConfigureLabelForm', () => {
     expect(onConfigChange).toHaveBeenCalledWith({
       ...defaultConfig,
       backCodePrefix: '99',
+    });
+  });
+
+  it('commits special aisle values from a comma-delimited field on blur', () => {
+    const onConfigChange = vi.fn();
+    render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
+
+    const input = screen.getByLabelText('Comma-separated names (letters only, max 8 chars each)');
+    expect(input.tagName).toBe('TEXTAREA');
+    fireEvent.change(input, { target: { value: 'kiosk, floral123, producezone' } });
+    fireEvent.blur(input);
+
+    expect(onConfigChange).toHaveBeenCalledWith({
+      ...defaultConfig,
+      specialAisleValues: ['KIOSK', 'FLORAL', 'PRODUCEZ'],
     });
   });
 });

@@ -7,15 +7,15 @@ import SpecificLabelForm from './SpecificLabelForm';
 import ConfigureLabelForm from './ConfigureLabelForm';
 import { ITabItem } from '../models/ITabItem';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, SPECIAL_AISLE_VALUES } from '../config/labelConfig';
 
 const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<ILabelConfig>({
-    primaryCodeFormat: 'sideAndBay',
     shelfStyle: 'number',
     secondaryCodeFormat: 'dashes',
     backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
+    specialAisleValues: [...SPECIAL_AISLE_VALUES],
   });
 
   const handleTabClick = React.useCallback((key: string): void => {

@@ -1,6 +1,7 @@
 export type Styles = {
   'button': string;
   'input': string;
+  'inputMultiline': string;
   'radioGroup': string;
   'radioInput': string;
   'radioLabel': string;

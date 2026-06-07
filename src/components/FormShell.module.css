@@ -1,0 +1,38 @@
+.panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panelTitle {
+  margin: 0 0 28px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.sectionBox {
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.fieldLabel {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .panelTitle {
+    font-size: 1.6rem;
+  }
+}

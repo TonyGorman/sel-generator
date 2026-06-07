@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import styles from './LabelApp.module.css';
+import alertStyles from './Alert.module.css';
 
 import { ILabelGenerator } from '../models/ILabelGenerator';
 import Pagination from './Pagination';
@@ -9,12 +10,11 @@ import { Button } from './FormControls';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './LabelPdfExport';
+import { buildLayoutCssVars } from './labelLayoutCssVars';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
 };
-
-const toMmStyle = (value: number): string => `${value}mm`;
 
 const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const { aisles, type, config, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
@@ -120,38 +120,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   }, []);
 
   const pageStyle = React.useMemo(
-    () => {
-      const page = layoutStrategy.page;
-      const typography = layoutStrategy.typography;
-      const geo = layoutStrategy.barcodeGeometry;
-      const mode = layoutStrategy.mode;
-
-      const pageVars: Record<string, string> = {
-        '--current-sheet-width-mm': toMmStyle(page.sheetWidthMm),
-        '--current-sheet-height-mm': toMmStyle(page.sheetHeightMm),
-        '--current-page-pad-top-mm': toMmStyle(page.pagePadTopMm),
-        '--current-page-pad-right-mm': toMmStyle(page.pagePadRightMm),
-        '--current-page-pad-bottom-mm': toMmStyle(page.pagePadBottomMm),
-        '--current-page-pad-left-mm': toMmStyle(page.pagePadLeftMm),
-        '--current-grid-columns': String(page.columns),
-        '--current-label-width-mm': toMmStyle(page.labelWidthMm),
-        '--current-label-height-mm': toMmStyle(page.labelHeightMm),
-        '--current-grid-height-mm': toMmStyle(page.labelHeightMm * page.rows),
-        '--current-tile-width-mm': toMmStyle(page.labelWidthMm),
-        '--current-tile-height-mm': toMmStyle(page.labelHeightMm),
-        '--current-tile-pad-top-mm': toMmStyle(typography.tilePaddingTopMm),
-        '--current-tile-pad-horizontal-mm': toMmStyle(typography.tilePaddingHorizontalMm),
-        '--current-tile-pad-bottom-mm': toMmStyle(typography.tilePaddingBottomMm),
-        '--current-large-prefix-text-size-mm': toMmStyle(typography.largePrefixTextSizeMm),
-        '--current-large-main-text-size-mm': toMmStyle(typography.largeMainTextSizeMm),
-        '--current-large-suffix-text-size-mm': toMmStyle(typography.largeSuffixTextSizeMm),
-        [`--${mode}-barcode-width-mm`]: toMmStyle(geo.widthMm),
-        [`--${mode}-barcode-height-mm`]: toMmStyle(geo.heightMm),
-        [`--${mode}-barcode-margin-bottom-mm`]: toMmStyle(geo.marginBottomMm),
-      };
-
-      return pageVars as React.CSSProperties;
-    },
+    () => buildLayoutCssVars(layoutStrategy),
     [layoutStrategy],
   );
 
@@ -185,7 +154,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         </div>
       )}
       {downloadError && (
-        <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
+        <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
           <div><span>{downloadError}</span></div>
         </div>
       )}

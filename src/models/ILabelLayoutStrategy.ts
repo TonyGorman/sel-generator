@@ -17,10 +17,16 @@ export interface ILabelPageGeometry {
 
 export interface ILabelTypographyGeometry {
   primaryTextSizeMm: number;
+  primaryTextMinSizeMm: number;
+  primaryTextMaxSizeMm: number;
+  primaryAutoFitEnabled: boolean;
   secondaryTextSizeMm: number;
   primaryLetterSpacingMm: number;
-  primaryBaselineFromContentTopMm: number;
-  secondaryBaselineFromContentTopMm: number;
+  primaryCenterFromTileTopMm: number;
+  secondaryBaselineFromTileTopMm: number;
+  secondaryDomTopOffsetMm: number;
+  pdfTextBaselineOffsetFactor: number;
+  pdfEncodedTextBaselineOffsetFactor: number;
   barcodeModuleThicknessMm: number;
   barcodeHeightMm: number;
   tilePaddingHorizontalMm: number;

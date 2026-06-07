@@ -1,5 +1,7 @@
 import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
+import alertStyles from './Alert.module.css';
+import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
 import { MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
@@ -107,18 +109,18 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     };
 
     return (
-        <div className={styles.panel}>
-            <h1 className={styles.panelTitle}>Generate Back Wall Labels</h1>
+        <div className={shellStyles.panel}>
+            <h1 className={shellStyles.panelTitle}>Generate Back Wall Labels</h1>
             <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. 
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
                 <p>The prefix can be customized in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
             <div className={styles.stackedSections}>
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Bay Range ({bayRangeText})</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Bay Range ({bayRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
                             <TextField
                                 id={`${idPrefix}-bay-start`}
                                 value={labelStruct.bay_start?.toString() ?? ''}
@@ -126,7 +128,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                             />
                         </div>
                         <div className={styles.fieldGroup}>
-                            <label className={styles.fieldLabel} htmlFor={`${idPrefix}-bay-end`}>End</label>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-end`}>End</label>
                             <TextField
                                 id={`${idPrefix}-bay-end`}
                                 value={labelStruct.bay_end?.toString() ?? ''}
@@ -136,10 +138,10 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                     </div>
                 </section>
 
-                <section className={styles.sectionBox}>
-                    <h2 className={styles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
-                        <label className={styles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
+                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
                         <TextField
                             id={`${idPrefix}-shelves`}
                             value={labelStruct.shelves?.toString() ?? ''}
@@ -154,7 +156,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
             </div>
 
             {errorMessage && (
-                <div role="alert" aria-live="assertive" aria-atomic="true" className={styles.alertError}>
+                <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
                     <div><span>{errorMessage}</span></div>
                 </div>
             )}

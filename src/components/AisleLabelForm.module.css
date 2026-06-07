@@ -1,15 +1,3 @@
-.panel {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.panelTitle {
-    margin: 0 0 28px;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1f2937;
-}
-
 .sectionIntro {
     margin: 0 0 24px;
     color: #4b5563;
@@ -37,19 +25,6 @@
     max-width: 620px;
 }
 
-.sectionBox {
-    min-width: 0;
-}
-
-.sectionTitle {
-    margin: 0 0 18px;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
-}
-
 .twoFieldGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -58,14 +33,6 @@
 
 .fieldGroup {
     min-width: 0;
-}
-
-.fieldLabel {
-    display: block;
-    margin: 0 0 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #6b7280;
 }
 
 .sideGrid {
@@ -139,19 +106,6 @@
     min-width: 220px;
 }
 
-.alertError{
-    background-color: #a50000;
-    color: white;
-    border-radius: 4px;
-    display: flex;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-    justify-content: space-between;
-    padding: 12px;
-    width: 100%;
-}
-
 @media (max-width: 1100px) {
     .configLayout {
         grid-template-columns: 1fr;
@@ -164,10 +118,6 @@
 }
 
 @media (max-width: 768px) {
-    .panelTitle {
-        font-size: 1.6rem;
-    }
-
     .twoFieldGrid,
     .sideInputGroup {
         grid-template-columns: 1fr;

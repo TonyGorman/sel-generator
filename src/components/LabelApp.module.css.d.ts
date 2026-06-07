@@ -2,7 +2,6 @@ export type Styles = {
   'actionBar': string;
   'actionButton': string;
   'actionsRow': string;
-  'alertError': string;
   'barcodeGraphic': string;
   'barcodeGraphicLargeSel': string;
   'configControlsColumn': string;
@@ -12,7 +11,6 @@ export type Styles = {
   'encodedValue': string;
   'encodedValueLargeSel': string;
   'exportSurface': string;
-  'fieldLabel': string;
   'formStack': string;
   'generateButton': string;
   'labelAppRoot': string;
@@ -27,8 +25,6 @@ export type Styles = {
   'largeSelHeadingSuffix': string;
   'largeSelLabelTextArea': string;
   'loaderBox': string;
-  'panel': string;
-  'panelTitle': string;
   'pdfDiv': string;
   'previewPage': string;
   'primaryCode': string;
@@ -36,9 +32,7 @@ export type Styles = {
   'printPage': string;
   'printPortal': string;
   'secondaryCode': string;
-  'sectionBox': string;
   'sectionIntro': string;
-  'sectionTitle': string;
   'tabButton': string;
   'tabButtonActive': string;
   'tabList': string;
