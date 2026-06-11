@@ -82,7 +82,7 @@ vi.mock('html2canvas', () => ({ default: html2CanvasMock }));
 
 vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div>{code}</div>,
-  getDashedLabelCode: (code: string) => code,
+  normalizeLabelCode: (code: string) => code,
   getEncodedLabelCode: (code: string) => code,
   getMiniPrimaryFontSizeMm: () => 13,
   getPrimaryLabelText: (code: string) => ({ primary: code, secondary: code }),
@@ -97,7 +97,6 @@ vi.mock('./Pagination', () => ({
 
 const defaultConfig: ILabelConfig = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 

@@ -11,13 +11,12 @@ vi.mock('./LabelTile', () => ({
 
 const defaultConfig: ILabelConfig = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues: ['KIOSK', 'FLORAL', 'BACKWALL'],
 };
 
 describe('ConfigureLabelForm', () => {
-  it('emits updated config values for each radio group', () => {
+  it('emits updated config values for shelf style options', () => {
     const onConfigChange = vi.fn();
     render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
 
@@ -25,12 +24,6 @@ describe('ConfigureLabelForm', () => {
     expect(onConfigChange).toHaveBeenCalledWith({
       ...defaultConfig,
       shelfStyle: 'number',
-    });
-
-    fireEvent.click(screen.getByLabelText('Use spaces (e.g., "01 R02 3")'));
-    expect(onConfigChange).toHaveBeenCalledWith({
-      ...defaultConfig,
-      secondaryCodeFormat: 'spaces',
     });
   });
 

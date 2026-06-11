@@ -12,7 +12,6 @@ import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 const defaultConfig: ILabelConfig = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 

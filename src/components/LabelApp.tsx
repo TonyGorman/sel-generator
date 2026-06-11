@@ -13,7 +13,6 @@ const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<ILabelConfig>({
     shelfStyle: 'number',
-    secondaryCodeFormat: 'dashes',
     backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
     specialAisleValues: [...SPECIAL_AISLE_VALUES],
   });

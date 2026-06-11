@@ -32,14 +32,15 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Barcode Encoding Rules
 
 - **Barcode payload must ALWAYS be compact (no dashes or spaces)**, regardless of user input format or display preferences.
-- Input normalization:
+- All three input styles are accepted; parsing goes directly to constituent parts (zone, side, bay, shelf) without an intermediate delimiter:
   - Compact input (`01L01A`) → Barcode: `01L01A`
-  - Dashed input (`01-L01-A`) → Barcode: `01L01A`
-  - Spaced input (`01 L01 A`) → Barcode: `01L01A`
-- Display text (what humans see) is formatted per Configuration settings:
-  - Dashes format → `01-L01-A`
-  - Spaces format → `01 L01 A`
-- Encoding logic lives in `LabelTile.tsx`: `getEncodedLabelCode()` normalizes all input to compact form.
+  - Separated input (`01-L01-A`) → Barcode: `01L01A` (Aisle/Back flows only; Specific rejects non-compact)
+  - Spaced input (`01 L01 A`) → Barcode: `01L01A` (Aisle/Back flows only; Specific rejects non-compact)
+- **Specific Labels** only accepts compact input; separated and spaced formats are rejected at validation.
+- Display text (what humans see) depends on the flow, not a configuration setting:
+  - **Specific Labels**: compact input displayed as-is.
+  - **Aisle / Back Wall Labels**: always uses spaces (no user choice).
+- Encoding logic lives in `LabelTile.tsx`: `getEncodedLabelCode()` parses any input form and emits compact payload directly from parts.
 - PDF export uses the same compact encoding via `LabelPdfExport.ts`.
 - Scanner reliability depends on compact, separator-free payloads.
 

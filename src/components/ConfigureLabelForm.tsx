@@ -25,10 +25,6 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
     { key: 'number', text: 'Shelf as Number (e.g., "1")' },
     { key: 'alphabetical', text: 'Shelf as Alphabetical (e.g., "A")' },
   ];
-  const secondaryCodeOptions: RadioOption[] = [
-    { key: 'dashes', text: 'Use dashes (e.g., "01-R02-3")' },
-    { key: 'spaces', text: 'Use spaces (e.g., "01 R02 3")' },
-  ];
   const idPrefix = React.useId();
   const defaultSpecialAisles = React.useMemo(() => [...SPECIAL_AISLE_VALUES], []);
   const [specialAisleInputValue, setSpecialAisleInputValue] = React.useState(
@@ -46,13 +42,6 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
     onConfigChange({
       ...config,
       shelfStyle: key as 'number' | 'alphabetical',
-    });
-  };
-
-  const handleSecondaryCodeFormatChange = (key: string) => {
-    onConfigChange({
-      ...config,
-      secondaryCodeFormat: key as 'dashes' | 'spaces',
     });
   };
 
@@ -87,7 +76,7 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
     <div className={shellStyles.panel}>
       <h1 className={shellStyles.panelTitle}>Label Configuration</h1>
       <p className={styles.sectionIntro}>
-        Configure how the text values appear.
+        Configure shelf style, back-code prefix, and special aisle values.
         The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p> 
             
 
@@ -100,16 +89,6 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
               options={shelfStyleOptions}
               selectedKey={config.shelfStyle}
               onChange={handleShelfStyleChange}
-            />
-          </section>
-
-          <section className={shellStyles.sectionBox}>
-            <h2 className={shellStyles.sectionTitle}>Secondary Code Format</h2>
-            <RadioGroup
-              name={`${idPrefix}-secondary-code-format`}
-              options={secondaryCodeOptions}
-              selectedKey={config.secondaryCodeFormat}
-              onChange={handleSecondaryCodeFormatChange}
             />
           </section>
 

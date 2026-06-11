@@ -8,7 +8,7 @@ Generate Shelf Edge Labels for printing.
 
 The app provides three workflows for generating barcode labels:
 
-- **Specific Labels**: Enter custom barcode values (one per line, comma-separated). Input is normalized to match your configuration settings.
+- **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (e.g. `01L01A`). Spaces and dashes are not accepted.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
 - **Back Wall Labels**: Generate labels for back-wall merchandise, with custom prefix support.
 
@@ -17,14 +17,13 @@ All labels display:
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
 - Encoded barcode value as readable text below the barcode for visual verification
 - Primary text shown as side+bay (e.g., "R01")
-- Configurable secondary text format (dashes or spaces)
+- Secondary text shown with spaces in generated Aisle/Back flows; Specific Labels preserves user-entered separators
 
 ### Configuration
 
 Configure label appearance in the **Configuration** tab:
 
 - **Shelf Style**: Display shelves as numbers (1–20) or letters (A–T). When set, all input is automatically coerced to this format.
-- **Secondary Code Format**: Display additional text with dashes (e.g., "01-R02-A") or spaces (e.g., "01 R02 A")
 - **Back Code Prefix**: Custom prefix for back-wall labels (e.g., "BK" or "99")
 - **Special Aisle Values**: Configure explicit named aisle labels (comma-separated, letters only, max 8 chars each)
 
@@ -188,19 +187,17 @@ The barcode payload is always stored and encoded in **compact format (no dashes 
 
 Users can input label codes in any supported format—the barcode encoder normalizes all to compact form:
 
-| Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Dashes) | Display (Spaces) |
+| Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Back Wall Labels) |
 |---|---|---|---|---|
-| Compact | `01L01A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
-| Dashed | `01-L01-A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
-| Spaced | `01 L01 A` | `01L01A` (always compact, no separators) | `01-L01-A` | `01 L01 A` |
+| Compact | `01L01A` | `01L01A` (always compact, no separators) | `01L01A` | `01 L01 A` |
 
-### Configuration Impact
+### Display Impact
 
-The **Secondary Code Format** setting in Configuration controls only the **display text** (what humans see on the printed label), not the barcode payload:
+Display separators are presentational and do not affect barcode payload:
 
-- **Dashes option** → Display: `01-L01-A`
-- **Spaces option** → Display: `01 L01 A`
-- **Barcode in both cases** → Always: `01L01A` (compact, no separators)
+- **Specific Labels** accepts compact input only; secondary display stays compact.
+- **Aisle Labels** and **Back Wall Labels** generate codes programmatically; secondary display always uses spaces.
+- Barcode in every case is always `01L01A`-style compact payload.
 
 Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`, `BACKWALL`) rather than inferred from generic alphabetic input.
 

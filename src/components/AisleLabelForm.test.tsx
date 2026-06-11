@@ -13,7 +13,6 @@ vi.mock('./LabelGenerator', () => ({
 
 const defaultConfig: ILabelConfig = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 

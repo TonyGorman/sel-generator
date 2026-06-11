@@ -1,15 +1,17 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
 import styles from './LabelApp.module.css';
-import { ILabelConfig, SecondaryCodeFormat } from '../models/ILabelConfig';
+import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix, normalizeSpecialAisleValue } from '../config/labelConfig';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
   buildCompactLabelCodePattern,
   buildCompactBackCodePattern,
-  buildDashedLabelCodePattern,
-  buildDashedBackCodePattern,
+  buildSeparatedLabelCodePattern,
+  buildSeparatedBackCodePattern,
+  buildSpacedLabelCodePattern,
+  buildSpacedBackCodePattern,
 } from './labelCodePatterns';
 import {
   estimatePrimaryTextWidthMm,
@@ -66,8 +68,10 @@ export const getMiniPrimaryFontSizeMm = (primaryText: string, layoutStrategy: IL
 };
 
 const AISLE_CODE_PATTERN = buildCompactLabelCodePattern();
+const SEPARATED_AISLE_CODE_PATTERN = buildSeparatedLabelCodePattern(true);
+const SPACED_AISLE_CODE_PATTERN = buildSpacedLabelCodePattern(true);
 
-const parseAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
+const parseCompactAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
   const match = code.match(AISLE_CODE_PATTERN);
   if (!match) {
     return null;
@@ -77,7 +81,7 @@ const parseAisleCode = (code: string): { zone: string; side: string; bay: string
   return { zone, side, bay, shelf };
 };
 
-const parseBackCode = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
+const parseCompactBackCode = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
   const match = code.match(buildCompactBackCodePattern(normalizedPrefix, true));
   if (!match) {
@@ -87,102 +91,151 @@ const parseBackCode = (code: string, backCodePrefix: string): { bay: string; she
   const [, bay, shelf] = match;
   return {
     bay,
+    shelf: shelf.toUpperCase(),
+  };
+};
+
+const parseSeparatedAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
+  const match = code.match(SEPARATED_AISLE_CODE_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  const [, zone, side, bay, shelf] = match;
+  return { zone, side: side.toUpperCase(), bay, shelf: shelf.toUpperCase() };
+};
+
+const parseSpacedAisleCode = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
+  const match = code.match(SPACED_AISLE_CODE_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  const [, zone, side, bay, shelf] = match;
+  return { zone, side: side.toUpperCase(), bay, shelf: shelf.toUpperCase() };
+};
+
+const parseAisleCodeFromAny = (code: string): { zone: string; side: string; bay: string; shelf: string } | null => {
+  const normalizedCode = code.toUpperCase();
+
+  return (
+    parseCompactAisleCode(normalizedCode)
+    ?? parseSeparatedAisleCode(normalizedCode)
+    ?? parseSpacedAisleCode(normalizedCode)
+  );
+};
+
+const parseSeparatedBackCode = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  const match = code.match(buildSeparatedBackCodePattern(normalizedPrefix, true));
+  if (!match) {
+    return null;
+  }
+
+  const [, bay, shelf] = match;
+  return {
+    bay,
+    shelf: shelf.toUpperCase(),
+  };
+};
+
+const parseSpacedBackCode = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  const match = code.match(buildSpacedBackCodePattern(normalizedPrefix, true));
+  if (!match) {
+    return null;
+  }
+
+  const [, bay, shelf] = match;
+  return {
+    bay,
+    shelf: shelf.toUpperCase(),
+  };
+};
+
+const parseBackCodeFromAny = (code: string, backCodePrefix: string): { bay: string; shelf: string } | null => {
+  const normalizedCode = code.toUpperCase();
+
+  return (
+    parseCompactBackCode(normalizedCode, backCodePrefix)
+    ?? parseSeparatedBackCode(normalizedCode, backCodePrefix)
+    ?? parseSpacedBackCode(normalizedCode, backCodePrefix)
+  );
+};
+
+const getSecondaryDisplayValue = (code: string): string => {
+  return code.replace(/-/g, ' ');
+};
+
+const formatSeparatedAisleCode = (zone: string, side: string, bay: string, shelf: string): string => {
+  return `${zone}-${side}${bay}-${shelf}`;
+};
+
+const formatSeparatedBackCode = (prefix: string, bay: string, shelf: string): string => {
+  return `${prefix}-${bay}-${shelf}`;
+};
+
+const compactAisleCode = (zone: string, side: string, bay: string, shelf: string): string => {
+  return `${zone}${side}${bay}${shelf}`;
+};
+
+const compactBackCode = (prefix: string, bay: string, shelf: string): string => {
+  return `${prefix}${bay}${shelf}`;
+};
+
+const getBackFallbackTokens = (code: string, backCodePrefix: string): { rawPrefix: string; bay: string; shelf: string } | null => {
+  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  const upperCode = code.toUpperCase().replace(/[- ]/g, '');
+  const prefixLength = normalizedPrefix.length;
+
+  if (upperCode.length <= prefixLength) {
+    return null;
+  }
+
+  const bay = upperCode.slice(prefixLength, prefixLength + 2);
+  const shelf = upperCode.slice(prefixLength + 2);
+
+  return {
+    rawPrefix: upperCode.slice(0, prefixLength),
+    bay,
     shelf,
   };
 };
 
-const getSecondaryDisplayValue = (_code: string, dashedCode: string, secondaryCodeFormat: SecondaryCodeFormat, _type?: string): string => {
-  const rawSecondaryDisplayValue = secondaryCodeFormat === 'spaces' ? dashedCode.replace(/-/g, ' ') : dashedCode;
-  return rawSecondaryDisplayValue;
-};
-
-const parseDashedBackCode = (parts: string[], backCodePrefix: string, type?: string): { bay: string; shelf: string } | null => {
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  if (!(type === 'Back' || parts[0].toUpperCase() === normalizedPrefix)) {
-    return null;
-  }
-
-  if (parts.length < 3) {
-    return null;
-  }
-
-  const bay = parts[1];
-  const shelf = parts[parts.length - 1];
-
-  if (!/^\d{2}$/.test(bay)) {
-    return null;
-  }
-
-  return { bay, shelf };
-};
-
-const DASHED_LABEL_CODE_PATTERN = buildDashedLabelCodePattern(true);
-
-const normalizeSeparatorsForEncoding = (code: string): string => {
-  return code.replace(/ /g, '-');
-};
-
-const tryEncodeDashedAisleCode = (dashedCode: string): string | null => {
-  const dashedAisleMatch = dashedCode.match(DASHED_LABEL_CODE_PATTERN);
-  if (!dashedAisleMatch) {
-    return null;
-  }
-
-  const [, zone, side, bay, shelf] = dashedAisleMatch;
-  return `${zone}${side.toUpperCase()}${bay}${shelf.toUpperCase()}`;
-};
-
-const tryEncodeDashedBackCode = (dashedCode: string, backCodePrefix: string): string | null => {
-  const dashedBackMatch = dashedCode.match(buildDashedBackCodePattern(backCodePrefix, true));
-  if (!dashedBackMatch) {
-    return null;
-  }
-
-  const [, bay, shelf] = dashedBackMatch;
-  return `${backCodePrefix}${bay}${shelf.toUpperCase()}`;
-};
-
-export const getDashedLabelCode = (
+export const normalizeLabelCode = (
   code: string,
   type?: string,
   backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues?: readonly string[],
 ): string => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  const specialAisle = normalizeSpecialAisleValue(code, specialAisleValues);
+  const normalizedCode = code.toUpperCase();
+  const specialAisle = normalizeSpecialAisleValue(normalizedCode, specialAisleValues);
   if (specialAisle) {
     return specialAisle;
   }
 
-  if (code.includes('-')) {
-    return code;
-  }
-
-  const aisleCode = parseAisleCode(code);
+  const aisleCode = parseAisleCodeFromAny(normalizedCode);
   if (aisleCode) {
     const { zone, side, bay, shelf } = aisleCode;
-    return `${zone}-${side}${bay}-${shelf}`;
+    return formatSeparatedAisleCode(zone, side, bay, shelf);
   }
 
-  const backCode = parseBackCode(code, normalizedPrefix);
+  const backCode = parseBackCodeFromAny(normalizedCode, normalizedPrefix);
   if (backCode) {
     const { bay, shelf } = backCode;
-    return `${normalizedPrefix}-${bay}-${shelf}`;
+    return formatSeparatedBackCode(normalizedPrefix, bay, shelf);
   }
 
   if (type === 'Back') {
-    const fallbackBackCode = parseBackCode(code, normalizedPrefix);
+    const fallbackBackCode = getBackFallbackTokens(normalizedCode, normalizedPrefix);
     if (fallbackBackCode) {
-      const { bay, shelf } = fallbackBackCode;
-      return `${normalizedPrefix}-${bay}-${shelf}`;
+      const { rawPrefix, bay, shelf } = fallbackBackCode;
+      return formatSeparatedBackCode(rawPrefix, bay, shelf);
     }
-
-    const prefixLength = normalizedPrefix.length;
-
-    return `${code.slice(0, prefixLength)}-${code.slice(prefixLength, prefixLength + 2)}-${code.slice(prefixLength + 2)}`;
   }
 
-  return code;
+  return normalizedCode;
 };
 
 export const getEncodedLabelCode = (
@@ -192,71 +245,57 @@ export const getEncodedLabelCode = (
   specialAisleValues?: readonly string[],
 ): string => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  const normalizedCode = normalizeSeparatorsForEncoding(code);
+  const normalizedCode = code.toUpperCase();
 
   const specialAisle = normalizeSpecialAisleValue(normalizedCode, specialAisleValues);
   if (specialAisle) {
     return specialAisle;
   }
 
-  const dashedCode = getDashedLabelCode(normalizedCode, type, normalizedPrefix, specialAisleValues);
-
-  const encodedBackCode = tryEncodeDashedBackCode(dashedCode, normalizedPrefix);
-  if (encodedBackCode) {
-    return encodedBackCode;
+  const aisleCode = parseAisleCodeFromAny(normalizedCode);
+  if (aisleCode) {
+    const { zone, side, bay, shelf } = aisleCode;
+    return compactAisleCode(zone, side, bay, shelf);
   }
 
-  const encodedAisleCode = tryEncodeDashedAisleCode(dashedCode);
-  if (encodedAisleCode) {
-    return encodedAisleCode;
+  const backCode = parseBackCodeFromAny(normalizedCode, normalizedPrefix);
+  if (backCode) {
+    const { bay, shelf } = backCode;
+    return compactBackCode(normalizedPrefix, bay, shelf);
   }
 
-  return dashedCode;
+  if (type === 'Back') {
+    const fallbackBackCode = getBackFallbackTokens(normalizedCode, normalizedPrefix);
+    if (fallbackBackCode) {
+      const { rawPrefix, bay, shelf } = fallbackBackCode;
+      return compactBackCode(rawPrefix, bay, shelf);
+    }
+  }
+
+  return normalizedCode.replace(/[- ]/g, '');
 };
 
 export const getPrimaryLabelText = (
   code: string,
-  secondaryCodeFormat: SecondaryCodeFormat,
   type?: string,
   backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues?: readonly string[],
 ): { primary: string; secondary: string } => {
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  const parsingCode = type === 'Specific' ? normalizeSeparatorsForEncoding(code.toUpperCase()) : code;
-  const specialAisle = normalizeSpecialAisleValue(parsingCode, specialAisleValues);
-  const dashedCode = getDashedLabelCode(parsingCode, type, normalizedPrefix, specialAisleValues);
+  const upperCode = code.toUpperCase();
+  const specialAisle = normalizeSpecialAisleValue(upperCode, specialAisleValues);
   const secondaryDisplayValue = type === 'Specific'
-    ? code.toUpperCase()
-    : getSecondaryDisplayValue(parsingCode, dashedCode, secondaryCodeFormat, type);
+    ? upperCode
+    : getSecondaryDisplayValue(normalizeLabelCode(upperCode, type, normalizedPrefix, specialAisleValues));
 
   if (specialAisle) {
     return {
-      primary: dashedCode,
+      primary: specialAisle,
       secondary: secondaryDisplayValue,
     };
   }
 
-  if (parsingCode.includes('-')) {
-    const parts = parsingCode.split('-');
-
-    const dashedBackCode = parseDashedBackCode(parts, normalizedPrefix, type);
-    if (dashedBackCode) {
-      const { bay } = dashedBackCode;
-      return {
-        primary: `${normalizedPrefix}${bay}`,
-        secondary: secondaryDisplayValue,
-      };
-    }
-
-    if (parts.length >= 3) {
-      return {
-        primary: parts.slice(1, -1).join('-'),
-        secondary: secondaryDisplayValue,
-      };
-    }
-  }
-
-  const aisleCode = parseAisleCode(parsingCode);
+  const aisleCode = parseAisleCodeFromAny(upperCode);
   if (aisleCode) {
     const { side, bay } = aisleCode;
     return {
@@ -265,7 +304,7 @@ export const getPrimaryLabelText = (
     };
   }
 
-  const backCode = parseBackCode(parsingCode, normalizedPrefix);
+  const backCode = parseBackCodeFromAny(upperCode, normalizedPrefix);
   if (backCode) {
     const { bay } = backCode;
     return {
@@ -275,7 +314,7 @@ export const getPrimaryLabelText = (
   }
 
   if (type === 'Back') {
-    const fallbackBackCode = parseBackCode(parsingCode, normalizedPrefix);
+    const fallbackBackCode = getBackFallbackTokens(upperCode, normalizedPrefix);
     if (fallbackBackCode) {
       const { bay } = fallbackBackCode;
       return {
@@ -283,18 +322,10 @@ export const getPrimaryLabelText = (
         secondary: secondaryDisplayValue,
       };
     }
-
-    const prefixLength = normalizedPrefix.length;
-    const bayToken = parsingCode.slice(prefixLength, prefixLength + 2);
-
-    return {
-      primary: `${normalizedPrefix}${bayToken}`,
-      secondary: secondaryDisplayValue,
-    };
   }
 
   return {
-    primary: parsingCode,
+    primary: upperCode,
     secondary: secondaryDisplayValue,
   };
 };
@@ -310,18 +341,14 @@ export const getLargeSelDisplayParts = (
   type?: string,
   backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues?: readonly string[],
-  secondaryCodeFormat: SecondaryCodeFormat = 'dashes',
 ): ILargeLabelDisplayParts | null => {
-  const dashedCode = getDashedLabelCode(code, type, backCodePrefix, specialAisleValues);
-  const dashedAisleMatch = dashedCode.match(DASHED_LABEL_CODE_PATTERN);
-
-  if (dashedAisleMatch) {
-    const [, aisle, side, bay, shelf] = dashedAisleMatch;
-    const separator = secondaryCodeFormat === 'spaces' ? ' ' : '-';
+  const aisleCode = parseAisleCodeFromAny(code);
+  if (aisleCode) {
+    const { zone, side, bay, shelf } = aisleCode;
     return {
-      prefix: `${aisle}${separator}`,
-      main: `${side.toUpperCase()}${bay}`,
-      suffix: `${separator}${shelf}`,
+      prefix: `${zone} `,
+      main: `${side}${bay}`,
+      suffix: ` ${shelf}`,
     };
   }
 
@@ -369,7 +396,6 @@ const MiniSelLabelTileContent: React.FC<IMiniSelLabelTileContentProps> = ({
 interface ILargeSelLabelTileContentProps {
   code: string;
   secondary: string;
-  secondaryCodeFormat: SecondaryCodeFormat;
   type?: string;
   backCodePrefix: string;
   specialAisleValues?: readonly string[];
@@ -378,12 +404,11 @@ interface ILargeSelLabelTileContentProps {
 const LargeSelLabelTileContent: React.FC<ILargeSelLabelTileContentProps> = ({
   code,
   secondary,
-  secondaryCodeFormat,
   type,
   backCodePrefix,
   specialAisleValues,
 }) => {
-  const largeDisplayParts = getLargeSelDisplayParts(code, type, backCodePrefix, specialAisleValues, secondaryCodeFormat);
+  const largeDisplayParts = getLargeSelDisplayParts(code, type, backCodePrefix, specialAisleValues);
 
   return (
     <div className={styles.largeSelHeading}>
@@ -411,7 +436,6 @@ const LabelTile: React.FC<ILabelTileProps> = ({
   const specialAisleValues = config.specialAisleValues;
   const { primary, secondary } = getPrimaryLabelText(
     code,
-    config.secondaryCodeFormat,
     type,
     config.backCodePrefix,
     specialAisleValues,
@@ -429,7 +453,6 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           <LargeSelLabelTileContent
             code={code}
             secondary={secondary}
-            secondaryCodeFormat={config.secondaryCodeFormat}
             type={type}
             backCodePrefix={config.backCodePrefix}
             specialAisleValues={specialAisleValues}

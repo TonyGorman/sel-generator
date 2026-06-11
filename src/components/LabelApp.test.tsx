@@ -7,7 +7,7 @@ import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./SpecificLabelForm', () => ({
   default: ({ config }: { config: ILabelConfig }) => (
-    <div>Specific: {config.secondaryCodeFormat}</div>
+    <div>Specific shelf style: {config.shelfStyle}</div>
   ),
 }));
 
@@ -26,8 +26,7 @@ vi.mock('./ConfigureLabelForm', () => ({
     <button
       onClick={() =>
         onConfigChange({
-          shelfStyle: 'number',
-          secondaryCodeFormat: 'spaces',
+          shelfStyle: 'alphabetical',
           backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
         })
       }
@@ -40,7 +39,7 @@ vi.mock('./ConfigureLabelForm', () => ({
 describe('LabelApp', () => {
   it('shows specific tab by default', () => {
     render(<LabelApp />);
-    expect(screen.getByText('Specific: dashes')).toBeInTheDocument();
+    expect(screen.getByText('Specific shelf style: number')).toBeInTheDocument();
   });
 
   it('navigates to configuration tab when aisle requests it', () => {
@@ -59,6 +58,6 @@ describe('LabelApp', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Set new config' }));
     fireEvent.click(screen.getByRole('tab', { name: 'Specific Labels' }));
 
-    expect(screen.getByText('Specific: spaces')).toBeInTheDocument();
+    expect(screen.getByText('Specific shelf style: alphabetical')).toBeInTheDocument();
   });
 });

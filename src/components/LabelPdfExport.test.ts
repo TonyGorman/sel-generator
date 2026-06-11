@@ -37,7 +37,6 @@ const createPdfMock = () => {
 
 const config: ILabelGenerator['config'] = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: 'BK',
 };
 
@@ -78,7 +77,7 @@ describe('drawVectorPage', () => {
       svg2pdfStub,
     );
 
-    const secondaryCall = textCalls.find((call) => call.text === '01-L01-A');
+    const secondaryCall = textCalls.find((call) => call.text === '01 L01 A');
 
     expect(secondaryCall).toBeDefined();
     expect(secondaryCall?.y).toBeCloseTo(
@@ -159,18 +158,14 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01L01A')).toBe(true);
   });
 
-  it('uses spaced separators for large-sel heading when configured', async () => {
+  it('uses spaced separators for large-sel heading when input includes spaces', async () => {
     const { pdf, textCalls } = createPdfMock();
-    const spacesConfig: ILabelGenerator['config'] = {
-      ...config,
-      secondaryCodeFormat: 'spaces',
-    };
 
     await drawVectorPage(
       pdf,
-      ['31L03A'],
+      ['31 L03 A'],
       'Aisle',
-      spacesConfig,
+      config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
       svg2pdfStub,

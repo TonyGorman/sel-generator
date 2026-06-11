@@ -186,20 +186,16 @@ test.describe('Label Generator regressions', () => {
     expect(download.suggestedFilename()).toBe('labels.pdf');
   });
 
-  test('Specific Labels accepts mixed compact, dashed, and spaced inputs', async ({ page }) => {
+  test('Specific Labels accepts compact input and rejects non-compact formats', async ({ page }) => {
     await page.goto('/');
 
-    const mixedInput = [
+    const compactInput = [
       '01L01A',
-      '01-L02-A',
-      '01 L03 A',
       `${DEFAULT_BACK_CODE_PREFIX}01A`,
-      `${DEFAULT_BACK_CODE_PREFIX}-02-A`,
-      `${DEFAULT_BACK_CODE_PREFIX} 03 A`,
     ].join(',');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await page.getByPlaceholder('Enter labels').fill(mixedInput);
+    await page.getByPlaceholder('Enter labels').fill(compactInput);
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('alert')).toHaveCount(0);
@@ -207,11 +203,16 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     await expect(page.getByText('01L01A', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('01-L02-A', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('01 L03 A', { exact: true }).first()).toBeVisible();
     await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX}01A`, { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX}-02-A`, { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX} 03 A`, { exact: true }).first()).toBeVisible();
+
+    // Separated and spaced inputs are rejected
+    await page.getByPlaceholder('Enter labels').fill('01-L01-A');
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('alert')).toHaveCount(1);
+
+    await page.getByPlaceholder('Enter labels').fill('01 L01 A');
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('alert')).toHaveCount(1);
   });
 
   test('Back tab shows validation message for missing values', async ({ page }) => {

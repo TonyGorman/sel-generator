@@ -13,7 +13,6 @@ vi.mock('./LabelGenerator', () => ({
 
 const defaultConfig: ILabelConfig = {
   shelfStyle: 'alphabetical',
-  secondaryCodeFormat: 'dashes',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
@@ -37,16 +36,16 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('accepts aisle 00 values in compact and dashed forms', () => {
+  it('accepts aisle 00 values in compact form', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
-      target: { value: '00L01A,00-L01-A' },
+      target: { value: '00L01A,00L02A' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent('00L01A|00-L01-A');
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('00L01A|00L02A');
   });
 
   it('accepts named aisle values without bay or shelf', () => {
@@ -72,47 +71,45 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('normalizes valid values and preserves provided shelf tokens', () => {
+  it('normalizes valid compact values to uppercase and trims whitespace', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
-      target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}-01-2 ` },
+      target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}012 ` },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}-01-2`);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}012`);
   });
 
-  it('preserves space-separated input instead of coercing it to dashes', () => {
+  it('rejects separated input (dashes not allowed)', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
-      target: { value: '01 l01 1' },
+      target: { value: '01-L01-A' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent('01 L01 1');
+    expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('accepts spaced back wall values and preserves spaces in output', () => {
+  it('rejects spaced input (spaces not allowed)', () => {
+    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01 L01 A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
+  });
+
+  it('rejects separated back wall input (dashes not allowed)', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: `${DEFAULT_BACK_CODE_PREFIX} 01 A` },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
-
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX} 01 A`);
-  });
-
-  it('rejects mixed separators instead of coercing them during validation', () => {
-    render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
-
-    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
-      target: { value: '01-L01 A' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
@@ -142,7 +139,19 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('accepts configured back wall prefix values', () => {
+  it('accepts configured back wall prefix values in compact form', () => {
+    render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '9901A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('9901A');
+  });
+
+  it('rejects separated back wall values even when prefix matches', () => {
     render(<SpecificLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
@@ -150,8 +159,7 @@ describe('SpecificLabelForm', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent('99-01-A');
+    expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
   it('rejects back wall values when Back prefix is configured differently', () => {

@@ -1,5 +1,5 @@
 import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
-import { getDashedLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
+import { normalizeLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { ILabelGenerator } from '../models/ILabelGenerator';
 import { estimatePrimaryTextWidthMm, fitMiniPrimaryFontSizeMm, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
@@ -97,7 +97,6 @@ const drawVectorBarcode = async (
 const drawLargeSelHeading = (
   pdf: JsPdfInstance,
   secondary: string,
-  secondaryCodeFormat: ILabelGenerator['config']['secondaryCodeFormat'],
   xCenter: number,
   topY: number,
   topAreaHeight: number,
@@ -109,7 +108,7 @@ const drawLargeSelHeading = (
 ): void => {
   const { largePrefixTextSizeMm, largeMainTextSizeMm, largeSuffixTextSizeMm } = layoutStrategy.typography;
   const baselineOffsetFactor = layoutStrategy.typography.pdfTextBaselineOffsetFactor;
-  const displayParts = getLargeSelDisplayParts(code, type, backCodePrefix, specialAisleValues, secondaryCodeFormat);
+  const displayParts = getLargeSelDisplayParts(code, type, backCodePrefix, specialAisleValues);
 
   const mainBaselineY = topY + topAreaHeight / 2 + largeMainTextSizeMm * baselineOffsetFactor;
 
@@ -179,7 +178,6 @@ export const drawVectorPage = async (
 
     const { primary, secondary } = getPrimaryLabelText(
       code,
-      config.secondaryCodeFormat,
       type,
       config.backCodePrefix,
       config.specialAisleValues,
@@ -202,7 +200,6 @@ export const drawVectorPage = async (
       drawLargeSelHeading(
         pdf,
         secondary,
-        config.secondaryCodeFormat,
         x + page.labelWidthMm / 2,
         topAreaStartY,
         topAreaHeight,

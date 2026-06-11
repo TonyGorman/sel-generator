@@ -5,7 +5,7 @@ import {
   BAY_TOKEN_PATTERN,
   SHELF_TOKEN_PATTERN,
   buildCompactLabelCodePattern,
-  buildDashedLabelCodePattern,
+  buildSeparatedLabelCodePattern,
   buildSpacedBackCodePattern,
   buildSpacedLabelCodePattern,
 } from './labelCodePatterns';
@@ -25,8 +25,8 @@ describe('labelCodePatterns', () => {
     expect(pattern.test('A1L01A')).toBe(false);
   });
 
-  it('matches valid dashed aisle labels and rejects non-numeric aisle tokens', () => {
-    const pattern = buildDashedLabelCodePattern();
+  it('matches valid separated aisle labels and rejects non-numeric aisle tokens', () => {
+    const pattern = buildSeparatedLabelCodePattern();
 
     expect(pattern.test('01-L01-A')).toBe(true);
     expect(pattern.test('A1-L01-A')).toBe(false);

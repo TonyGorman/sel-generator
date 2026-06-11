@@ -6,10 +6,6 @@ import LabelGenerator from './LabelGenerator';
 import {
     buildCompactLabelCodePattern,
     buildCompactBackCodePattern,
-    buildDashedLabelCodePattern,
-    buildDashedBackCodePattern,
-    buildSpacedLabelCodePattern,
-    buildSpacedBackCodePattern,
 } from './labelCodePatterns';
 import { ILabelConfig } from '../models/ILabelConfig';
 import {
@@ -70,11 +66,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
     const compactAislePattern = buildCompactLabelCodePattern();
-    const dashedAislePattern = buildDashedLabelCodePattern();
-    const spacedAislePattern = buildSpacedLabelCodePattern();
     const compactBackPattern = buildCompactBackCodePattern(backCodePrefix);
-    const dashedBackPattern = buildDashedBackCodePattern(backCodePrefix);
-    const spacedBackPattern = buildSpacedBackCodePattern(backCodePrefix);
 
     const isAisleTokenValid = (aisleToken: string): boolean => {
         if (/^\d{2}$/.test(aisleToken)) {
@@ -99,76 +91,13 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
                 && isShelfTokenValid(shelf);
         }
 
-        const dashedAisleMatch = normalizedCode.match(dashedAislePattern);
-        if (dashedAisleMatch) {
-            const [, aisleToken, , bay, shelf] = dashedAisleMatch;
-            return isAisleTokenValid(aisleToken)
-                && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
-                && isShelfTokenValid(shelf);
-        }
-
-        const spacedAisleMatch = normalizedCode.match(spacedAislePattern);
-        if (spacedAisleMatch) {
-            const [, aisleToken, , bay, shelf] = spacedAisleMatch;
-            return isAisleTokenValid(aisleToken)
-                && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
-                && isShelfTokenValid(shelf);
-        }
-
         const compactBackMatch = normalizedCode.match(compactBackPattern);
         if (compactBackMatch) {
             const [, bay, shelf] = compactBackMatch;
-            return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
-        }
-
-        const dashedBackMatch = normalizedCode.match(dashedBackPattern);
-        if (dashedBackMatch) {
-            const [, bay, shelf] = dashedBackMatch;
-            return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
-        }
-
-        const spacedBackMatch = normalizedCode.match(spacedBackPattern);
-        if (spacedBackMatch) {
-            const [, bay, shelf] = spacedBackMatch;
             return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
         }
 
         return false;
-    };
-
-    const normalizeSpecificCodeForConfig = (code: string): string => {
-        const normalizedCode = code.toUpperCase();
-        const specialAisle = normalizeSpecialAisleValue(normalizedCode, specialAisleValues);
-
-        if (specialAisle) {
-            return specialAisle;
-        }
-
-        const compactAisleMatch = normalizedCode.match(compactAislePattern);
-        if (compactAisleMatch) {
-            const [, aisleToken, side, bay, shelf] = compactAisleMatch;
-            return `${aisleToken}${side}${bay}${shelf}`;
-        }
-
-        const dashedAisleMatch = normalizedCode.match(dashedAislePattern);
-        if (dashedAisleMatch) {
-            const [, aisleToken, side, bay, shelf] = dashedAisleMatch;
-            return `${aisleToken}-${side}${bay}-${shelf}`;
-        }
-
-        const compactBackMatch = normalizedCode.match(compactBackPattern);
-        if (compactBackMatch) {
-            const [, bay, shelf] = compactBackMatch;
-            return `${backCodePrefix}${bay}${shelf}`;
-        }
-
-        const dashedBackMatch = normalizedCode.match(dashedBackPattern);
-        if (dashedBackMatch) {
-            const [, bay, shelf] = dashedBackMatch;
-            return `${backCodePrefix}-${bay}-${shelf}`;
-        }
-
-        return normalizedCode;
     };
 
     const generateLabel = ():void => {
@@ -185,15 +114,13 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, 01-L01-A, ${backCodePrefix}01A, ${backCodePrefix}-01-A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
+            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, ${backCodePrefix}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
             setGeneratedLabels(null);
             return;
         }
 
-        const normalizedLabelTexts = labelTexts.map((code) => normalizeSpecificCodeForConfig(code));
-
         setErrorMessage(null);
-        setGeneratedLabels(normalizedLabelTexts);
+        setGeneratedLabels(labelTexts);
     }
 
     const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -204,10 +131,10 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, 01-L01-1, {backCodePrefix}01A,{backCodePrefix}-01-1,{SPECIAL_AISLE_VALUES[0]}). 
-                <br/>Regardless of what value you enter, the barcode itself will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes. 
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {backCodePrefix}01A, {SPECIAL_AISLE_VALUES[0]}). 
+                <br/>Labels must be in compact format — no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
-                <br/>Label formats can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
+                <br/>Back prefix and named aisle values can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
             </p>
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
