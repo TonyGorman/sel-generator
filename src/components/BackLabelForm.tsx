@@ -164,7 +164,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator type='Back' aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
                     </div>
                 </div>
             )}

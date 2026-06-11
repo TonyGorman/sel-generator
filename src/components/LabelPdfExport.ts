@@ -1,5 +1,5 @@
 import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
-import { normalizeLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from './LabelTile';
+import { getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from '../domain/labelCodeDomain';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { ILabelGenerator } from '../models/ILabelGenerator';
 import { estimatePrimaryTextWidthMm, fitMiniPrimaryFontSizeMm, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
@@ -102,13 +102,12 @@ const drawLargeSelHeading = (
   topAreaHeight: number,
   layoutStrategy: ILabelLayoutStrategy,
   code: string,
-  type: string | undefined,
   backCodePrefix: string,
   specialAisleValues?: readonly string[],
 ): void => {
   const { largePrefixTextSizeMm, largeMainTextSizeMm, largeSuffixTextSizeMm } = layoutStrategy.typography;
   const baselineOffsetFactor = layoutStrategy.typography.pdfTextBaselineOffsetFactor;
-  const displayParts = getLargeSelDisplayParts(code, type, backCodePrefix, specialAisleValues);
+  const displayParts = getLargeSelDisplayParts(code, backCodePrefix, specialAisleValues);
 
   const mainBaselineY = topY + topAreaHeight / 2 + largeMainTextSizeMm * baselineOffsetFactor;
 
@@ -155,7 +154,6 @@ const drawLargeSelHeading = (
 export const drawVectorPage = async (
   pdf: JsPdfInstance,
   pageItems: string[],
-  type: string | undefined,
   config: ILabelGenerator['config'],
   layoutStrategy: ILabelLayoutStrategy,
   jsBarcode: JsBarcodeFn,
@@ -178,13 +176,12 @@ export const drawVectorPage = async (
 
     const { primary, secondary } = getPrimaryLabelText(
       code,
-      type,
       config.backCodePrefix,
       config.specialAisleValues,
     );
 
     pdf.rect(x, y, page.labelWidthMm, page.labelHeightMm);
-    const encodedValue = getEncodedLabelCode(code, type, config.backCodePrefix, config.specialAisleValues);
+    const encodedValue = getEncodedLabelCode(code, config.backCodePrefix, config.specialAisleValues);
 
     if (layoutStrategy.mode === 'large-sel') {
       const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
@@ -205,7 +202,6 @@ export const drawVectorPage = async (
         topAreaHeight,
         layoutStrategy,
         code,
-        type,
         config.backCodePrefix,
         config.specialAisleValues,
       );

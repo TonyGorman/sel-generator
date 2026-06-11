@@ -3,10 +3,6 @@ import styles from './LabelApp.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
-import {
-    buildCompactLabelCodePattern,
-    buildCompactBackCodePattern,
-} from './labelCodePatterns';
 import { ILabelConfig } from '../models/ILabelConfig';
 import {
     MIN_AISLE_VALUE,
@@ -14,10 +10,10 @@ import {
     MAX_BAY_VALUE,
     MAX_SHELF_VALUE,
     SPECIAL_AISLE_VALUES,
-    normalizeSpecialAisleValue,
     normalizeBackCodePrefix,
 } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
+import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 
 interface ISpecificLabelFormProps {
     config: ILabelConfig;
@@ -41,63 +37,23 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         setLabelText(e.target.value)
     }
 
-    const isShelfTokenValid = (token: string): boolean => {
-        if (/^\d+$/.test(token)) {
-            const numericShelf = Number(token);
-            return numericShelf >= 1 && numericShelf <= MAX_SHELF_VALUE;
-        }
-
-        if (/^[A-Z]$/.test(token)) {
-            const shelfIndex = token.charCodeAt(0) - 64;
-            return shelfIndex >= 1 && shelfIndex <= MAX_SHELF_VALUE;
-        }
-
-        return false;
-    };
-
-    const isBoundedTwoDigitNumber = (value: string, max: number, min: number = 1): boolean => {
-        const numericValue = Number(value);
-        return numericValue >= min && numericValue <= max;
-    };
-
     const normalizeSpecificInput = (code: string): string => {
         return code.trim().toUpperCase();
     };
 
     const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
-    const compactAislePattern = buildCompactLabelCodePattern();
-    const compactBackPattern = buildCompactBackCodePattern(backCodePrefix);
-
-    const isAisleTokenValid = (aisleToken: string): boolean => {
-        if (/^\d{2}$/.test(aisleToken)) {
-            return isBoundedTwoDigitNumber(aisleToken, MAX_AISLE_VALUE, MIN_AISLE_VALUE);
-        }
-
-        return false;
-    };
 
     const isValidSpecificCode = (code: string): boolean => {
-        const normalizedCode = code.toUpperCase();
+        const result = validateSpecificLabelCode(code, {
+            backCodePrefix,
+            specialAisleValues,
+            minAisleValue: MIN_AISLE_VALUE,
+            maxAisleValue: MAX_AISLE_VALUE,
+            maxBayValue: MAX_BAY_VALUE,
+            maxShelfValue: MAX_SHELF_VALUE,
+        });
 
-        if (normalizeSpecialAisleValue(normalizedCode, specialAisleValues)) {
-            return true;
-        }
-
-        const compactAisleMatch = normalizedCode.match(compactAislePattern);
-        if (compactAisleMatch) {
-            const [, aisleToken, , bay, shelf] = compactAisleMatch;
-            return isAisleTokenValid(aisleToken)
-                && isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE)
-                && isShelfTokenValid(shelf);
-        }
-
-        const compactBackMatch = normalizedCode.match(compactBackPattern);
-        if (compactBackMatch) {
-            const [, bay, shelf] = compactBackMatch;
-            return isBoundedTwoDigitNumber(bay, MAX_BAY_VALUE) && isShelfTokenValid(shelf);
-        }
-
-        return false;
+        return result.ok;
     };
 
     const generateLabel = ():void => {
@@ -161,7 +117,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator type='Specific' aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
                     </div>
                 </div>
             )}

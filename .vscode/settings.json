@@ -13,6 +13,7 @@
   "typescript.tsdk": ".\\node_modules\\typescript\\lib",
   "chat.tools.terminal.autoApprove": {
     "npx playwright": true,
-    "npx tsc": true
+    "npx tsc": true,
+    "npx vitest": true
   }
 }

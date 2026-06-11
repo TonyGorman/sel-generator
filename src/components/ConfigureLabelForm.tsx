@@ -133,7 +133,7 @@ const ConfigureLabelForm: React.FC<IConfigureLabelFormProps> = ({ config, onConf
           <section className={shellStyles.sectionBox}>
             <h2 className={shellStyles.sectionTitle}>Preview</h2>
             <div className={styles.configExampleCard} style={PREVIEW_STYLE}>
-              <LabelTile code={exampleLabelCode} config={config} type="Aisle" />
+              <LabelTile code={exampleLabelCode} config={config} />
             </div>
           </section>
         </div>

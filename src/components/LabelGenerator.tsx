@@ -17,7 +17,7 @@ const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
 };
 
 const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
-  const { aisles, type, config, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
+  const { aisles, config, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
   const layoutStrategy = React.useMemo(() => getLabelLayoutStrategy(layoutMode), [layoutMode]);
   const itemsPerPage = React.useMemo(() => getItemsPerPage(layoutStrategy), [layoutStrategy]);
   const pdfRef = React.useRef<HTMLDivElement>(null);
@@ -96,7 +96,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         const pageItems = pagedItems[index] ?? [];
 
         try {
-          await drawVectorPage(pdf, pageItems, type, config, layoutStrategy, JsBarcode as unknown as JsBarcodeFn, svg2pdf);
+            await drawVectorPage(pdf, pageItems, config, layoutStrategy, JsBarcode as unknown as JsBarcodeFn, svg2pdf);
         } catch {
           // Fallback preserves download even if SVG vector conversion fails in a browser runtime.
           await drawRasterPage(pdf, pageElement, pageWidthMm, pageHeightMm);
@@ -109,7 +109,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     } finally {
       setLoading(false);
     }
-  }, [config, layoutStrategy, pagedItems, type]);
+  }, [config, layoutStrategy, pagedItems]);
 
   const handlePageChange = React.useCallback((currentItems: string[]): void => {
     setItems(currentItems);
@@ -129,12 +129,12 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
       <div className={className ?? styles.labelDiv}>
         {labels.map((aisle: string, index: number) => {
           return (
-            <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} type={type} layoutMode={layoutStrategy.mode} />
+            <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} layoutMode={layoutStrategy.mode} />
           );
         })}
       </div>
     ),
-    [config, layoutStrategy.mode, type],
+    [config, layoutStrategy.mode],
   );
 
 

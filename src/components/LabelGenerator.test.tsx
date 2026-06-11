@@ -122,7 +122,7 @@ describe('LabelGenerator PDF export', () => {
 
   it('exports all pages with vector label rendering in one landscape A4 PDF', async () => {
     const aisles = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -149,7 +149,7 @@ describe('LabelGenerator PDF export', () => {
     svg2pdfMock.mockRejectedValueOnce(new Error('svg fail'));
 
     const aisles = ['01L01A'];
-    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -174,7 +174,7 @@ describe('LabelGenerator PDF export', () => {
 
   it('exports large-sel pages using portrait A4 geometry', async () => {
     const aisles = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
+    render(<LabelGenerator aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -199,7 +199,7 @@ describe('LabelGenerator PDF export', () => {
     });
 
     const aisles = ['01L01A'];
-    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -210,7 +210,7 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('shows an error when no print pages are available for export', async () => {
-    render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+    render(<LabelGenerator aisles={[]} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -221,7 +221,7 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('exposes shared Mini SEL secondary anchor geometry on the preview page style', () => {
-    const { container } = render(<LabelGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
+    const { container } = render(<LabelGenerator aisles={['01L01A']} config={defaultConfig} />);
     const miniTypography = getLabelLayoutStrategy('mini-sel').typography;
 
     const previewPage = container.querySelector('[class*="previewPage"]');
@@ -236,7 +236,7 @@ describe('LabelGenerator PDF export', () => {
 
   it('updates preview items through pagination callback', () => {
     const aisles = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator type="Aisle" aisles={aisles} config={defaultConfig} />);
+    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
 
     fireEvent.click(screen.getByTestId('pagination-trigger'));
 
@@ -246,7 +246,7 @@ describe('LabelGenerator PDF export', () => {
   it('invokes window.print when print button is clicked', () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
 
-    render(<LabelGenerator type="Aisle" aisles={['01L01A']} config={defaultConfig} />);
+    render(<LabelGenerator aisles={['01L01A']} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Print Labels' }));
     expect(printSpy).toHaveBeenCalledTimes(1);
@@ -256,7 +256,7 @@ describe('LabelGenerator PDF export', () => {
 
   it('shows error alert when download fails', async () => {
     // Empty aisles to trigger error with no print pages available
-    render(<LabelGenerator type="Aisle" aisles={[]} config={defaultConfig} />);
+    render(<LabelGenerator aisles={[]} config={defaultConfig} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 

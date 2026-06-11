@@ -374,7 +374,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator type='Aisle' aisles={generatedLabels} config={config} layoutMode={labelPrintMode} />
+                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode={labelPrintMode} />
                     </div>
                 </div>
             )}

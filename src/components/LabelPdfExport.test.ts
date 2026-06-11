@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { drawVectorPage, type JsBarcodeFn, type JsPdfInstance } from './LabelPdfExport';
+import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelGenerator } from '../models/ILabelGenerator';
 
@@ -53,7 +54,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      'Aisle',
       config,
       getLabelLayoutStrategy('mini-sel'),
       jsBarcodeStub,
@@ -70,7 +70,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      'Aisle',
       config,
       miniStrategy,
       jsBarcodeStub,
@@ -93,7 +92,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['LONGSHELFTOKEN999'],
-      'Specific',
       config,
       miniStrategy,
       jsBarcodeStub,
@@ -122,7 +120,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      'Aisle',
       config,
       miniStrategy,
       jsBarcodeStub,
@@ -148,7 +145,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      'Aisle',
       config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
@@ -158,13 +154,12 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01L01A')).toBe(true);
   });
 
-  it('uses spaced separators for large-sel heading when input includes spaces', async () => {
+  it('uses structured heading parts for aisle codes in large-sel PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
 
     await drawVectorPage(
       pdf,
-      ['31 L03 A'],
-      'Aisle',
+      ['31L03A'],
       config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
@@ -173,6 +168,23 @@ describe('drawVectorPage', () => {
 
     expect(textCalls.some((call) => call.text === '31 ')).toBe(true);
     expect(textCalls.some((call) => call.text === 'L03')).toBe(true);
+    expect(textCalls.some((call) => call.text === ' A')).toBe(true);
+  });
+
+  it('uses structured heading parts for back codes in large-sel PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      [`${config.backCodePrefix}01A`],
+      config,
+      getLabelLayoutStrategy('large-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === `${config.backCodePrefix} `)).toBe(true);
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
     expect(textCalls.some((call) => call.text === ' A')).toBe(true);
   });
 });

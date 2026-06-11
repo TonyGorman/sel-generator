@@ -5,9 +5,6 @@ import {
   BAY_TOKEN_PATTERN,
   SHELF_TOKEN_PATTERN,
   buildCompactLabelCodePattern,
-  buildSeparatedLabelCodePattern,
-  buildSpacedBackCodePattern,
-  buildSpacedLabelCodePattern,
 } from './labelCodePatterns';
 
 describe('labelCodePatterns', () => {
@@ -25,24 +22,4 @@ describe('labelCodePatterns', () => {
     expect(pattern.test('A1L01A')).toBe(false);
   });
 
-  it('matches valid separated aisle labels and rejects non-numeric aisle tokens', () => {
-    const pattern = buildSeparatedLabelCodePattern();
-
-    expect(pattern.test('01-L01-A')).toBe(true);
-    expect(pattern.test('A1-L01-A')).toBe(false);
-  });
-
-  it('matches valid spaced aisle labels and rejects mixed separators', () => {
-    const pattern = buildSpacedLabelCodePattern();
-
-    expect(pattern.test('01 L01 A')).toBe(true);
-    expect(pattern.test('01-L01 A')).toBe(false);
-  });
-
-  it('matches valid spaced back labels and rejects mixed separators', () => {
-    const pattern = buildSpacedBackCodePattern('BACK');
-
-    expect(pattern.test('BACK 01 A')).toBe(true);
-    expect(pattern.test('BACK-01 A')).toBe(false);
-  });
 });

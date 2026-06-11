@@ -46,6 +46,14 @@ describe('labelConfig', () => {
     expect(normalizeSpecialAisleValue('produce')).toBeNull();
   });
 
+  it('accepts mixed-case configured named aisle allowlists', () => {
+    const configuredSpecialAisles = ['kiosk', 'FlOrAl', ' seasonal '];
+
+    expect(normalizeSpecialAisleValue('KIOSK', configuredSpecialAisles)).toBe('KIOSK');
+    expect(isSpecialAisleValue('floral', configuredSpecialAisles)).toBe(true);
+    expect(normalizeSpecialAisleValue('SEASONAL', configuredSpecialAisles)).toBe('SEASONAL');
+  });
+
   it('normalizes Back prefix values for config safety', () => {
     expect(normalizeBackCodePrefix('backk')).toBe('BACK');
     expect(normalizeBackCodePrefix('9-9')).toBe('99');
