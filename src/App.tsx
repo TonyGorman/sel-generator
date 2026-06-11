@@ -1,4 +1,3 @@
-import React from 'react'
 import LabelApp from './components/LabelApp'
 import './App.css'
 
