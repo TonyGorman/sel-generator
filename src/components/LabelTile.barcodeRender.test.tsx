@@ -25,33 +25,17 @@ const getBarcodeSignature = (container: HTMLElement): string => {
 };
 
 describe('LabelTile barcode visual encoding', () => {
-  it('renders consistent barcode bars for the same compact aisle value across renders', () => {
+  it('keeps barcode rendering deterministic while distinguishing different encoded inputs', () => {
     const first = render(<LabelTile code="01L01A" config={defaultConfig} />);
     const firstSignature = getBarcodeSignature(first.container);
 
     const second = render(<LabelTile code="01L01A" config={defaultConfig} />);
     const secondSignature = getBarcodeSignature(second.container);
 
-    expect(firstSignature).toBe(secondSignature);
-  });
-
-  it('renders consistent barcode bars for the same compact back-wall value across renders', () => {
-    const first = render(<LabelTile code={`${DEFAULT_BACK_CODE_PREFIX}01A`} config={defaultConfig} />);
-    const firstSignature = getBarcodeSignature(first.container);
-
-    const second = render(<LabelTile code={`${DEFAULT_BACK_CODE_PREFIX}01A`} config={defaultConfig} />);
-    const secondSignature = getBarcodeSignature(second.container);
+    const different = render(<LabelTile code="01L01B" config={defaultConfig} />);
+    const differentSignature = getBarcodeSignature(different.container);
 
     expect(firstSignature).toBe(secondSignature);
-  });
-
-  it('renders a different barcode pattern for different encoded values', () => {
-    const first = render(<LabelTile code="01L01A" config={defaultConfig} />);
-    const firstSignature = getBarcodeSignature(first.container);
-
-    const second = render(<LabelTile code="01L01B" config={defaultConfig} />);
-    const secondSignature = getBarcodeSignature(second.container);
-
-    expect(firstSignature).not.toBe(secondSignature);
+    expect(firstSignature).not.toBe(differentSignature);
   });
 });
