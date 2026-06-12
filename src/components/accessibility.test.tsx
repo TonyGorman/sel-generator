@@ -11,7 +11,6 @@ import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 const defaultConfig: ILabelConfig = {
-  shelfStyle: 'alphabetical',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
@@ -37,7 +36,7 @@ describe('Accessibility checks', () => {
 
   it('has no axe violations in AisleLabelForm', async () => {
     const { container } = render(
-      <AisleLabelForm config={defaultConfig} onOpenConfiguration={() => undefined} />,
+      <AisleLabelForm config={defaultConfig} />,
     );
 
     await expectNoAxeViolations(container);

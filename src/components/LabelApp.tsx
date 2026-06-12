@@ -12,7 +12,6 @@ import { DEFAULT_BACK_CODE_PREFIX, SPECIAL_AISLE_VALUES } from '../config/labelC
 const LabelApp = (): React.ReactElement => {
   const [selectedTabKey, setSelectedTabKey] = React.useState('specific');
   const [config, setConfig] = React.useState<ILabelConfig>({
-    shelfStyle: 'number',
     backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
     specialAisleValues: [...SPECIAL_AISLE_VALUES],
   });
@@ -34,7 +33,7 @@ const LabelApp = (): React.ReactElement => {
     {
       key: 'aisle',
       headerText: 'Aisle Labels',
-      content: <AisleLabelForm config={config} onOpenConfiguration={openConfigurationTab} />,
+      content: <AisleLabelForm config={config} />,
     },
     {
       key: 'back',

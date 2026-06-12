@@ -7,14 +7,12 @@ import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 
 vi.mock('./SpecificLabelForm', () => ({
   default: ({ config }: { config: ILabelConfig }) => (
-    <div>Specific shelf style: {config.shelfStyle}</div>
+    <div>Specific Back prefix: {config.backCodePrefix}</div>
   ),
 }));
 
 vi.mock('./AisleLabelForm', () => ({
-  default: ({ onOpenConfiguration }: { onOpenConfiguration: () => void }) => (
-    <button onClick={onOpenConfiguration}>Open config from aisle</button>
-  ),
+  default: () => <div>Aisle Mock</div>,
 }));
 
 vi.mock('./BackLabelForm', () => ({
@@ -26,8 +24,8 @@ vi.mock('./ConfigureLabelForm', () => ({
     <button
       onClick={() =>
         onConfigChange({
-          shelfStyle: 'alphabetical',
-          backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
+          backCodePrefix: '99',
+          specialAisleValues: ['KIOSK'],
         })
       }
     >
@@ -39,16 +37,7 @@ vi.mock('./ConfigureLabelForm', () => ({
 describe('LabelApp', () => {
   it('shows specific tab by default', () => {
     render(<LabelApp />);
-    expect(screen.getByText('Specific shelf style: number')).toBeInTheDocument();
-  });
-
-  it('navigates to configuration tab when aisle requests it', () => {
-    render(<LabelApp />);
-
-    fireEvent.click(screen.getByRole('tab', { name: 'Aisle Labels' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Open config from aisle' }));
-
-    expect(screen.getByRole('button', { name: 'Set new config' })).toBeInTheDocument();
+    expect(screen.getByText(`Specific Back prefix: ${DEFAULT_BACK_CODE_PREFIX}`)).toBeInTheDocument();
   });
 
   it('propagates updated config to specific tab content', () => {
@@ -58,6 +47,6 @@ describe('LabelApp', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Set new config' }));
     fireEvent.click(screen.getByRole('tab', { name: 'Specific Labels' }));
 
-    expect(screen.getByText('Specific shelf style: alphabetical')).toBeInTheDocument();
+    expect(screen.getByText('Specific Back prefix: 99')).toBeInTheDocument();
   });
 });

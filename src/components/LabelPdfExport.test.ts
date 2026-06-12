@@ -37,7 +37,6 @@ const createPdfMock = () => {
 };
 
 const config: ILabelGenerator['config'] = {
-  shelfStyle: 'alphabetical',
   backCodePrefix: 'BK',
 };
 

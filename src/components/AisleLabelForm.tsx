@@ -4,22 +4,20 @@ import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig } from '../config/labelConfig';
-import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
+import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER, formatTwoDigitValue } from '../config/labelConfig';
+import { Button, RadioGroup, RadioOption, ShelfSelect, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
 interface IAisleLabelFormProps {
     config: ILabelConfig;
-    onOpenConfiguration: () => void;
 }
 
-const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfiguration }) => {
+const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config }) => {
     const aisleRangeText = `${MIN_AISLE_VALUE}-${MAX_AISLE_VALUE}`;
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
-    const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
+    const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const aisleValidationMessage = `Aisles must be between ${MIN_AISLE_VALUE} and ${MAX_AISLE_VALUE}.`;
     const bayValidationMessage = `Bay values must be between 1 and ${MAX_BAY_VALUE}.`;
-    const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
 
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
@@ -36,7 +34,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         rf_end: null as number | null,
         ft_start: null as number | null,
         ft_end: null as number | null,
-        shelves: null as number | null
+        shelves: null as string | null
     });
 
 
@@ -75,12 +73,14 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
             case 'ft_end':
                 setLabelStruct((prevState) => ({ ...prevState, ft_end: numericValue }));
                 break;
-            case 'shelves':
-                setLabelStruct((prevState) => ({ ...prevState, shelves: numericValue }));
-                break;
+
         }
 
     }
+
+    const onShelfChange = (letter: string): void => {
+        setLabelStruct((prevState) => ({ ...prevState, shelves: letter || null }));
+    };
 
     const generateText = (i: number, start: number, end: number, shelfTokens: string[], midText: string): string[] => {
         const barcodes = [];
@@ -101,16 +101,12 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
     const hasValue = (value: number | null): value is number => value !== null && !Number.isNaN(value);
 
     const validateInput = (): string | null => {
-        if (!hasValue(labelStruct.aisle_start) || !hasValue(labelStruct.aisle_end) || !hasValue(labelStruct.shelves)) {
-            return 'Please enter aisle start, aisle end, and shelves using whole numbers.';
+        if (!hasValue(labelStruct.aisle_start) || !hasValue(labelStruct.aisle_end) || !labelStruct.shelves) {
+            return 'Please enter aisle start, aisle end, and select a shelf.';
         }
 
         if (labelStruct.aisle_start < MIN_AISLE_VALUE || labelStruct.aisle_end < MIN_AISLE_VALUE || labelStruct.aisle_end > MAX_AISLE_VALUE) {
             return aisleValidationMessage;
-        }
-
-        if (labelStruct.shelves < 1 || labelStruct.shelves > MAX_SHELF_VALUE) {
-            return shelfValidationMessage;
         }
 
         if (labelStruct.aisle_start > labelStruct.aisle_end) {
@@ -152,12 +148,13 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         const shelfTokens: string[] = [];
 
         // its for getting the alphabets in uppercase 
-        if (!hasValue(labelStruct.aisle_start) || !hasValue(labelStruct.aisle_end) || !hasValue(labelStruct.shelves)) {
+        if (!hasValue(labelStruct.aisle_start) || !hasValue(labelStruct.aisle_end) || !labelStruct.shelves) {
             return [];
         }
 
-        for (let i = 0; i < labelStruct.shelves; i++) {
-            shelfTokens.push(getShelfTokenForConfig(i, config.shelfStyle));
+        const shelfCount = labelStruct.shelves.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        for (let i = 0; i < shelfCount; i++) {
+            shelfTokens.push(String.fromCharCode('A'.charCodeAt(0) + i));
         }
 
         const selectedSides = [
@@ -198,14 +195,11 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
     };
 
     const formatShelfSummary = (): string => {
-        if (!hasValue(labelStruct.shelves) || labelStruct.shelves <= 0) {
+        if (!labelStruct.shelves) {
             return '--';
         }
 
-        const firstShelf = getShelfTokenForConfig(0, config.shelfStyle);
-        const lastShelf = getShelfTokenForConfig(labelStruct.shelves - 1, config.shelfStyle);
-
-        return `${firstShelf} – ${lastShelf}`;
+        return `A – ${labelStruct.shelves}`;
     };
 
     const sideRows = [
@@ -236,8 +230,9 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         return total + (end - start + 1);
     }, 0);
 
-    const totalLabels = totalAisles > 0 && hasValue(labelStruct.shelves)
-        ? totalAisles * totalBayValues * labelStruct.shelves
+    const shelfCount = labelStruct.shelves ? labelStruct.shelves.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : 0;
+    const totalLabels = totalAisles > 0 && shelfCount > 0
+        ? totalAisles * totalBayValues * shelfCount
         : 0;
 
     const generateLabel = (): void => {
@@ -252,20 +247,12 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
         setGeneratedLabels(generateLabelText());
     }
 
-    const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
-        event.preventDefault();
-        onOpenConfiguration();
-    };
-
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Aisle Labels</h1>
             <div className={styles.sectionIntro}>
-                <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (which can be letters or numbers) from 1 to {MAX_SHELF_VALUE}.</p>
+                <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (alphabetical only) within {shelfRangeText}.</p>
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
-                <p>Label formats can be changed in the{' '}
-                    <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>
-                </p>
             </div>
             <div className={styles.configLayout}>
                 <section className={shellStyles.sectionBox}>
@@ -322,11 +309,11 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config, onOpenConfigur
                 <section className={shellStyles.sectionBox}>
                     <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
-                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
-                        <TextField
+                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Last Shelf</label>
+                        <ShelfSelect
                             id={`${idPrefix}-shelves`}
-                            value={labelStruct.shelves?.toString() ?? ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
+                            value={labelStruct.shelves ?? ''}
+                            onChange={onShelfChange}
                         />
                     </div>
                 </section>

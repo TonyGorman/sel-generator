@@ -4,8 +4,8 @@ import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_BAY_VALUE, MAX_SHELF_VALUE, formatTwoDigitValue, getShelfTokenForConfig, normalizeBackCodePrefix } from '../config/labelConfig';
-import { Button, TextField } from './FormControls';
+import { MAX_BAY_VALUE, MAX_SHELF_LETTER, formatTwoDigitValue, normalizeBackCodePrefix } from '../config/labelConfig';
+import { Button, ShelfSelect, TextField } from './FormControls';
 
 interface IBackLabelFormProps {
     config: ILabelConfig;
@@ -14,9 +14,8 @@ interface IBackLabelFormProps {
 
 const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
-    const shelfRangeText = `1-${MAX_SHELF_VALUE}`;
+    const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const bayValidationMessage = `Bays must be between 1 and ${MAX_BAY_VALUE}.`;
-    const shelfValidationMessage = `Shelves must be between 1 and ${MAX_SHELF_VALUE}.`;
     const idPrefix = React.useId();
 
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
@@ -24,7 +23,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     const [labelStruct, setLabelStruct] = React.useState({
         bay_start: null as number | null,
         bay_end: null as number | null,
-        shelves: null as number | null,
+        shelves: null as string | null,
     });
 
     const hasValue = (value: number | null): value is number => value !== null && Number.isInteger(value);
@@ -40,25 +39,27 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
             case 'bay_end':
                 setLabelStruct((prevState) => ({ ...prevState, bay_end: numericValue }))
                 break;
-            case 'shelves':
-                setLabelStruct((prevState) => ({ ...prevState, shelves: numericValue }))
-                break;
         }
+    }
+
+    const onShelfChange = (letter: string): void => {
+        setLabelStruct((prevState) => ({ ...prevState, shelves: letter || null }));
     }
 
     const generateLabelText = (): string[] => {
         const labelTexts: string[] = [];
         const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
 
-        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !hasValue(labelStruct.shelves)) {
+        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !labelStruct.shelves) {
             return [];
         }
 
+        const shelfCount = labelStruct.shelves.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
         for (let i = labelStruct.bay_start; i <= labelStruct.bay_end; i++) {
             const bayText = formatTwoDigitValue(i);
 
-            for (let k = 0; k < labelStruct.shelves; k++) {
-                const shelfToken = getShelfTokenForConfig(k, config.shelfStyle);
+            for (let k = 0; k < shelfCount; k++) {
+                const shelfToken = String.fromCharCode('A'.charCodeAt(0) + k);
                 const labelText = `${backCodePrefix}${bayText}${shelfToken}`;
                 labelTexts.push(labelText);
             }
@@ -68,8 +69,8 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     }
 
     const validateInput = (): string | null => {
-        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !hasValue(labelStruct.shelves)) {
-            return 'Please enter start bay, end bay, and shelves using whole numbers.';
+        if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !labelStruct.shelves) {
+            return 'Please enter start bay, end bay, and select a last shelf.';
         }
 
         if (labelStruct.bay_start > labelStruct.bay_end) {
@@ -82,10 +83,6 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
         if (labelStruct.bay_end > MAX_BAY_VALUE) {
             return bayValidationMessage;
-        }
-
-        if (labelStruct.shelves < 1 || labelStruct.shelves > MAX_SHELF_VALUE) {
-            return shelfValidationMessage;
         }
 
         return null;
@@ -111,7 +108,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Back Wall Labels</h1>
-            <p className={styles.sectionIntro}>Set the start bay, end bay and the amount of shelves required for the back wall. 
+            <p className={styles.sectionIntro}>Set the start bay, end bay and the last shelf required for the back wall. 
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
                 <p>The prefix can be customized in the{' '}
                     <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
@@ -141,11 +138,11 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
                 <section className={shellStyles.sectionBox}>
                     <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
                     <div className={styles.singleField}>
-                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Shelves</label>
-                        <TextField
+                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Last Shelf</label>
+                        <ShelfSelect
                             id={`${idPrefix}-shelves`}
-                            value={labelStruct.shelves?.toString() ?? ''}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'shelves')}
+                            value={labelStruct.shelves ?? ''}
+                            onChange={onShelfChange}
                         />
                     </div>
                 </section>

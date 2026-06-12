@@ -8,7 +8,7 @@ import {
     MIN_AISLE_VALUE,
     MAX_AISLE_VALUE,
     MAX_BAY_VALUE,
-    MAX_SHELF_VALUE,
+    MAX_SHELF_LETTER,
     SPECIAL_AISLE_VALUES,
     normalizeBackCodePrefix,
 } from '../config/labelConfig';
@@ -23,10 +23,7 @@ interface ISpecificLabelFormProps {
 const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
     const specialAisleValues = config.specialAisleValues ?? [...SPECIAL_AISLE_VALUES];
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
-    const maxShelfLetter = MAX_SHELF_VALUE <= 26
-        ? String.fromCharCode(64 + MAX_SHELF_VALUE)
-        : 'Z';
-    const shelfRangeText = `1-${MAX_SHELF_VALUE} or A-${maxShelfLetter}`;
+    const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const namedAisleExamples = specialAisleValues.join(', ');
 
     const [initLabelText, setLabelText] = React.useState("");
@@ -50,7 +47,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
             minAisleValue: MIN_AISLE_VALUE,
             maxAisleValue: MAX_AISLE_VALUE,
             maxBayValue: MAX_BAY_VALUE,
-            maxShelfValue: MAX_SHELF_VALUE,
+            maxShelfLetter: MAX_SHELF_LETTER,
         });
 
         return result.ok;
@@ -88,7 +85,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Specific Labels</h1>
             <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {backCodePrefix}01A, {SPECIAL_AISLE_VALUES[0]}). 
-                <br/>Labels must be in compact format — no spaces or dashes.
+                <br/>Labels must have no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
                 <br/>Back prefix and named aisle values can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
             </p>

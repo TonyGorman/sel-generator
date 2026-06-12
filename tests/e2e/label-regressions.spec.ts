@@ -152,15 +152,6 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('tab', { name: 'Configuration' })).toBeVisible();
   });
 
-  test('Aisle configuration link navigates to configuration tab', async ({ page }) => {
-    await page.goto('/');
-
-    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
-    await page.getByRole('link', { name: 'configuration section' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Label Configuration' })).toBeVisible();
-  });
-
   test('Specific Labels tab shows validation message for empty submission', async ({ page }) => {
     await page.goto('/');
 
@@ -221,7 +212,7 @@ test.describe('Label Generator regressions', () => {
     await page.getByRole('tab', { name: 'Back Wall Labels' }).click();
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
-    await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and shelves using whole numbers.');
+    await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and select a last shelf.');
   });
 
   test('Aisle Labels generation updates the summary and invokes print', async ({ page }) => {
@@ -241,7 +232,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(1).fill('1');
     await visibleInputs.nth(2).fill('1');
     await visibleInputs.nth(3).fill('1');
-    await visibleInputs.nth(10).fill('1');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
 
     await expect(page.getByText('Total labels: 1')).toBeVisible();
 
@@ -277,7 +268,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(3).fill('2');
     await visibleInputs.nth(4).fill('1');
     await visibleInputs.nth(5).fill('2');
-    await visibleInputs.nth(10).fill('2');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('B');
 
     await page.getByRole('button', { name: 'Generate Labels' }).click();
     await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
@@ -308,7 +299,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(3).fill('2');
     await visibleInputs.nth(4).fill('1');
     await visibleInputs.nth(5).fill('2');
-    await visibleInputs.nth(10).fill('2');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('B');
 
     await page.getByRole('button', { name: 'Generate Labels' }).click();
     await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();

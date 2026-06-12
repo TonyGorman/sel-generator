@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, MAX_SHELF_LETTER } from '../config/labelConfig';
 import { validateSpecificLabelCode } from './labelCodeDomain';
 
 const defaultOptions = {
@@ -8,7 +8,7 @@ const defaultOptions = {
   minAisleValue: 0,
   maxAisleValue: 99,
   maxBayValue: 99,
-  maxShelfValue: 20,
+  maxShelfLetter: MAX_SHELF_LETTER,
 };
 
 describe('validateSpecificLabelCode', () => {
@@ -72,7 +72,7 @@ describe('validateSpecificLabelCode', () => {
   it('rejects out-of-range shelf values', () => {
     const result = validateSpecificLabelCode('01L01Z', {
       ...defaultOptions,
-      maxShelfValue: 20,
+      maxShelfLetter: MAX_SHELF_LETTER,
     });
 
     expect(result).toEqual({ ok: false, reason: 'invalid-shelf-range' });

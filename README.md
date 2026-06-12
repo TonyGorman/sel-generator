@@ -23,9 +23,10 @@ All labels display:
 
 Configure label appearance in the **Configuration** tab:
 
-- **Shelf Style**: Display shelves as numbers (1–20) or letters (A–T). When set, all input is automatically coerced to this format.
 - **Back Code Prefix**: Custom prefix for back-wall labels (e.g., "BK" or "99")
 - **Special Aisle Values**: Configure explicit named aisle labels (comma-separated, letters only, max 8 chars each)
+
+Shelf values are always alphabetical (`A`-`T`) across generated aisle and back-wall labels.
 
 ### Print & Export
 
@@ -243,10 +244,9 @@ Create at least one sample sheet from each flow:
 - Back (wall) flow: bay range and shelf range coverage
 - Specific flow: all supported input styles (compact and dashed)
 
-Include both shelf modes:
+Include shelf coverage:
 
-- numerical shelves
-- alphabetical shelves
+- alphabetical shelves only (`A`-`T`)
 
 ### Printer and Media Matrix
 

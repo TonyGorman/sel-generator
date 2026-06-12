@@ -4,15 +4,11 @@ import {
   MIN_AISLE_VALUE,
   MAX_AISLE_VALUE,
   MAX_BAY_VALUE,
-  MAX_SHELF_VALUE,
+  MAX_SHELF_LETTER,
   SPECIAL_AISLE_VALUES,
   PDF_EXPORT_SCALE,
   PDF_IMAGE_COMPRESSION,
-  convertShelfTokenToLetter,
-  convertShelfTokenToNumber,
   formatTwoDigitValue,
-  formatShelfTokenForStyle,
-  getShelfTokenForConfig,
   isSpecialAisleValue,
   normalizeBackCodePrefix,
   normalizeSpecialAisleValue,
@@ -24,7 +20,7 @@ describe('labelConfig', () => {
     expect(MIN_AISLE_VALUE).toBe(0);
     expect(MAX_AISLE_VALUE).toBe(99);
     expect(MAX_BAY_VALUE).toBe(99);
-    expect(MAX_SHELF_VALUE).toBe(20);
+    expect(MAX_SHELF_LETTER).toBe('L');
   });
 
   it('keeps PDF export profile stable for scan reliability', () => {
@@ -65,32 +61,6 @@ describe('labelConfig', () => {
     expect(formatTwoDigitValue(10)).toBe('10');
   });
 
-  it('converts shelf tokens to number format', () => {
-    expect(convertShelfTokenToNumber('01')).toBe('1');
-    expect(convertShelfTokenToNumber('A')).toBe('1');
-    expect(convertShelfTokenToNumber('a')).toBe('1');
-  });
-
-  it('converts shelf tokens to letter format', () => {
-    expect(convertShelfTokenToLetter('1')).toBe('A');
-    expect(convertShelfTokenToLetter('26')).toBe('Z');
-    expect(convertShelfTokenToLetter('a')).toBe('A');
-  });
-
-  it('formats shelf tokens based on selected shelf style', () => {
-    expect(formatShelfTokenForStyle('A', 'number')).toBe('1');
-    expect(formatShelfTokenForStyle('1', 'alphabetical')).toBe('A');
-  });
-
-  it('returns numeric shelf labels when shelf style is number', () => {
-    expect(getShelfTokenForConfig(0, 'number')).toBe('1');
-    expect(getShelfTokenForConfig(9, 'number')).toBe('10');
-  });
-
-  it('returns alphabetic shelf labels when shelf style is alphabetical', () => {
-    expect(getShelfTokenForConfig(0, 'alphabetical')).toBe('A');
-    expect(getShelfTokenForConfig(19, 'alphabetical')).toBe('T');
-  });
 
   it('normalizes comma-delimited special aisle values with max 8 chars per entry', () => {
     expect(normalizeSpecialAisleValues([' kiosk ', 'Floral123', 'Backwall', 'Backwall', 'ProduceZone'])).toEqual([

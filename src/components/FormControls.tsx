@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styles from './FormControls.module.css';
+import { MAX_SHELF_LETTER } from '../config/labelConfig';
 
 const joinClasses = (...classNames: Array<string | undefined>): string => classNames.filter(Boolean).join(' ');
 
@@ -120,5 +121,37 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({ name, options, selectedK
         );
       })}
     </div>
+  );
+};
+
+const SHELF_LETTERS: ReadonlyArray<string> = (() => {
+  const letters: string[] = [];
+  const maxCode = MAX_SHELF_LETTER.charCodeAt(0);
+  for (let code = 'A'.charCodeAt(0); code <= maxCode; code++) {
+    letters.push(String.fromCharCode(code));
+  }
+  return letters;
+})();
+
+export interface ShelfSelectProps {
+  id?: string;
+  value: string;
+  onChange: (letter: string) => void;
+  className?: string;
+}
+
+export const ShelfSelect: React.FC<ShelfSelectProps> = ({ id, value, onChange, className }) => {
+  return (
+    <select
+      id={id}
+      className={joinClasses(styles.input, className)}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">— select —</option>
+      {SHELF_LETTERS.map((letter) => (
+        <option key={letter} value={letter}>{letter}</option>
+      ))}
+    </select>
   );
 };

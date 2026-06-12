@@ -3,42 +3,22 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import ConfigureLabelForm from './ConfigureLabelForm';
 import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import { DEFAULT_BACK_CODE_PREFIX, MAX_SHELF_LETTER } from '../config/labelConfig';
 
 vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div data-testid="preview-code">{code}</div>,
 }));
 
 const defaultConfig: ILabelConfig = {
-  shelfStyle: 'alphabetical',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues: ['KIOSK', 'FLORAL', 'BACKWALL'],
 };
 
 describe('ConfigureLabelForm', () => {
-  it('emits updated config values for shelf style options', () => {
-    const onConfigChange = vi.fn();
-    render(<ConfigureLabelForm config={defaultConfig} onConfigChange={onConfigChange} />);
+  it('shows alpha shelf preview code', () => {
+    render(<ConfigureLabelForm config={defaultConfig} onConfigChange={vi.fn()} />);
 
-    fireEvent.click(screen.getByLabelText('Shelf as Number (e.g., "1")'));
-    expect(onConfigChange).toHaveBeenCalledWith({
-      ...defaultConfig,
-      shelfStyle: 'number',
-    });
-  });
-
-  it('updates preview code when shelf style changes in a stateful wrapper', () => {
-    const Wrapper = () => {
-      const [config, setConfig] = React.useState<ILabelConfig>(defaultConfig);
-      return <ConfigureLabelForm config={config} onConfigChange={setConfig} />;
-    };
-
-    render(<Wrapper />);
-
-    expect(screen.getByTestId('preview-code')).toHaveTextContent('01R02C');
-
-    fireEvent.click(screen.getByLabelText('Shelf as Number (e.g., "1")'));
-    expect(screen.getByTestId('preview-code')).toHaveTextContent('01R023');
+    expect(screen.getByTestId('preview-code')).toHaveTextContent(`01R02${MAX_SHELF_LETTER}`);
   });
 
   it('emits sanitized Back code prefix updates', () => {

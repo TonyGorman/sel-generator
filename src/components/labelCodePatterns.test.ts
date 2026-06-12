@@ -13,7 +13,7 @@ describe('labelCodePatterns', () => {
     expect(AISLE_TOKEN_PATTERN).toBe('\\d{2}');
     expect(SIDE_TOKEN_PATTERN).toBe('[LREF]');
     expect(BAY_TOKEN_PATTERN).toBe('\\d{2}');
-    expect(SHELF_TOKEN_PATTERN).toBe('[A-Z0-9]+');
+    expect(SHELF_TOKEN_PATTERN).toBe('[A-Z]');
   });
 
   it('matches valid compact aisle labels and rejects non-numeric aisle tokens', () => {
@@ -21,6 +21,7 @@ describe('labelCodePatterns', () => {
 
     expect(pattern.test('01L01A')).toBe(true);
     expect(pattern.test('A1L01A')).toBe(false);
+    expect(pattern.test('01L011')).toBe(false);
   });
 
   it('matches compact back labels with uppercase normalized prefixes', () => {

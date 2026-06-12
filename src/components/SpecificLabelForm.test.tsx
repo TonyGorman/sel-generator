@@ -12,7 +12,6 @@ vi.mock('./LabelGenerator', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  shelfStyle: 'alphabetical',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
@@ -75,12 +74,12 @@ describe('SpecificLabelForm', () => {
     render(<SpecificLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
-      target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}012 ` },
+      target: { value: ` 01l01a , ${DEFAULT_BACK_CODE_PREFIX.toLowerCase()}01a ` },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}012`);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`01L01A|${DEFAULT_BACK_CODE_PREFIX}01A`);
   });
 
   it('rejects separated input (dashes not allowed)', () => {

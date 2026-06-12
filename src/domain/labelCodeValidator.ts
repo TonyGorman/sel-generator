@@ -26,21 +26,17 @@ export interface ISpecificLabelValidationOptions {
   minAisleValue: number;
   maxAisleValue: number;
   maxBayValue: number;
-  maxShelfValue: number;
+  maxShelfLetter: string;
 }
 
-const isShelfTokenValid = (token: string, maxShelfValue: number): boolean => {
-  if (/^\d+$/.test(token)) {
-    const numericShelf = Number(token);
-    return numericShelf >= 1 && numericShelf <= maxShelfValue;
+const isShelfTokenValid = (token: string, maxShelfLetter: string): boolean => {
+  if (!/^[A-Z]$/.test(token) || !/^[A-Z]$/.test(maxShelfLetter)) {
+    return false;
   }
 
-  if (/^[A-Z]$/.test(token)) {
-    const shelfIndex = token.charCodeAt(0) - 64;
-    return shelfIndex >= 1 && shelfIndex <= maxShelfValue;
-  }
-
-  return false;
+  const shelfIndex = token.charCodeAt(0) - 64;
+  const maxShelfIndex = maxShelfLetter.charCodeAt(0) - 64;
+  return shelfIndex >= 1 && shelfIndex <= maxShelfIndex;
 };
 
 const isBoundedTwoDigitNumber = (value: string, max: number, min: number = 1): boolean => {
@@ -89,7 +85,7 @@ export const validateSpecificLabelCode = (
       return { ok: false, reason: 'invalid-bay-range' };
     }
 
-    if (!isShelfTokenValid(shelf, options.maxShelfValue)) {
+    if (!isShelfTokenValid(shelf, options.maxShelfLetter)) {
       return { ok: false, reason: 'invalid-shelf-range' };
     }
 
@@ -102,7 +98,7 @@ export const validateSpecificLabelCode = (
       return { ok: false, reason: 'invalid-bay-range' };
     }
 
-    if (!isShelfTokenValid(shelf, options.maxShelfValue)) {
+    if (!isShelfTokenValid(shelf, options.maxShelfLetter)) {
       return { ok: false, reason: 'invalid-shelf-range' };
     }
 

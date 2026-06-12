@@ -16,7 +16,6 @@ vi.mock('react-barcode', () => ({
 }));
 
 const defaultConfig: ILabelConfig = {
-  shelfStyle: 'alphabetical',
   backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
 };
 
