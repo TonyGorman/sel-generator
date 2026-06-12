@@ -313,6 +313,14 @@
   font-size: var(--current-large-main-text-size-mm, 24mm);
 }
 
+.largeSelHeadingPrefix {
+  margin-right: 0.8mm;
+}
+
+.largeSelHeadingSuffix {
+  margin-left: 1.5mm;
+}
+
 .barcodeGraphic,
 .barcodeGraphicLargeSel {
   display: flex;

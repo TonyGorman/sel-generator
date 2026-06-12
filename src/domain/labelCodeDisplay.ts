@@ -71,6 +71,7 @@ export const getPrimaryLabelText = (
   backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
   specialAisleValues?: readonly string[],
 ): { primary: string; secondary: string } => {
+
   const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
   const upperCode = code.toUpperCase();
   const secondaryDisplayValue = normalizeLabelCode(upperCode, normalizedPrefix, specialAisleValues);
@@ -80,7 +81,7 @@ export const getPrimaryLabelText = (
     if (parsed.kind === 'special') {
       return {
         primary: parsed.value,
-        secondary: secondaryDisplayValue,
+        secondary: '',
       };
     }
 
@@ -122,18 +123,18 @@ export const getLargeSelDisplayParts = (
   if (parsed?.kind === 'aisle') {
     const { aisle, side, bay, shelf } = parsed.parts;
     return {
-      prefix: `${aisle} `,
+      prefix: aisle,
       main: `${side}${bay}`,
-      suffix: ` ${shelf}`,
+      suffix: shelf,
     };
   }
 
   if (parsed?.kind === 'back') {
     const { bay, shelf } = parsed.parts;
     return {
-      prefix: `${normalizedPrefix} `,
+      prefix: normalizedPrefix,
       main: bay,
-      suffix: ` ${shelf}`,
+      suffix: shelf,
     };
   }
 

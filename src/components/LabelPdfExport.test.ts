@@ -85,6 +85,28 @@ describe('drawVectorPage', () => {
     );
   });
 
+  it('does not draw a mini-sel secondary line for special aisle values', async () => {
+    const { pdf, textCalls } = createPdfMock();
+    const miniStrategy = getLabelLayoutStrategy('mini-sel');
+
+    await drawVectorPage(
+      pdf,
+      ['FLORAL'],
+      config,
+      miniStrategy,
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    const secondaryBaselineY =
+      miniStrategy.page.pagePadTopMm + miniStrategy.typography.secondaryBaselineFromTileTopMm;
+    const secondaryCall = textCalls.find(
+      (call) => call.text === 'FLORAL' && Math.abs(call.y - secondaryBaselineY) < 0.001,
+    );
+
+    expect(secondaryCall).toBeUndefined();
+  });
+
   it('shrinks long mini-sel primary text in PDF output to avoid overflow', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
@@ -166,9 +188,9 @@ describe('drawVectorPage', () => {
       svg2pdfStub,
     );
 
-    expect(textCalls.some((call) => call.text === '31 ')).toBe(true);
+    expect(textCalls.some((call) => call.text === '31')).toBe(true);
     expect(textCalls.some((call) => call.text === 'L03')).toBe(true);
-    expect(textCalls.some((call) => call.text === ' A')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
   });
 
   it('uses structured heading parts for back codes in large-sel PDF output', async () => {
@@ -183,8 +205,23 @@ describe('drawVectorPage', () => {
       svg2pdfStub,
     );
 
-    expect(textCalls.some((call) => call.text === `${config.backCodePrefix} `)).toBe(true);
+    expect(textCalls.some((call) => call.text === config.backCodePrefix)).toBe(true);
     expect(textCalls.some((call) => call.text === '01')).toBe(true);
-    expect(textCalls.some((call) => call.text === ' A')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+  });
+
+  it('uses primary heading fallback for special aisles in large-sel PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      ['FLORAL'],
+      config,
+      getLabelLayoutStrategy('large-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === 'FLORAL')).toBe(true);
   });
 });

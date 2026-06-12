@@ -123,28 +123,28 @@ describe('LabelTile helpers', () => {
     });
   });
 
-  it('returns named aisle value as primary and secondary text', () => {
+  it('returns named aisle value as primary text with blank secondary text', () => {
     expect(
       getPrimaryLabelText('FLORAL', DEFAULT_BACK_CODE_PREFIX, SPECIAL_AISLE_VALUES),
     ).toEqual({
       primary: 'FLORAL',
-      secondary: 'FLORAL',
+      secondary: '',
     });
   });
 
   it('parses large-sel display parts from aisle values', () => {
     expect(getLargeSelDisplayParts('31L03A')).toEqual({
-      prefix: '31 ',
+      prefix: '31',
       main: 'L03',
-      suffix: ' A',
+      suffix: 'A',
     });
   });
 
   it('parses large-sel display parts from back values', () => {
     expect(getLargeSelDisplayParts(`${DEFAULT_BACK_CODE_PREFIX}01A`)).toEqual({
-      prefix: `${DEFAULT_BACK_CODE_PREFIX} `,
+      prefix: DEFAULT_BACK_CODE_PREFIX,
       main: '01',
-      suffix: ' A',
+      suffix: 'A',
     });
   });
 
@@ -241,11 +241,25 @@ describe('LabelTile', () => {
     expect(screen.getByText(`${DEFAULT_BACK_CODE_PREFIX} 01 A`)).toBeInTheDocument();
   });
 
-  it('Specific named aisle value does not split into bay/shelf fallback', () => {
-    render(<LabelTile code="FLORAL" config={defaultConfig} />);
+  it('Specific named aisle value renders only in primary text for mini-sel', () => {
+    const { container } = render(<LabelTile code="FLORAL" config={defaultConfig} />);
 
     expect(screen.getAllByText('FLORAL').length).toBeGreaterThan(1);
     expect(screen.getByTestId('label-value')).toHaveTextContent('FLORAL');
+    const secondary = container.querySelector('[class*="secondaryCode"]');
+    expect(secondary).not.toBeNull();
+    expect(secondary).toHaveTextContent('');
     expect(screen.queryByText('ORA')).not.toBeInTheDocument();
+  });
+
+  it('uses primary text for large-sel fallback heading on special aisles', () => {
+    const { container } = render(<LabelTile code="floral" config={defaultConfig} layoutMode="large-sel" />);
+
+    const fallbackHeading = container.querySelector('[class*="largeSelHeadingFallback"]');
+    expect(fallbackHeading).not.toBeNull();
+    expect(fallbackHeading).toHaveTextContent('FLORAL');
+
+    // Ensure compact barcode payload remains unchanged from normalized special value.
+    expect(screen.getByTestId('label-value')).toHaveTextContent('FLORAL');
   });
 });

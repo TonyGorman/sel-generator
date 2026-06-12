@@ -9,6 +9,8 @@ const MM_TO_PX = 96 / 25.4;
 const MINI_ENCODED_TEXT_SIZE_MM = 2.4;
 const LARGE_ENCODED_TEXT_SIZE_MM = 3;
 const ENCODED_TEXT_LETTER_SPACING_MM = 0.02;
+const LARGE_SEL_PREFIX_GAP_MM = 0.8;
+const LARGE_SEL_SUFFIX_GAP_MM = 1.5;
 const PDF_PRIMARY_FONT = 'helvetica';
 
 export type JsPdfInstance = {
@@ -96,6 +98,7 @@ const drawVectorBarcode = async (
 
 const drawLargeSelHeading = (
   pdf: JsPdfInstance,
+  primary: string,
   secondary: string,
   xCenter: number,
   topY: number,
@@ -108,13 +111,14 @@ const drawLargeSelHeading = (
   const { largePrefixTextSizeMm, largeMainTextSizeMm, largeSuffixTextSizeMm } = layoutStrategy.typography;
   const baselineOffsetFactor = layoutStrategy.typography.pdfTextBaselineOffsetFactor;
   const displayParts = getLargeSelDisplayParts(code, backCodePrefix, specialAisleValues);
+  const fallbackHeadingText = secondary || primary;
 
   const mainBaselineY = topY + topAreaHeight / 2 + largeMainTextSizeMm * baselineOffsetFactor;
 
   if (!displayParts) {
     setPdfBoldFont(pdf);
     pdf.setFontSize(mmToPt(largeMainTextSizeMm));
-    pdf.text(secondary, xCenter, mainBaselineY, { align: 'center' });
+    pdf.text(fallbackHeadingText, xCenter, mainBaselineY, { align: 'center' });
     return;
   }
 
@@ -132,7 +136,7 @@ const drawLargeSelHeading = (
   pdf.setFontSize(mmToPt(largeSuffixTextSizeMm));
   const suffixWidth = getTextWidthMm(pdf, suffix, largeSuffixTextSizeMm);
 
-  const totalWidth = prefixWidth + mainWidth + suffixWidth;
+  const totalWidth = prefixWidth + LARGE_SEL_PREFIX_GAP_MM + mainWidth + LARGE_SEL_SUFFIX_GAP_MM + suffixWidth;
   const startX = xCenter - totalWidth / 2;
 
   const prefixBaselineY = topY + topAreaHeight / 2 + largePrefixTextSizeMm * baselineOffsetFactor;
@@ -144,11 +148,16 @@ const drawLargeSelHeading = (
 
   setPdfBoldFont(pdf);
   pdf.setFontSize(mmToPt(largeMainTextSizeMm));
-  pdf.text(main, startX + prefixWidth, mainBaselineY, { align: 'left' });
+  pdf.text(main, startX + prefixWidth + LARGE_SEL_PREFIX_GAP_MM, mainBaselineY, { align: 'left' });
 
   setPdfBoldFont(pdf);
   pdf.setFontSize(mmToPt(largeSuffixTextSizeMm));
-  pdf.text(suffix, startX + prefixWidth + mainWidth, suffixBaselineY, { align: 'left' });
+  pdf.text(
+    suffix,
+    startX + prefixWidth + LARGE_SEL_PREFIX_GAP_MM + mainWidth + LARGE_SEL_SUFFIX_GAP_MM,
+    suffixBaselineY,
+    { align: 'left' },
+  );
 };
 
 export const drawVectorPage = async (
@@ -196,6 +205,7 @@ export const drawVectorPage = async (
 
       drawLargeSelHeading(
         pdf,
+        primary,
         secondary,
         x + page.labelWidthMm / 2,
         topAreaStartY,
@@ -262,10 +272,12 @@ export const drawVectorPage = async (
     );
     pdf.text(primary, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
 
-    setPdfBoldFont(pdf);
-    pdf.setFontSize(mmToPt(typography.secondaryTextSizeMm));
-    pdf.setCharSpace(0);
-    pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.secondaryBaselineFromTileTopMm, { align: 'center' });
+    if (secondary) {
+      setPdfBoldFont(pdf);
+      pdf.setFontSize(mmToPt(typography.secondaryTextSizeMm));
+      pdf.setCharSpace(0);
+      pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.secondaryBaselineFromTileTopMm, { align: 'center' });
+    }
 
     const barcodeY =
       y +

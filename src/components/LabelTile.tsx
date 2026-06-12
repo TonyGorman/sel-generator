@@ -108,6 +108,7 @@ const MiniSelTileContent: React.FC<IMiniSelTileContentProps> = ({
 
 interface ILargeSelTileContentProps {
   code: string;
+  primary: string;
   secondary: string;
   backCodePrefix: string;
   specialAisleValues?: readonly string[];
@@ -115,11 +116,13 @@ interface ILargeSelTileContentProps {
 
 const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
   code,
+  primary,
   secondary,
   backCodePrefix,
   specialAisleValues,
 }) => {
   const largeDisplayParts = getLargeSelDisplayParts(code, backCodePrefix, specialAisleValues);
+  const fallbackHeadingText = secondary || primary;
 
   return (
     <div className={styles.largeSelHeading}>
@@ -130,7 +133,7 @@ const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
           <span className={styles.largeSelHeadingSuffix}>{largeDisplayParts.suffix}</span>
         </>
       ) : (
-        <span className={styles.largeSelHeadingFallback}>{secondary}</span>
+        <span className={styles.largeSelHeadingFallback}>{fallbackHeadingText}</span>
       )}
     </div>
   );
@@ -161,6 +164,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
         {isLargeSel ? (
           <LargeSelTileContent
             code={code}
+            primary={primary}
             secondary={secondary}
             backCodePrefix={config.backCodePrefix}
             specialAisleValues={specialAisleValues}
