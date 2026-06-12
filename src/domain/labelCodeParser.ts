@@ -11,10 +11,10 @@ export type ParsedLabelCode =
   | { kind: 'aisle'; parts: IAisleCodeParts }
   | { kind: 'back'; parts: IBackCodeParts };
 
-const AISLE_CODE_PATTERN = buildCompactLabelCodePattern();
+const aisleCodePattern = buildCompactLabelCodePattern();
 
 const parseCompactAisleCode = (code: string): IAisleCodeParts | null => {
-  const match = code.match(AISLE_CODE_PATTERN);
+  const match = code.match(aisleCodePattern);
   if (!match) {
     return null;
   }
@@ -24,7 +24,7 @@ const parseCompactAisleCode = (code: string): IAisleCodeParts | null => {
 };
 
 const parseCompactBackCode = (code: string, normalizedBackCodePrefix: string): IBackCodeParts | null => {
-  const match = code.match(buildCompactBackCodePattern(normalizedBackCodePrefix, true));
+  const match = code.match(buildCompactBackCodePattern(normalizedBackCodePrefix));
   if (!match) {
     return null;
   }

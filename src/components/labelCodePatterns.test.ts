@@ -5,6 +5,7 @@ import {
   BAY_TOKEN_PATTERN,
   SHELF_TOKEN_PATTERN,
   buildCompactLabelCodePattern,
+  buildCompactBackCodePattern,
 } from './labelCodePatterns';
 
 describe('labelCodePatterns', () => {
@@ -20,6 +21,20 @@ describe('labelCodePatterns', () => {
 
     expect(pattern.test('01L01A')).toBe(true);
     expect(pattern.test('A1L01A')).toBe(false);
+  });
+
+  it('matches compact back labels with uppercase normalized prefixes', () => {
+    const pattern = buildCompactBackCodePattern('BACK');
+
+    expect(pattern.test('BACK01A')).toBe(true);
+    expect(pattern.test('back01A')).toBe(false);
+  });
+
+  it('escapes regex characters in custom back prefixes', () => {
+    const pattern = buildCompactBackCodePattern('B+');
+
+    expect(pattern.test('B+01A')).toBe(true);
+    expect(pattern.test('BB01A')).toBe(false);
   });
 
 });
