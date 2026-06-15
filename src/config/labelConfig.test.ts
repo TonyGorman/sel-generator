@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_BACK_CODE_PREFIX,
+  SHORT_CODE_PREFIXES,
   MIN_AISLE_VALUE,
   MAX_AISLE_VALUE,
   MAX_BAY_VALUE,
@@ -10,9 +10,9 @@ import {
   PDF_IMAGE_COMPRESSION,
   formatTwoDigitValue,
   isSpecialAisleValue,
-  normalizeBackCodePrefix,
-  normalizeSpecialAisleValue,
-  normalizeSpecialAisleValues,
+  isShortCodePrefix,
+  normalizeAllowedValue,
+  normalizePrefix,
 } from './labelConfig';
 
 describe('labelConfig', () => {
@@ -29,31 +29,36 @@ describe('labelConfig', () => {
   });
 
   it('keeps Back prefix default stable', () => {
-    expect(DEFAULT_BACK_CODE_PREFIX).toBe('BAK');
+    expect(SHORT_CODE_PREFIXES[0]).toBe('BAK');
+    expect(SHORT_CODE_PREFIXES[1]).toBe('FOS');
+    expect(SHORT_CODE_PREFIXES).toEqual([SHORT_CODE_PREFIXES[0], SHORT_CODE_PREFIXES[1]]);
   });
 
   it('keeps named aisle allowlist stable and case-insensitive', () => {
-    expect(SPECIAL_AISLE_VALUES).toEqual(['KIOSK', 'FLORAL', 'SEASONAL']);
+    expect(SPECIAL_AISLE_VALUES).toEqual(['FLORAL', 'KIOSK', 'SEASONAL']);
     expect(isSpecialAisleValue('KIOSK')).toBe(true);
     expect(isSpecialAisleValue('floral')).toBe(true);
     expect(isSpecialAisleValue('PRODUCE')).toBe(false);
-    expect(normalizeSpecialAisleValue(' kiosk ')).toBe('KIOSK');
-    expect(normalizeSpecialAisleValue('FLORAL')).toBe('FLORAL');
-    expect(normalizeSpecialAisleValue('produce')).toBeNull();
+    expect(normalizeAllowedValue(' kiosk ', SPECIAL_AISLE_VALUES)).toBe('KIOSK');
+    expect(normalizeAllowedValue('FLORAL', SPECIAL_AISLE_VALUES)).toBe('FLORAL');
+    expect(normalizeAllowedValue('produce', SPECIAL_AISLE_VALUES)).toBeNull();
   });
 
-  it('accepts mixed-case configured named aisle allowlists', () => {
-    const configuredSpecialAisles = ['kiosk', 'FlOrAl', ' seasonal '];
-
-    expect(normalizeSpecialAisleValue('KIOSK', configuredSpecialAisles)).toBe('KIOSK');
-    expect(isSpecialAisleValue('floral', configuredSpecialAisles)).toBe(true);
-    expect(normalizeSpecialAisleValue('SEASONAL', configuredSpecialAisles)).toBe('SEASONAL');
+  it('normalizes Short code prefix values for config safety', () => {
+    expect(normalizeAllowedValue('bak', SHORT_CODE_PREFIXES)).toBe('BAK');
+    expect(normalizeAllowedValue('fos', SHORT_CODE_PREFIXES)).toBe('FOS');
+    expect(normalizeAllowedValue('9-9', SHORT_CODE_PREFIXES)).toBeNull();
+    expect(normalizeAllowedValue('bakk', SHORT_CODE_PREFIXES)).toBeNull();
+    expect(normalizeAllowedValue('', SHORT_CODE_PREFIXES)).toBeNull();
   });
 
-  it('normalizes Back prefix values for config safety', () => {
-    expect(normalizeBackCodePrefix('bakk')).toBe('BAK');
-    expect(normalizeBackCodePrefix('9-9')).toBe('99');
-    expect(normalizeBackCodePrefix('')).toBe(DEFAULT_BACK_CODE_PREFIX);
+  it('validates supported Short code prefixes', () => {
+    expect(isShortCodePrefix('BAK')).toBe(true);
+    expect(isShortCodePrefix('FOS')).toBe(true);
+    expect(isShortCodePrefix('bak')).toBe(true);
+    expect(isShortCodePrefix('fos')).toBe(true);
+    expect(isShortCodePrefix('99')).toBe(false);
+    expect(isShortCodePrefix('XYZ')).toBe(false);
   });
 
   it('formats two-digit values with leading zeros for label code consistency', () => {
@@ -62,12 +67,12 @@ describe('labelConfig', () => {
   });
 
 
-  it('normalizes comma-delimited special aisle values with max 8 chars per entry', () => {
-    expect(normalizeSpecialAisleValues([' kiosk ', 'Floral123', 'Bakwall', 'ProduceZone'])).toEqual([
+  it('normalizes value lists without truncation', () => {
+    expect(normalizePrefix([' kiosk ', 'Floral123', 'Bakwall', 'ProduceZone'])).toEqual([
       'KIOSK',
       'FLORAL',
       'BAKWALL',
-      'PRODUCEZ',
+      'PRODUCEZONE',
     ]);
   });
 });

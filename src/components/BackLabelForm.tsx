@@ -3,16 +3,20 @@ import styles from './AisleLabelForm.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
-import { ILabelConfig } from '../models/ILabelConfig';
-import { MAX_BAY_VALUE, MAX_SHELF_LETTER, formatTwoDigitValue, normalizeBackCodePrefix } from '../config/labelConfig';
-import { Button, ShelfSelect, TextField } from './FormControls';
+import {
+    SHORT_CODE_PREFIXES,
+    MAX_BAY_VALUE,
+    MAX_SHELF_LETTER,
+    formatTwoDigitValue,
+} from '../config/labelConfig';
+import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
 
-interface IBackLabelFormProps {
-    config: ILabelConfig;
-    onOpenConfiguration: () => void;
-}
+const SHORT_CODE_PREFIX_OPTIONS = SHORT_CODE_PREFIXES.map((prefix) => ({
+    key: prefix,
+    text: prefix,
+}));
 
-const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfiguration }) => {
+const BackLabelForm: React.FC = () => {
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const bayValidationMessage = `Bays must be between 1 and ${MAX_BAY_VALUE}.`;
@@ -25,6 +29,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         bay_end: null as number | null,
         shelves: null as string | null,
     });
+    const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(SHORT_CODE_PREFIXES[0]);
 
     const hasValue = (value: number | null): value is number => value !== null && Number.isInteger(value);
 
@@ -48,7 +53,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
     const generateLabelText = (): string[] => {
         const labelTexts: string[] = [];
-        const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
+        const shortCodePrefix = selectedShortCodePrefix;
 
         if (!hasValue(labelStruct.bay_start) || !hasValue(labelStruct.bay_end) || !labelStruct.shelves) {
             return [];
@@ -60,7 +65,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
 
             for (let k = 0; k < shelfCount; k++) {
                 const shelfToken = String.fromCharCode('A'.charCodeAt(0) + k);
-                const labelText = `${backCodePrefix}${bayText}${shelfToken}`;
+                const labelText = `${shortCodePrefix}${bayText}${shelfToken}`;
                 labelTexts.push(labelText);
             }
         }
@@ -100,19 +105,24 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
         setGeneratedLabels(generateLabelText());
     }
 
-    const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
-        event.preventDefault();
-        onOpenConfiguration();
-    };
-
     return (
         <div className={shellStyles.panel}>
-            <h1 className={shellStyles.panelTitle}>Generate Back Wall Labels</h1>
-            <p className={styles.sectionIntro}>Set the start bay, end bay and the last shelf required for the back wall. 
-                <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
-                <p>The prefix can be customized in the{' '}
-                    <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a></p>
+            <h1 className={shellStyles.panelTitle}>Generate FOS/BAK Labels</h1>
+            <p className={styles.sectionIntro}>Choose BAK (Back Wall) or FOS (Front Of Store) using the prefix selector.
+                <br/>Set the start bay, end bay and the last shelf required. 
+                <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.
+                </p>
             <div className={styles.stackedSections}>
+                <section className={shellStyles.sectionBox}>
+                    <h2 className={shellStyles.sectionTitle}>Prefix</h2>
+                    <RadioGroup
+                        name={`${idPrefix}-wall-type`}
+                        options={SHORT_CODE_PREFIX_OPTIONS}
+                        selectedKey={selectedShortCodePrefix}
+                        onChange={setSelectedShortCodePrefix}
+                    />
+                </section>
+
                 <section className={shellStyles.sectionBox}>
                     <h2 className={shellStyles.sectionTitle}>Bay Range ({bayRangeText})</h2>
                     <div className={styles.twoFieldGrid}>
@@ -161,7 +171,7 @@ const BackLabelForm: React.FC<IBackLabelFormProps> = ({ config, onOpenConfigurat
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" />
                     </div>
                 </div>
             )}

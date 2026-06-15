@@ -3,16 +3,11 @@ import styles from './AisleLabelForm.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
-import { ILabelConfig } from '../models/ILabelConfig';
 import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER, formatTwoDigitValue } from '../config/labelConfig';
 import { Button, RadioGroup, RadioOption, ShelfSelect, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 
-interface IAisleLabelFormProps {
-    config: ILabelConfig;
-}
-
-const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config }) => {
+const AisleLabelForm: React.FC = () => {
     const aisleRangeText = `${MIN_AISLE_VALUE}-${MAX_AISLE_VALUE}`;
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
@@ -361,7 +356,7 @@ const AisleLabelForm: React.FC<IAisleLabelFormProps> = ({ config }) => {
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode={labelPrintMode} />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} />
                     </div>
                 </div>
             )}

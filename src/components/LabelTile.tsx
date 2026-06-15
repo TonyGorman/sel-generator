@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
 import styles from './LabelApp.module.css';
-import { ILabelConfig } from '../models/ILabelConfig';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
@@ -71,7 +70,7 @@ export {
 
 interface ILabelTileProps {
   code: string;
-  config: ILabelConfig;
+  shortCodePrefix?: string;
   layoutMode?: LabelPrintMode;
 }
 
@@ -110,18 +109,16 @@ interface ILargeSelTileContentProps {
   code: string;
   primary: string;
   secondary: string;
-  backCodePrefix: string;
-  specialAisleValues?: readonly string[];
+  shortCodePrefix?: string;
 }
 
 const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
   code,
   primary,
   secondary,
-  backCodePrefix,
-  specialAisleValues,
+  shortCodePrefix,
 }) => {
-  const largeDisplayParts = getLargeSelDisplayParts(code, backCodePrefix, specialAisleValues);
+  const largeDisplayParts = getLargeSelDisplayParts(code, shortCodePrefix);
   const fallbackHeadingText = secondary || primary;
 
   return (
@@ -141,18 +138,16 @@ const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
 
 const LabelTile: React.FC<ILabelTileProps> = ({
   code,
-  config,
+  shortCodePrefix,
   layoutMode = DEFAULT_LABEL_PRINT_MODE,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const { typography } = layoutStrategy;
-  const specialAisleValues = config.specialAisleValues;
   const { primary, secondary } = getPrimaryLabelText(
     code,
-    config.backCodePrefix,
-    specialAisleValues,
+    shortCodePrefix,
   );
-  const labelValue = getEncodedLabelCode(code, config.backCodePrefix, specialAisleValues);
+  const labelValue = getEncodedLabelCode(code, shortCodePrefix);
   const isLargeSel = layoutMode === 'large-sel';
   const primaryFontSizeMm = getMiniPrimaryFontSizeMm(primary, layoutStrategy);
   const primaryCenterFromContentTopMm = getMiniPrimaryCenterFromContentTopMm(typography);
@@ -166,8 +161,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
             code={code}
             primary={primary}
             secondary={secondary}
-            backCodePrefix={config.backCodePrefix}
-            specialAisleValues={specialAisleValues}
+            shortCodePrefix={shortCodePrefix}
           />
         ) : (
           <MiniSelTileContent

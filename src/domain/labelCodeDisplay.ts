@@ -1,5 +1,4 @@
-import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix } from '../config/labelConfig';
-import type { ParsedLabelCode } from './labelCodeParser';
+import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
 import { parseLabelCode } from './labelCodeParser';
 
 const compactAisleCode = (aisle: string, side: string, bay: string, shelf: string): string => {
@@ -12,12 +11,10 @@ const compactBackCode = (prefix: string, bay: string, shelf: string): string => 
 
 export const normalizeLabelCode = (
   code: string,
-  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues?: readonly string[],
+  shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
 ): string => {
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
   const normalizedCode = code.toUpperCase();
-  const parsed = parseLabelCode(normalizedCode, normalizedPrefix, specialAisleValues);
+  const parsed = parseLabelCode(normalizedCode, shortCodePrefix);
 
   if (parsed) {
     if (parsed.kind === 'special') {
@@ -29,9 +26,9 @@ export const normalizeLabelCode = (
       return `${aisle} ${side}${bay} ${shelf}`;
     }
 
-    if (parsed.kind === 'back') {
-      const { bay, shelf } = parsed.parts;
-      return `${normalizedPrefix} ${bay} ${shelf}`;
+    if (parsed.kind === 'short') {
+      const { prefix, bay, shelf } = parsed.parts;
+      return `${prefix} ${bay} ${shelf}`;
     }
   }
 
@@ -40,13 +37,11 @@ export const normalizeLabelCode = (
 
 export const getEncodedLabelCode = (
   code: string,
-  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues?: readonly string[],
+  shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
 ): string => {
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
   const normalizedCode = code.toUpperCase();
 
-  const parsed = parseLabelCode(normalizedCode, normalizedPrefix, specialAisleValues);
+  const parsed = parseLabelCode(normalizedCode, shortCodePrefix);
   if (parsed) {
     if (parsed.kind === 'special') {
       return parsed.value;
@@ -57,9 +52,9 @@ export const getEncodedLabelCode = (
       return compactAisleCode(aisle, side, bay, shelf);
     }
 
-    if (parsed.kind === 'back') {
-      const { bay, shelf } = parsed.parts;
-      return compactBackCode(normalizedPrefix, bay, shelf);
+    if (parsed.kind === 'short') {
+      const { prefix, bay, shelf } = parsed.parts;
+      return compactBackCode(prefix, bay, shelf);
     }
   }
 
@@ -68,15 +63,13 @@ export const getEncodedLabelCode = (
 
 export const getPrimaryLabelText = (
   code: string,
-  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues?: readonly string[],
+  shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
 ): { primary: string; secondary: string } => {
 
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
   const upperCode = code.toUpperCase();
-  const secondaryDisplayValue = normalizeLabelCode(upperCode, normalizedPrefix, specialAisleValues);
+  const secondaryDisplayValue = normalizeLabelCode(upperCode, shortCodePrefix);
 
-  const parsed = parseLabelCode(upperCode, normalizedPrefix, specialAisleValues);
+  const parsed = parseLabelCode(upperCode, shortCodePrefix);
   if (parsed) {
     if (parsed.kind === 'special') {
       return {
@@ -94,7 +87,7 @@ export const getPrimaryLabelText = (
     }
 
     return {
-      primary: normalizedPrefix,
+      primary: parsed.parts.prefix,
       secondary: secondaryDisplayValue,
     };
   }
@@ -113,11 +106,9 @@ export interface ILargeLabelDisplayParts {
 
 export const getLargeSelDisplayParts = (
   code: string,
-  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues?: readonly string[],
+  shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
 ): ILargeLabelDisplayParts | null => {
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
-  const parsed = parseLabelCode(code, normalizedPrefix, specialAisleValues);
+  const parsed = parseLabelCode(code, shortCodePrefix);
 
   if (parsed?.kind === 'aisle') {
     const { aisle, side, bay, shelf } = parsed.parts;
@@ -128,10 +119,10 @@ export const getLargeSelDisplayParts = (
     };
   }
 
-  if (parsed?.kind === 'back') {
-    const { bay, shelf } = parsed.parts;
+  if (parsed?.kind === 'short') {
+    const { prefix, bay, shelf } = parsed.parts;
     return {
-      prefix: normalizedPrefix,
+      prefix,
       main: bay,
       suffix: shelf,
     };

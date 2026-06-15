@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { drawVectorPage, type JsBarcodeFn, type JsPdfInstance } from './LabelPdfExport';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
+import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
-import { ILabelGenerator } from '../models/ILabelGenerator';
 
 const MM_TO_PT = 72 / 25.4;
 const mmToPt = (mm: number): number => mm * MM_TO_PT;
@@ -36,10 +35,6 @@ const createPdfMock = () => {
   return { pdf, textCalls };
 };
 
-const config: ILabelGenerator['config'] = {
-  backCodePrefix: 'BK',
-};
-
 const jsBarcodeStub: JsBarcodeFn = (element) => {
   element.setAttribute('viewBox', '0 0 100 20');
 };
@@ -53,7 +48,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      config,
       getLabelLayoutStrategy('mini-sel'),
       jsBarcodeStub,
       svg2pdfStub,
@@ -69,7 +63,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      config,
       miniStrategy,
       jsBarcodeStub,
       svg2pdfStub,
@@ -91,7 +84,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['FLORAL'],
-      config,
       miniStrategy,
       jsBarcodeStub,
       svg2pdfStub,
@@ -113,7 +105,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['LONGSHELFTOKEN999'],
-      config,
       miniStrategy,
       jsBarcodeStub,
       svg2pdfStub,
@@ -141,7 +132,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      config,
       miniStrategy,
       jsBarcodeStub,
       svg2pdfStub,
@@ -166,7 +156,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
       svg2pdfStub,
@@ -181,7 +170,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['31L03A'],
-      config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
       svg2pdfStub,
@@ -197,14 +185,29 @@ describe('drawVectorPage', () => {
 
     await drawVectorPage(
       pdf,
-      [`${config.backCodePrefix}01A`],
-      config,
+      [`${SHORT_CODE_PREFIXES[0]}01A`],
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
       svg2pdfStub,
     );
 
-    expect(textCalls.some((call) => call.text === config.backCodePrefix)).toBe(true);
+    expect(textCalls.some((call) => call.text === SHORT_CODE_PREFIXES[0])).toBe(true);
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+  });
+
+  it('uses structured heading parts for front-of-store codes in large-sel PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      [`${SHORT_CODE_PREFIXES[1]}01A`],
+      getLabelLayoutStrategy('large-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === SHORT_CODE_PREFIXES[1])).toBe(true);
     expect(textCalls.some((call) => call.text === '01')).toBe(true);
     expect(textCalls.some((call) => call.text === 'A')).toBe(true);
   });
@@ -215,7 +218,6 @@ describe('drawVectorPage', () => {
     await drawVectorPage(
       pdf,
       ['FLORAL'],
-      config,
       getLabelLayoutStrategy('large-sel'),
       jsBarcodeStub,
       svg2pdfStub,

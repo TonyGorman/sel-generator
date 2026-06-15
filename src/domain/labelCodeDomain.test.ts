@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BACK_CODE_PREFIX, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { SHORT_CODE_PREFIXES, MAX_SHELF_LETTER } from '../config/labelConfig';
 import { validateSpecificLabelCode } from './labelCodeDomain';
 
 const defaultOptions = {
-  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues: ['KIOSK', 'FLORAL', 'SEASONAL'],
+  shortCodePrefixes: SHORT_CODE_PREFIXES,
   minAisleValue: 0,
   maxAisleValue: 99,
   maxBayValue: 99,
@@ -21,13 +20,29 @@ describe('validateSpecificLabelCode', () => {
     }
   });
 
-  it('accepts compact back labels within bounds', () => {
-    const result = validateSpecificLabelCode(`${DEFAULT_BACK_CODE_PREFIX}01A`, defaultOptions);
+  it('accepts compact short code labels within bounds', () => {
+    const result = validateSpecificLabelCode(`${SHORT_CODE_PREFIXES[0]}01A`, defaultOptions);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.parsed.kind).toBe('back');
+      expect(result.parsed.kind).toBe('short');
     }
+  });
+
+  it('accepts compact front-of-store labels within bounds', () => {
+    const result = validateSpecificLabelCode(`${SHORT_CODE_PREFIXES[1]}01A`, defaultOptions);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.parsed.kind).toBe('short');
+      expect(result.parsed.parts.prefix).toBe(SHORT_CODE_PREFIXES[1]);
+    }
+  });
+
+  it('rejects unsupported wall prefixes', () => {
+    const result = validateSpecificLabelCode('9901A', defaultOptions);
+
+    expect(result).toEqual({ ok: false, reason: 'unparseable' });
   });
 
   it('accepts allowlisted named aisle values', () => {
@@ -36,19 +51,6 @@ describe('validateSpecificLabelCode', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.parsed.kind).toBe('special');
-    }
-  });
-
-  it('accepts allowlisted named aisle values from mixed-case config', () => {
-    const result = validateSpecificLabelCode('kiosk', {
-      ...defaultOptions,
-      specialAisleValues: ['kiosk', 'FlOrAl', ' seasonal '],
-    });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.parsed.kind).toBe('special');
-      expect(result.parsed.value).toBe('KIOSK');
     }
   });
 
@@ -109,5 +111,13 @@ describe('validateSpecificLabelCode', () => {
     });
 
     expect(result).toEqual({ ok: false, reason: 'invalid-aisle-range' });
+  });
+
+  it('accepts both short code prefixes when preferred config value is set', () => {
+    const backResult = validateSpecificLabelCode(`${SHORT_CODE_PREFIXES[0]}01A`, defaultOptions);
+    const frontResult = validateSpecificLabelCode(`${SHORT_CODE_PREFIXES[1]}01A`, defaultOptions);
+
+    expect(backResult.ok).toBe(true);
+    expect(frontResult.ok).toBe(true);
   });
 });

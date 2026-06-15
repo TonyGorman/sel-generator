@@ -1,6 +1,6 @@
 import { IAisleCodeParts } from '../models/IAisleCodeParts';
-import { IBackCodeParts } from '../models/IBackCodeParts';
-import { DEFAULT_BACK_CODE_PREFIX, normalizeBackCodePrefix, normalizeSpecialAisleValue } from '../config/labelConfig';
+import { IShortCodeParts } from '../models/IShortCodeParts';
+import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES, normalizeAllowedValue, normalizePrefix } from '../config/labelConfig';
 import {
   buildCompactLabelCodePattern,
   buildCompactBackCodePattern,
@@ -9,7 +9,7 @@ import {
 export type ParsedLabelCode =
   | { kind: 'special'; value: string }
   | { kind: 'aisle'; parts: IAisleCodeParts }
-  | { kind: 'back'; parts: IBackCodeParts };
+  | { kind: 'short'; parts: IShortCodeParts };
 
 const aisleCodePattern = buildCompactLabelCodePattern();
 
@@ -23,28 +23,43 @@ const parseCompactAisleCode = (code: string): IAisleCodeParts | null => {
   return { aisle, side, bay, shelf };
 };
 
-const parseCompactBackCode = (code: string, normalizedBackCodePrefix: string): IBackCodeParts | null => {
-  const match = code.match(buildCompactBackCodePattern(normalizedBackCodePrefix));
+const parseCompactShortCode = (code: string, normalizedShortCodePrefix: string): IShortCodeParts | null => {
+  const match = code.match(buildCompactBackCodePattern(normalizedShortCodePrefix));
   if (!match) {
     return null;
   }
 
   const [, bay, shelf] = match;
   return {
+    prefix: normalizedShortCodePrefix,
     bay,
     shelf: shelf.toUpperCase(),
  	};
 };
 
+const parseCompactShortCodeByAnySupportedPrefix = (code: string, preferredPrefixes: readonly string[]): IShortCodeParts | null => {
+  const prefixes = Array.from(new Set([...preferredPrefixes, ...SHORT_CODE_PREFIXES]));
+
+  for (const prefix of prefixes) {
+    const parsed = parseCompactShortCode(code, prefix);
+    if (parsed) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
 export const parseLabelCode = (
   code: string,
-  backCodePrefix: string = DEFAULT_BACK_CODE_PREFIX,
-  specialAisleValues?: readonly string[],
+  shortCodePrefixes: string | readonly string[] = SHORT_CODE_PREFIXES,
 ): ParsedLabelCode | null => {
-  const normalizedPrefix = normalizeBackCodePrefix(backCodePrefix);
+  const preferredPrefixes = normalizePrefix(
+    Array.isArray(shortCodePrefixes) ? shortCodePrefixes : [shortCodePrefixes],
+  );
   const normalizedCode = code.toUpperCase();
 
-  const specialAisle = normalizeSpecialAisleValue(normalizedCode, specialAisleValues);
+  const specialAisle = normalizeAllowedValue(normalizedCode, SPECIAL_AISLE_VALUES);
   if (specialAisle) {
     return { kind: 'special', value: specialAisle };
   }
@@ -54,9 +69,9 @@ export const parseLabelCode = (
     return { kind: 'aisle', parts: aisleCode };
   }
 
-  const backCode = parseCompactBackCode(normalizedCode, normalizedPrefix);
-  if (backCode) {
-    return { kind: 'back', parts: backCode };
+  const shortCode = parseCompactShortCodeByAnySupportedPrefix(normalizedCode, preferredPrefixes);
+  if (shortCode) {
+    return { kind: 'short', parts: shortCode };
   }
 
   return null;

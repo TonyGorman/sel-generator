@@ -2,18 +2,13 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
-import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX, MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { SHORT_CODE_PREFIXES, MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
-  default: ({ aisles, layoutMode }: { aisles: string[]; layoutMode?: string }) => (
-    <div data-testid="generated-count" data-layout-mode={layoutMode}>{aisles.length}</div>
+  default: ({ labelCodes, layoutMode }: { labelCodes: string[]; layoutMode?: string }) => (
+    <div data-testid="generated-count" data-layout-mode={layoutMode}>{labelCodes.length}</div>
   ),
 }));
-
-const defaultConfig: ILabelConfig = {
-  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
-};
 
 describe('AisleLabelForm', () => {
   const fillInputs = (values: Record<number, string>): void => {
@@ -24,7 +19,7 @@ describe('AisleLabelForm', () => {
   };
 
   it('shows required fields error when aisle and shelves are missing', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
@@ -32,7 +27,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows aisle range validation when aisle value is out of bounds', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '100' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
@@ -44,7 +39,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows select a shelf error when shelf is not selected', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '2' });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
@@ -53,7 +48,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows error when no side range is provided', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '2' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'E' } });
@@ -64,7 +59,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows aisle order validation when start is greater than end', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '3', 1: '2', 2: '1', 3: '1' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
@@ -74,7 +69,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows side range order validation when side start is greater than side end', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '1', 2: '4', 3: '2' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
@@ -84,7 +79,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows bay upper bound validation when side range exceeds max', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '100' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
@@ -95,7 +90,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('generates labels and updates summary for valid Left and Right ranges', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({
       0: '1',
@@ -118,7 +113,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('generates labels for End and Front side ranges', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({
       0: '1',
@@ -138,7 +133,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('accepts aisle start at 0 and generates labels', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fillInputs({ 0: '0', 1: '1', 2: '1', 3: '1' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
@@ -149,7 +144,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('shows shelf section with letter options from A to MAX_SHELF_LETTER', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     const select = screen.getByRole('combobox', { name: 'Last Shelf' });
     expect(select).toBeInTheDocument();
@@ -158,7 +153,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('does not render NaN when a letter is entered into a numeric field', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: 'a' } });
@@ -168,7 +163,7 @@ describe('AisleLabelForm', () => {
   });
 
   it('passes large-sel mode to generator when Large SEL is selected', () => {
-    render(<AisleLabelForm config={defaultConfig} />);
+    render(<AisleLabelForm />);
 
     fireEvent.click(screen.getByLabelText('Large SEL'));
 

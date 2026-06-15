@@ -19,14 +19,7 @@ All labels display:
 - Primary text shown as side+bay (e.g., "R01")
 - Secondary text shown with spaces in generated Aisle/Back flows; Specific Labels preserves user-entered separators
 
-### Configuration
-
-Configure label appearance in the **Configuration** tab:
-
-- **Back Code Prefix**: Custom prefix for back-wall labels (e.g., "BK" or "99")
-- **Special Aisle Values**: Configure explicit named aisle labels (comma-separated, letters only, max 8 chars each)
-
-Shelf values are always alphabetical (`A`-`T`) across generated aisle and back-wall labels.
+Shelf values are always alphabetical (`A`-`T`) across generated aisle and back-wall labels. Special aisle values are defined in code.
 
 ### Print & Export
 

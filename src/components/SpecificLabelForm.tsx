@@ -3,28 +3,21 @@ import styles from './LabelApp.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
-import { ILabelConfig } from '../models/ILabelConfig';
 import {
+    SHORT_CODE_PREFIXES,
     MIN_AISLE_VALUE,
     MAX_AISLE_VALUE,
     MAX_BAY_VALUE,
     MAX_SHELF_LETTER,
     SPECIAL_AISLE_VALUES,
-    normalizeBackCodePrefix,
 } from '../config/labelConfig';
 import { Button, TextField } from './FormControls';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 
-interface ISpecificLabelFormProps {
-    config: ILabelConfig;
-    onOpenConfiguration: () => void;
-}
-
-const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenConfiguration }) => {
-    const specialAisleValues = config.specialAisleValues ?? [...SPECIAL_AISLE_VALUES];
+const SpecificLabelForm: React.FC = () => {
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
-    const namedAisleExamples = specialAisleValues.join(', ');
+    const namedAisleExamples = SPECIAL_AISLE_VALUES.join(', ');
 
     const [initLabelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
@@ -38,12 +31,8 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         return code.trim().toUpperCase();
     };
 
-    const backCodePrefix = normalizeBackCodePrefix(config.backCodePrefix);
-
     const isValidSpecificCode = (code: string): boolean => {
         const result = validateSpecificLabelCode(code, {
-            backCodePrefix,
-            specialAisleValues,
             minAisleValue: MIN_AISLE_VALUE,
             maxAisleValue: MAX_AISLE_VALUE,
             maxBayValue: MAX_BAY_VALUE,
@@ -67,7 +56,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, ${backCodePrefix}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}.`);
+            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, ${SHORT_CODE_PREFIXES[0]}01A, ${SHORT_CODE_PREFIXES[1]}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}`);
             setGeneratedLabels(null);
             return;
         }
@@ -76,18 +65,12 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
         setGeneratedLabels(labelTexts);
     }
 
-    const handleConfigurationLinkClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
-        event.preventDefault();
-        onOpenConfiguration();
-    };
-
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {backCodePrefix}01A, {SPECIAL_AISLE_VALUES[0]}). 
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {SHORT_CODE_PREFIXES[0]}01A, {SHORT_CODE_PREFIXES[1]}01A, {SPECIAL_AISLE_VALUES[0]}). 
                 <br/>Labels must have no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
-                <br/>Back prefix and named aisle values can be changed in the <a href="#" onClick={handleConfigurationLinkClick}>configuration section</a>.
             </p>
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
@@ -114,7 +97,7 @@ const SpecificLabelForm: React.FC<ISpecificLabelFormProps> = ({ config, onOpenCo
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator aisles={generatedLabels} config={config} layoutMode="mini-sel" />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" />
                     </div>
                 </div>
             )}

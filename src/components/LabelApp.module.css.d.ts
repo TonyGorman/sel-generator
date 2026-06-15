@@ -4,10 +4,6 @@ export type Styles = {
   'actionsRow': string;
   'barcodeGraphic': string;
   'barcodeGraphicLargeSel': string;
-  'configControlsColumn': string;
-  'configExampleBox': string;
-  'configExampleCard': string;
-  'configLayout': string;
   'encodedValue': string;
   'encodedValueLargeSel': string;
   'exportSurface': string;

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { Buffer } from 'buffer';
-import { DEFAULT_BACK_CODE_PREFIX } from './testConstants';
+import {SHORT_CODE_PREFIXES} from './testConstants';
 
 const sanitizePdfForSnapshot = (pdfBytes: Buffer): string => {
   return pdfBytes
@@ -146,10 +146,10 @@ test.describe('Label Generator regressions', () => {
   test('loads and shows primary tabs', async ({ page }) => {
     await page.goto('/');
 
+    await expect(page.getByRole('tab')).toHaveCount(3);
     await expect(page.getByRole('tab', { name: 'Specific Labels' })).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Aisle Labels' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Back Wall Labels' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Configuration' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'FOS/Bak Labels' })).toBeVisible();
   });
 
   test('Specific Labels tab shows validation message for empty submission', async ({ page }) => {
@@ -164,7 +164,7 @@ test.describe('Label Generator regressions', () => {
   test('Specific Labels generation downloads a PDF export', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByPlaceholder('Enter labels').fill(`01L01A,${DEFAULT_BACK_CODE_PREFIX}01A`);
+    await page.getByPlaceholder('Enter labels').fill(`01L01A,${SHORT_CODE_PREFIXES[0]}01A`);
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
@@ -182,7 +182,7 @@ test.describe('Label Generator regressions', () => {
 
     const compactInput = [
       '01L01A',
-      `${DEFAULT_BACK_CODE_PREFIX}01A`,
+      `${SHORT_CODE_PREFIXES[0]}01A`,
     ].join(',');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
@@ -194,7 +194,7 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
 
     await expect(page.getByText('01L01A', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(`${DEFAULT_BACK_CODE_PREFIX}01A`, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${SHORT_CODE_PREFIXES[0]}01A`, { exact: true }).first()).toBeVisible();
 
     // Separated and spaced inputs are rejected
     await page.getByPlaceholder('Enter labels').fill('01-L01-A');
@@ -206,13 +206,47 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('alert')).toHaveCount(1);
   });
 
+  test('Specific Labels accepts both Back and Front Of Store compact wall prefixes', async ({ page }) => {
+    await page.goto('/');
+
+    const mixedWallInput = [
+      `${SHORT_CODE_PREFIXES[0]}01A`,
+      `${SHORT_CODE_PREFIXES[1]}01A`,
+    ].join(',');
+
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
+    await page.getByPlaceholder('Enter labels').fill(mixedWallInput);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(page.getByText(`${SHORT_CODE_PREFIXES[0]}01A`, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${SHORT_CODE_PREFIXES[1]}01A`, { exact: true }).first()).toBeVisible();
+  });
+
   test('Back tab shows validation message for missing values', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Back Wall Labels' }).click();
+    await page.getByRole('tab', { name: 'FOS/Bak Labels' }).click();
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and select a last shelf.');
+  });
+
+  test('Back tab wall type selector generates Front Of Store compact codes', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'FOS/Bak Labels' }).click();
+    await page.getByRole('radio', { name: 'FOS' }).click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('B');
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(page.getByText(`${SHORT_CODE_PREFIXES[1]}01A`, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(`${SHORT_CODE_PREFIXES[1]}01B`, { exact: true }).first()).toBeVisible();
   });
 
   test('Aisle Labels generation updates the summary and invokes print', async ({ page }) => {
@@ -371,18 +405,7 @@ test.describe('Label Generator regressions', () => {
     expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
   });
 
-  test('configuration tab preview tile renders at correct 39mm size', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('tab', { name: 'Configuration' }).click();
-    await expect(page.getByRole('heading', { name: 'Label Configuration' })).toBeVisible();
-
-    const previewTile = page.locator('[class*="configExampleCard"]').first();
-    await expect(previewTile).toHaveScreenshot('config-tab-preview-tile.png', {
-      animations: 'disabled',
-    });
-  });
-
-  test('captures full preview of 35 labels with default configuration', async ({ page }) => {
+  test('captures full preview of 35 labels with default settings', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
     await page.goto('/');
 

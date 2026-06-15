@@ -95,43 +95,6 @@
   min-width: 220px;
 }
 
-.configExampleBox {
-  margin-top: 0;
-  flex: 1 1 auto;
-}
-
-.configExampleCard {
-  margin-top: 0;
-  max-width: 100%;
-}
-
-.configLayout {
-  display: flex;
-  align-items: flex-start;
-  gap: 32px;
-  margin-top: 8px;
-}
-
-.configControlsColumn {
-  flex: 0 0 360px;
-  min-width: 320px;
-  display: grid;
-  gap: 28px;
-}
-
-.configExampleBox :global(label) {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.configExampleCard :global(.labelBox) {
-  margin: 0;
-}
-
-.configExampleCard :global(.labelBox .barcodeGraphic) {
-  margin-bottom: var(--mini-sel-barcode-margin-bottom-mm);
-}
-
 @media (max-width: 1024px) {
   .labelAppRoot {
     width: calc(100% - 48px);
@@ -139,17 +102,6 @@
 
   .tabPanelBox {
     padding: 26px 24px;
-  }
-
-  .configLayout {
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .configControlsColumn {
-    flex-basis: auto;
-    min-width: 0;
-    width: 100%;
   }
 }
 
@@ -168,10 +120,6 @@
   .tabPanelBox {
     padding: 20px 16px;
     border-radius: 14px;
-  }
-
-  .configLayout {
-    gap: 14px;
   }
 }
 

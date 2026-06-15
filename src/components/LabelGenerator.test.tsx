@@ -2,8 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LabelGenerator from './LabelGenerator';
-import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 
 const {
@@ -95,10 +93,6 @@ vi.mock('./Pagination', () => ({
   ),
 }));
 
-const defaultConfig: ILabelConfig = {
-  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
-};
-
 describe('LabelGenerator PDF export', () => {
   beforeEach(() => {
     addPageMock.mockReset();
@@ -120,8 +114,8 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('exports all pages with vector label rendering in one landscape A4 PDF', async () => {
-    const aisles = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
+    const labelCodes = Array.from({ length: 40 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
+    render(<LabelGenerator labelCodes={labelCodes} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -147,8 +141,8 @@ describe('LabelGenerator PDF export', () => {
   it('falls back to raster page capture if vector conversion fails', async () => {
     svg2pdfMock.mockRejectedValueOnce(new Error('svg fail'));
 
-    const aisles = ['01L01A'];
-    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
+    const labelCodes = ['01L01A'];
+    render(<LabelGenerator labelCodes={labelCodes} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -172,8 +166,8 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('exports large-sel pages using portrait A4 geometry', async () => {
-    const aisles = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator aisles={aisles} config={defaultConfig} layoutMode="large-sel" />);
+    const labelCodes = Array.from({ length: 9 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
+    render(<LabelGenerator labelCodes={labelCodes} layoutMode="large-sel" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -197,8 +191,8 @@ describe('LabelGenerator PDF export', () => {
       throw new Error('pdf failed');
     });
 
-    const aisles = ['01L01A'];
-    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
+    const labelCodes = ['01L01A'];
+    render(<LabelGenerator labelCodes={labelCodes} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -209,7 +203,7 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('shows an error when no print pages are available for export', async () => {
-    render(<LabelGenerator aisles={[]} config={defaultConfig} />);
+    render(<LabelGenerator labelCodes={[]} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
@@ -220,7 +214,7 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('exposes shared Mini SEL secondary anchor geometry on the preview page style', () => {
-    const { container } = render(<LabelGenerator aisles={['01L01A']} config={defaultConfig} />);
+    const { container } = render(<LabelGenerator labelCodes={['01L01A']} />);
     const miniTypography = getLabelLayoutStrategy('mini-sel').typography;
 
     const previewPage = container.querySelector('[class*="previewPage"]');
@@ -234,8 +228,8 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('updates preview items through pagination callback', () => {
-    const aisles = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator aisles={aisles} config={defaultConfig} />);
+    const labelCodes = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
+    render(<LabelGenerator labelCodes={labelCodes} />);
 
     fireEvent.click(screen.getByTestId('pagination-trigger'));
 
@@ -245,7 +239,7 @@ describe('LabelGenerator PDF export', () => {
   it('invokes window.print when print button is clicked', () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
 
-    render(<LabelGenerator aisles={['01L01A']} config={defaultConfig} />);
+    render(<LabelGenerator labelCodes={['01L01A']} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Print Labels' }));
     expect(printSpy).toHaveBeenCalledTimes(1);
@@ -254,8 +248,8 @@ describe('LabelGenerator PDF export', () => {
   });
 
   it('shows error alert when download fails', async () => {
-    // Empty aisles to trigger error with no print pages available
-    render(<LabelGenerator aisles={[]} config={defaultConfig} />);
+    // Empty labelCodes to trigger error with no print pages available
+    render(<LabelGenerator labelCodes={[]} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 

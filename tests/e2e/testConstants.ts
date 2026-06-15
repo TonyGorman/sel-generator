@@ -1,1 +1,1 @@
-export const DEFAULT_BACK_CODE_PREFIX = 'BAK';
+export { SHORT_CODE_PREFIXES } from '../../src/config/labelConfig';

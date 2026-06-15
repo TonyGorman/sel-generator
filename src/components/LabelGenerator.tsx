@@ -17,13 +17,13 @@ const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
 };
 
 const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
-  const { aisles, config, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
+  const { labelCodes, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
   const layoutStrategy = React.useMemo(() => getLabelLayoutStrategy(layoutMode), [layoutMode]);
   const itemsPerPage = React.useMemo(() => getItemsPerPage(layoutStrategy), [layoutStrategy]);
   const pdfRef = React.useRef<HTMLDivElement>(null);
   const [loading, setLoading] = React.useState(false);
   const [downloadError, setDownloadError] = React.useState<string | null>(null);
-  const [items, setItems] = React.useState<string[]>(() => aisles.slice(0, itemsPerPage));
+  const [items, setItems] = React.useState<string[]>(() => labelCodes.slice(0, itemsPerPage));
   const [printContainer, setPrintContainer] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
@@ -44,16 +44,16 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const pagedItems = React.useMemo(() => {
     const pages: string[][] = [];
 
-    for (let index = 0; index < aisles.length; index += itemsPerPage) {
-      pages.push(aisles.slice(index, index + itemsPerPage));
+    for (let index = 0; index < labelCodes.length; index += itemsPerPage) {
+      pages.push(labelCodes.slice(index, index + itemsPerPage));
     }
 
     return pages;
-  }, [aisles, itemsPerPage]);
+  }, [labelCodes, itemsPerPage]);
 
   React.useEffect(() => {
-    setItems(aisles.slice(0, itemsPerPage));
-  }, [aisles, itemsPerPage]);
+    setItems(labelCodes.slice(0, itemsPerPage));
+  }, [labelCodes, itemsPerPage]);
 
   const handleGeneratePdf = React.useCallback(async (): Promise<void> => {
     setDownloadError(null);
@@ -96,7 +96,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         const pageItems = pagedItems[index] ?? [];
 
         try {
-            await drawVectorPage(pdf, pageItems, config, layoutStrategy, JsBarcode as unknown as JsBarcodeFn, svg2pdf);
+            await drawVectorPage(pdf, pageItems, layoutStrategy, JsBarcode as unknown as JsBarcodeFn, svg2pdf);
         } catch {
           // Fallback preserves download even if SVG vector conversion fails in a browser runtime.
           await drawRasterPage(pdf, pageElement, pageWidthMm, pageHeightMm);
@@ -109,7 +109,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     } finally {
       setLoading(false);
     }
-  }, [config, layoutStrategy, pagedItems]);
+  }, [layoutStrategy, pagedItems]);
 
   const handlePageChange = React.useCallback((currentItems: string[]): void => {
     setItems(currentItems);
@@ -127,14 +127,14 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const renderLabelGrid = React.useCallback(
     (labels: string[], className?: string): React.ReactElement => (
       <div className={className ?? styles.labelDiv}>
-        {labels.map((aisle: string, index: number) => {
+        {labels.map((labelCode: string, index: number) => {
           return (
-            <LabelTile key={`${aisle}-${index}`} code={aisle} config={config} layoutMode={layoutStrategy.mode} />
+            <LabelTile key={`${labelCode}-${index}`} code={labelCode} layoutMode={layoutStrategy.mode} />
           );
         })}
       </div>
     ),
-    [config, layoutStrategy.mode],
+    [layoutStrategy.mode],
   );
 
 
@@ -183,7 +183,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
           {renderLabelGrid(items)}
         </div>
       </div>
-      {aisles.length > itemsPerPage && <Pagination data={aisles} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} />}
+      {labelCodes.length > itemsPerPage && <Pagination data={labelCodes} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} />}
     </>
   );
 };

@@ -1,4 +1,3 @@
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
 import type { ParsedLabelCode } from './labelCodeParser';
 import { parseLabelCode } from './labelCodeParser';
 
@@ -13,7 +12,7 @@ export type SpecificLabelValidationErrorReason =
 export type SpecificLabelValidationResult =
   | {
     ok: true;
-    parsed: Extract<ParsedLabelCode, { kind: 'special' | 'aisle' | 'back' }>;
+    parsed: Extract<ParsedLabelCode, { kind: 'special' | 'aisle' | 'short' }>;
   }
   | {
     ok: false;
@@ -21,8 +20,7 @@ export type SpecificLabelValidationResult =
   };
 
 export interface ISpecificLabelValidationOptions {
-  backCodePrefix?: string;
-  specialAisleValues?: readonly string[];
+  shortCodePrefixes?: readonly string[];
   minAisleValue: number;
   maxAisleValue: number;
   maxBayValue: number;
@@ -63,8 +61,7 @@ export const validateSpecificLabelCode = (
 
   const parsed = parseLabelCode(
     normalizedCode,
-    options.backCodePrefix,
-    options.specialAisleValues,
+    options.shortCodePrefixes,
   );
 
   if (!parsed) {
@@ -92,7 +89,7 @@ export const validateSpecificLabelCode = (
     return { ok: true, parsed };
   }
 
-  if (parsed.kind === 'back') {
+  if (parsed.kind === 'short') {
     const { bay, shelf } = parsed.parts;
     if (!isBoundedTwoDigitNumber(bay, options.maxBayValue)) {
       return { ok: false, reason: 'invalid-bay-range' };

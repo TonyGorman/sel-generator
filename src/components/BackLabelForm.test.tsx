@@ -2,22 +2,19 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackLabelForm from './BackLabelForm';
-import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { SHORT_CODE_PREFIXES, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
-  default: ({ aisles }: { aisles: string[] }) => (
-    <div data-testid="generated-labels">{aisles.join('|')}</div>
+  default: ({ labelCodes }: { labelCodes: string[] }) => (
+    <div data-testid="generated-labels">{labelCodes.join('|')}</div>
   ),
 }));
 
-const defaultConfig: ILabelConfig = {
-  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
-};
+const defaultShortCodePrefix = SHORT_CODE_PREFIXES[0];
 
 describe('BackLabelForm', () => {
   it('shows validation error when fields are missing', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
@@ -25,7 +22,7 @@ describe('BackLabelForm', () => {
   });
 
   it('shows validation error when start bay is greater than end bay', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '5' } });
@@ -37,7 +34,7 @@ describe('BackLabelForm', () => {
   });
 
   it('generates expected back wall codes for range and shelves', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
@@ -46,11 +43,11 @@ describe('BackLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${DEFAULT_BACK_CODE_PREFIX}01A|${DEFAULT_BACK_CODE_PREFIX}01B|${DEFAULT_BACK_CODE_PREFIX}02A|${DEFAULT_BACK_CODE_PREFIX}02B`);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${SHORT_CODE_PREFIXES[0]}01A|${SHORT_CODE_PREFIXES[0]}01B|${SHORT_CODE_PREFIXES[0]}02A|${SHORT_CODE_PREFIXES[0]}02B`);
   });
 
   it('shows validation error when bay start is below 1', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '0' } });
@@ -64,7 +61,7 @@ describe('BackLabelForm', () => {
   });
 
   it('shows shelf select with letters A through MAX_SHELF_LETTER', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     const select = screen.getByRole('combobox', { name: 'Last Shelf' });
     expect(select).toBeInTheDocument();
@@ -72,8 +69,10 @@ describe('BackLabelForm', () => {
     expect(screen.getByRole('option', { name: MAX_SHELF_LETTER })).toBeInTheDocument();
   });
 
-  it('generates codes with configured Back prefix', () => {
-    render(<BackLabelForm config={{ ...defaultConfig, backCodePrefix: '99' }} onOpenConfiguration={vi.fn()} />);
+  it('switches wall type to Front and generates FOS labels', () => {
+    render(<BackLabelForm />);
+
+    fireEvent.click(screen.getByLabelText('FOS'));
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
@@ -82,20 +81,11 @@ describe('BackLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByTestId('generated-labels')).toHaveTextContent('9901A|9901B');
-  });
-
-  it('opens configuration when configuration section link is clicked', () => {
-    const onOpenConfiguration = vi.fn();
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={onOpenConfiguration} />);
-
-    fireEvent.click(screen.getByRole('link', { name: 'configuration section' }));
-
-    expect(onOpenConfiguration).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent('FOS01A|FOS01B');
   });
 
   it('does not render NaN when a letter is entered into a numeric field', () => {
-    render(<BackLabelForm config={defaultConfig} onOpenConfiguration={vi.fn()} />);
+    render(<BackLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: 'a' } });

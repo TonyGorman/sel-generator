@@ -4,15 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { axe } from 'vitest-axe';
 import AisleLabelForm from './AisleLabelForm';
 import BackLabelForm from './BackLabelForm';
-import ConfigureLabelForm from './ConfigureLabelForm';
 import LabelApp from './LabelApp';
 import SpecificLabelForm from './SpecificLabelForm';
-import { ILabelConfig } from '../models/ILabelConfig';
-import { DEFAULT_BACK_CODE_PREFIX } from '../config/labelConfig';
-
-const defaultConfig: ILabelConfig = {
-  backCodePrefix: DEFAULT_BACK_CODE_PREFIX,
-};
 
 const expectNoAxeViolations = async (container: HTMLElement): Promise<void> => {
   const results = await axe(container);
@@ -28,7 +21,7 @@ describe('Accessibility checks', () => {
 
   it('has no axe violations in SpecificLabelForm', async () => {
     const { container } = render(
-      <SpecificLabelForm config={defaultConfig} onOpenConfiguration={() => undefined} />,
+      <SpecificLabelForm />,
     );
 
     await expectNoAxeViolations(container);
@@ -36,7 +29,7 @@ describe('Accessibility checks', () => {
 
   it('has no axe violations in AisleLabelForm', async () => {
     const { container } = render(
-      <AisleLabelForm config={defaultConfig} />,
+      <AisleLabelForm />,
     );
 
     await expectNoAxeViolations(container);
@@ -44,17 +37,10 @@ describe('Accessibility checks', () => {
 
   it('has no axe violations in BackLabelForm', async () => {
     const { container } = render(
-      <BackLabelForm config={defaultConfig} onOpenConfiguration={() => undefined} />,
+      <BackLabelForm />,
     );
 
     await expectNoAxeViolations(container);
   });
 
-  it('has no axe violations in ConfigureLabelForm', async () => {
-    const { container } = render(
-      <ConfigureLabelForm config={defaultConfig} onConfigChange={() => undefined} />,
-    );
-
-    await expectNoAxeViolations(container);
-  });
 });
