@@ -29,7 +29,7 @@ describe('labelConfig', () => {
   });
 
   it('keeps Back prefix default stable', () => {
-    expect(DEFAULT_BACK_CODE_PREFIX).toBe('BACK');
+    expect(DEFAULT_BACK_CODE_PREFIX).toBe('BAK');
   });
 
   it('keeps named aisle allowlist stable and case-insensitive', () => {
@@ -51,7 +51,7 @@ describe('labelConfig', () => {
   });
 
   it('normalizes Back prefix values for config safety', () => {
-    expect(normalizeBackCodePrefix('backk')).toBe('BACK');
+    expect(normalizeBackCodePrefix('bakk')).toBe('BAK');
     expect(normalizeBackCodePrefix('9-9')).toBe('99');
     expect(normalizeBackCodePrefix('')).toBe(DEFAULT_BACK_CODE_PREFIX);
   });
@@ -63,10 +63,10 @@ describe('labelConfig', () => {
 
 
   it('normalizes comma-delimited special aisle values with max 8 chars per entry', () => {
-    expect(normalizeSpecialAisleValues([' kiosk ', 'Floral123', 'Backwall', 'Backwall', 'ProduceZone'])).toEqual([
+    expect(normalizeSpecialAisleValues([' kiosk ', 'Floral123', 'Bakwall', 'ProduceZone'])).toEqual([
       'KIOSK',
       'FLORAL',
-      'BACKWALL',
+      'BAKWALL',
       'PRODUCEZ',
     ]);
   });

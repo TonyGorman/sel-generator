@@ -2,7 +2,7 @@ export const MIN_AISLE_VALUE = 0;
 export const MAX_AISLE_VALUE = 99;
 export const MAX_BAY_VALUE = 99;
 export const MAX_SHELF_LETTER = 'L';
-export const DEFAULT_BACK_CODE_PREFIX = 'BACK';
+export const DEFAULT_BACK_CODE_PREFIX = 'BAK';
 export const SPECIAL_AISLE_VALUES = ['KIOSK', 'FLORAL', 'SEASONAL'] as const;
 const BACK_CODE_PREFIX_MAX_LENGTH = DEFAULT_BACK_CODE_PREFIX.length;
 
