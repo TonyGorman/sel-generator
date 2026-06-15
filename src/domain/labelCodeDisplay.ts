@@ -93,9 +93,8 @@ export const getPrimaryLabelText = (
       };
     }
 
-    const { bay } = parsed.parts;
     return {
-      primary: `${normalizedPrefix}${bay}`,
+      primary: normalizedPrefix,
       secondary: secondaryDisplayValue,
     };
   }

@@ -98,7 +98,7 @@ describe('LabelTile helpers', () => {
     expect(
       getPrimaryLabelText(`${DEFAULT_BACK_CODE_PREFIX}01A`),
     ).toEqual({
-      primary: `${DEFAULT_BACK_CODE_PREFIX}01`,
+      primary: DEFAULT_BACK_CODE_PREFIX,
       secondary: `${DEFAULT_BACK_CODE_PREFIX} 01 A`,
     });
   });
@@ -107,7 +107,7 @@ describe('LabelTile helpers', () => {
     expect(
       getPrimaryLabelText('9901A', '99'),
     ).toEqual({
-      primary: '9901',
+      primary: '99',
       secondary: '99 01 A',
     });
   });
