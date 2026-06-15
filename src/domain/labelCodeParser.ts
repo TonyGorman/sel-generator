@@ -3,7 +3,7 @@ import { IShortCodeParts } from '../models/IShortCodeParts';
 import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES, normalizeAllowedValue, normalizePrefix } from '../config/labelConfig';
 import {
   buildCompactLabelCodePattern,
-  buildCompactBackCodePattern,
+  buildCompactShortCodePattern,
 } from '../components/labelCodePatterns';
 
 export type ParsedLabelCode =
@@ -24,7 +24,7 @@ const parseCompactAisleCode = (code: string): IAisleCodeParts | null => {
 };
 
 const parseCompactShortCode = (code: string, normalizedShortCodePrefix: string): IShortCodeParts | null => {
-  const match = code.match(buildCompactBackCodePattern(normalizedShortCodePrefix));
+  const match = code.match(buildCompactShortCodePattern(normalizedShortCodePrefix));
   if (!match) {
     return null;
   }

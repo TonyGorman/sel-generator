@@ -5,7 +5,7 @@ import {
   BAY_TOKEN_PATTERN,
   SHELF_TOKEN_PATTERN,
   buildCompactLabelCodePattern,
-  buildCompactBackCodePattern,
+  buildCompactShortCodePattern,
 } from './labelCodePatterns';
 
 describe('labelCodePatterns', () => {
@@ -24,15 +24,15 @@ describe('labelCodePatterns', () => {
     expect(pattern.test('01L011')).toBe(false);
   });
 
-  it('matches compact back labels with uppercase normalized prefixes', () => {
-    const pattern = buildCompactBackCodePattern('BACK');
+  it('matches compact short codes with uppercase normalized prefixes', () => {
+    const pattern = buildCompactShortCodePattern('BACK');
 
     expect(pattern.test('BACK01A')).toBe(true);
     expect(pattern.test('back01A')).toBe(false);
   });
 
-  it('escapes regex characters in custom back prefixes', () => {
-    const pattern = buildCompactBackCodePattern('B+');
+  it('escapes regex characters in custom short code prefixes', () => {
+    const pattern = buildCompactShortCodePattern('B+');
 
     expect(pattern.test('B+01A')).toBe(true);
     expect(pattern.test('BB01A')).toBe(false);

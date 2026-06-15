@@ -33,7 +33,7 @@ describe('BackLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Start bay cannot be greater than end bay.');
   });
 
-  it('generates expected back wall codes for range and shelves', () => {
+  it('generates expected short codes for range and shelves', () => {
     render(<BackLabelForm />);
 
     const inputs = screen.getAllByRole('textbox');

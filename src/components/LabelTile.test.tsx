@@ -21,7 +21,7 @@ describe('LabelTile helpers', () => {
     expect(normalizeLabelCode('01L01A')).toBe('01 L01 A');
   });
 
-  it('formats compact back wall code into spaced display output', () => {
+  it('formats compact short code into spaced display output', () => {
     expect(normalizeLabelCode(`${SHORT_CODE_PREFIXES[0]}01A`)).toBe(`${SHORT_CODE_PREFIXES[0]} 01 A`);
   });
 

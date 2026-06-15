@@ -99,7 +99,7 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('rejects separated back wall input (dashes not allowed)', () => {
+  it('rejects separated short code input (dashes not allowed)', () => {
     render(<SpecificLabelForm />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
