@@ -1,6 +1,6 @@
 import { IAisleCodeParts } from '../models/IAisleCodeParts';
 import { IShortCodeParts } from '../models/IShortCodeParts';
-import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES, normalizeAllowedValue, normalizePrefix } from '../config/labelConfig';
+import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES, isShortCodePrefix, normalizeAllowedValue, normalizePrefix } from '../config/labelConfig';
 import {
   buildCompactLabelCodePattern,
   buildCompactShortCodePattern,
@@ -37,8 +37,13 @@ const parseCompactShortCode = (code: string, normalizedShortCodePrefix: string):
  	};
 };
 
+const filterConfiguredShortCodePrefixes = (prefixes: readonly string[]): string[] => {
+  return prefixes.filter((prefix) => isShortCodePrefix(prefix));
+};
+
 const parseCompactShortCodeByAnySupportedPrefix = (code: string, preferredPrefixes: readonly string[]): IShortCodeParts | null => {
-  const prefixes = Array.from(new Set([...preferredPrefixes, ...SHORT_CODE_PREFIXES]));
+  const configuredPreferredPrefixes = filterConfiguredShortCodePrefixes(preferredPrefixes);
+  const prefixes = Array.from(new Set([...configuredPreferredPrefixes, ...SHORT_CODE_PREFIXES]));
 
   for (const prefix of prefixes) {
     const parsed = parseCompactShortCode(code, prefix);

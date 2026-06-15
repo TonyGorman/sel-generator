@@ -45,6 +45,15 @@ describe('validateSpecificLabelCode', () => {
     expect(result).toEqual({ ok: false, reason: 'unparseable' });
   });
 
+  it('rejects codes with prefixes that are not configured, even when passed as preferred prefixes', () => {
+    const result = validateSpecificLabelCode('BACK01A', {
+      ...defaultOptions,
+      shortCodePrefixes: ['BACK'],
+    });
+
+    expect(result).toEqual({ ok: false, reason: 'unparseable' });
+  });
+
   it('accepts allowlisted named aisle values', () => {
     const result = validateSpecificLabelCode('kiosk', defaultOptions);
 

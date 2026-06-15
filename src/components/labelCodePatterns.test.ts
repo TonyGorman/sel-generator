@@ -25,10 +25,10 @@ describe('labelCodePatterns', () => {
   });
 
   it('matches compact short codes with uppercase normalized prefixes', () => {
-    const pattern = buildCompactShortCodePattern('BACK');
+    const pattern = buildCompactShortCodePattern('BAK');
 
-    expect(pattern.test('BACK01A')).toBe(true);
-    expect(pattern.test('back01A')).toBe(false);
+    expect(pattern.test('BAK01A')).toBe(true);
+    expect(pattern.test('bak01A')).toBe(false);
   });
 
   it('escapes regex characters in custom short code prefixes', () => {
