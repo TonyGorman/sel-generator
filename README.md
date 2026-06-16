@@ -10,7 +10,7 @@ The app provides three workflows for generating shelf edge labels:
 
 - **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (e.g. `01L01A`). Spaces and dashes are not accepted.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
-- **Short Code  Labels**: Generate labels for back wall and front of store merchandise, with custom prefix support.
+- **Short Code  Labels**: Generate labels for back wall or front of store items, with custom prefix support.
 
 All labels display:
 
