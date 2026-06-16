@@ -1,4 +1,4 @@
-# barcode-generator
+# SEL Generator
 
 Generate Shelf Edge Labels for printing.
 
@@ -6,7 +6,7 @@ Generate Shelf Edge Labels for printing.
 
 ### Label Generation
 
-The app provides three workflows for generating barcode labels:
+The app provides three workflows for generating shelf edge labels:
 
 - **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (e.g. `01L01A`). Spaces and dashes are not accepted.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
@@ -17,7 +17,7 @@ All labels display:
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
 - Encoded barcode value as readable text below the barcode for visual verification
 - Primary text shown as side+bay (e.g., "R01")
-- Secondary text shown with spaces in generated Aisle/Back flows; Specific Labels preserves user-entered separators
+- Secondary text shown with spaces in generated Aisle/Back flows
 
 Shelf values are always alphabetical (`A`-`T`) across generated aisle and short code labels. Special aisle values are defined in code.
 
@@ -30,7 +30,7 @@ Shelf values are always alphabetical (`A`-`T`) across generated aisle and short 
 
 - The vector PDF export path uses jsPDF built-in **Helvetica** for label text.
 - This is intentional for broad cross-platform support (Windows/macOS/Linux) without requiring system fonts.
-- Do not switch to non-built-in font names (for example Calibri) unless the font is explicitly embedded/registered in jsPDF.
+- **Do not** switch to non-built-in font names (for example Calibri) unless the font is explicitly embedded/registered in jsPDF.
 
 ## Build and Publish
 
@@ -86,7 +86,7 @@ Deployment to GitHub Pages runs only after those checks pass, and only for pushe
 3. Set Source to GitHub Actions.
 4. Wait for the `Deploy to GitHub Pages` workflow to finish.
 
-Your site will be available at [https://tonygorman.github.io/barcode-generator/](https://tonygorman.github.io/barcode-generator/)
+The site will be available at [https://tonygorman.github.io/barcode-generator/](https://tonygorman.github.io/barcode-generator/)
 
 ## Testing
 
@@ -179,7 +179,7 @@ The barcode payload is always stored and encoded in **compact format (no dashes 
 
 ### Input Format Normalization
 
-Users can input label codes in any supported format—the barcode encoder normalizes all to compact form:
+Users can input label codes in any supported format — the barcode encoder normalizes all to compact form:
 
 | Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Short code Labels) |
 |---|---|---|---|---|

@@ -32,7 +32,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Barcode Encoding Rules
 
 - **Only compact input is accepted** (no dashes or spaces in user input).
-- Compact input (`01L01A`, `BACK01A`, `KIOSK`) is parsed directly to constituent parts (aisle, side, bay, shelf).
+- Compact input (`01L01A`, `BAK01A`, `KIOSK`) is parsed directly to constituent parts (aisle, side, bay, shelf).
 - Shelf tokens are **alphabetical only** (`A`-`T`) for aisle and short label codes.
 - **Barcode payload is always compact**, identical to the input after uppercasing.
 - Display text (human-readable secondary line) uses spaces for visual treatment only — this is a rendering concern, not an input format.
