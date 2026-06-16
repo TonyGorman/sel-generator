@@ -44,7 +44,16 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/components/**/*.ts', 'src/components/**/*.tsx', 'src/config/**/*.ts']
+      include: [
+        'src/components/**/*.ts',
+        'src/components/**/*.tsx',
+        'src/config/**/*.ts',
+        'src/domain/**/*.ts',
+      ],
+      exclude: [
+        'src/**/*.module.css.d.ts',
+        'src/domain/labelCodeDomain.ts',
+      ],
     }
   }
 })

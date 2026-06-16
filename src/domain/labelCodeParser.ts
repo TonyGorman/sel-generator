@@ -4,7 +4,7 @@ import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES, isShortCodePrefix, normalize
 import {
   buildCompactLabelCodePattern,
   buildCompactShortCodePattern,
-} from '../components/labelCodePatterns';
+} from './labelCodePatterns';
 
 export type ParsedLabelCode =
   | { kind: 'special'; value: string }

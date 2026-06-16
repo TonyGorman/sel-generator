@@ -6,7 +6,7 @@ import {
   SHELF_TOKEN_PATTERN,
   buildCompactLabelCodePattern,
   buildCompactShortCodePattern,
-} from './labelCodePatterns';
+} from '../domain/labelCodePatterns';
 
 describe('labelCodePatterns', () => {
   it('keeps aisle token pattern numeric-only', () => {

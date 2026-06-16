@@ -157,6 +157,157 @@ const drawLargeSelHeading = (
   );
 };
 
+interface IVectorTileContext {
+  pdf: JsPdfInstance;
+  code: string;
+  x: number;
+  y: number;
+  layoutStrategy: ILabelLayoutStrategy;
+  jsBarcode: JsBarcodeFn;
+  svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>;
+}
+
+const drawMiniSelTile = async ({
+  pdf,
+  code,
+  x,
+  y,
+  layoutStrategy,
+  jsBarcode,
+  svg2pdf,
+}: IVectorTileContext): Promise<void> => {
+  const { page, typography, barcodeGeometry } = layoutStrategy;
+  const { primary, secondary } = getPrimaryLabelText(code);
+  const encodedValue = getEncodedLabelCode(code);
+
+  const measurePdfPrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
+    if (!text) {
+      return 0;
+    }
+
+    if (!pdf.getTextWidth) {
+      return estimatePrimaryTextWidthMm(text, fontSizeMm, letterSpacingMm);
+    }
+
+    setPdfBoldFont(pdf);
+    pdf.setFontSize(mmToPt(fontSizeMm));
+    const glyphWidth = pdf.getTextWidth(text);
+    const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
+    return glyphWidth + spacingWidth;
+  };
+  const primaryFontSizeMm = fitMiniPrimaryFontSizeMm(primary, layoutStrategy, measurePdfPrimaryTextWidthMm);
+
+  setPdfBoldFont(pdf);
+  pdf.setFontSize(mmToPt(primaryFontSizeMm));
+  pdf.setCharSpace(typography.primaryLetterSpacingMm);
+  const primaryBaselineY = y + getPdfBaselineFromCenterMm(
+    typography.primaryCenterFromTileTopMm,
+    primaryFontSizeMm,
+    typography.pdfTextBaselineOffsetFactor,
+  );
+  pdf.text(primary, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
+
+  if (secondary) {
+    setPdfBoldFont(pdf);
+    pdf.setFontSize(mmToPt(typography.secondaryTextSizeMm));
+    pdf.setCharSpace(0);
+    pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.secondaryBaselineFromTileTopMm, { align: 'center' });
+  }
+
+  const barcodeY =
+    y +
+    page.labelHeightMm -
+    typography.tilePaddingBottomMm -
+    barcodeGeometry.marginBottomMm -
+    barcodeGeometry.heightMm;
+  const centeredBarcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
+  await drawVectorBarcode(
+    pdf,
+    svg2pdf,
+    jsBarcode,
+    encodedValue,
+    centeredBarcodeX,
+    barcodeY,
+    barcodeGeometry.widthMm,
+    barcodeGeometry.heightMm,
+    typography.barcodeModuleThicknessMm,
+  );
+
+  // Keep encoded payload visible under the barcode for print/download parity.
+  setPdfBoldFont(pdf);
+  pdf.setFontSize(mmToPt(MINI_ENCODED_TEXT_SIZE_MM));
+  pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
+  pdf.text(
+    encodedValue,
+    x + page.labelWidthMm / 2,
+    barcodeY +
+    barcodeGeometry.heightMm +
+    barcodeGeometry.marginBottomMm / 2 +
+    MINI_ENCODED_TEXT_SIZE_MM * typography.pdfEncodedTextBaselineOffsetFactor,
+    { align: 'center' },
+  );
+};
+
+const drawLargeSelTile = async ({
+  pdf,
+  code,
+  x,
+  y,
+  layoutStrategy,
+  jsBarcode,
+  svg2pdf,
+}: IVectorTileContext): Promise<void> => {
+  const { page, typography, barcodeGeometry } = layoutStrategy;
+  const { primary, secondary } = getPrimaryLabelText(code);
+  const encodedValue = getEncodedLabelCode(code);
+  const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
+  const barcodeY =
+    y +
+    page.labelHeightMm -
+    typography.tilePaddingBottomMm -
+    barcodeGeometry.marginBottomMm -
+    barcodeGeometry.heightMm;
+  const topAreaStartY = y + typography.tilePaddingTopMm;
+  const topAreaHeight = barcodeY - topAreaStartY;
+
+  drawLargeSelHeading(
+    pdf,
+    primary,
+    secondary,
+    x + page.labelWidthMm / 2,
+    topAreaStartY,
+    topAreaHeight,
+    layoutStrategy,
+    code,
+  );
+
+  await drawVectorBarcode(
+    pdf,
+    svg2pdf,
+    jsBarcode,
+    encodedValue,
+    barcodeX,
+    barcodeY,
+    barcodeGeometry.widthMm,
+    barcodeGeometry.heightMm,
+    typography.barcodeModuleThicknessMm,
+  );
+
+  // Keep encoded payload visible under the barcode for print/download parity.
+  setPdfBoldFont(pdf);
+  pdf.setFontSize(mmToPt(LARGE_ENCODED_TEXT_SIZE_MM));
+  pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
+  pdf.text(
+    encodedValue,
+    x + page.labelWidthMm / 2,
+    barcodeY +
+    barcodeGeometry.heightMm +
+    barcodeGeometry.marginBottomMm / 2 +
+    LARGE_ENCODED_TEXT_SIZE_MM * typography.pdfEncodedTextBaselineOffsetFactor,
+    { align: 'center' },
+  );
+};
+
 export const drawVectorPage = async (
   pdf: JsPdfInstance,
   pageItems: string[],
@@ -164,8 +315,7 @@ export const drawVectorPage = async (
   jsBarcode: JsBarcodeFn,
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>,
 ): Promise<void> => {
-  const { page, typography } = layoutStrategy;
-  const { barcodeGeometry } = layoutStrategy;
+  const { page } = layoutStrategy;
 
   pdf.setLineWidth(0.2);
   pdf.setDrawColor(140);
@@ -179,128 +329,17 @@ export const drawVectorPage = async (
     const x = page.pagePadLeftMm + column * page.labelWidthMm;
     const y = page.pagePadTopMm + row * page.labelHeightMm;
 
-    const { primary, secondary } = getPrimaryLabelText(code);
-
     pdf.rect(x, y, page.labelWidthMm, page.labelHeightMm);
-    const encodedValue = getEncodedLabelCode(code);
-
-    if (layoutStrategy.mode === 'large-sel') {
-      const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
-      const barcodeY =
-        y +
-        page.labelHeightMm -
-        typography.tilePaddingBottomMm -
-        barcodeGeometry.marginBottomMm -
-        barcodeGeometry.heightMm;
-      const topAreaStartY = y + typography.tilePaddingTopMm;
-      const topAreaHeight = barcodeY - topAreaStartY;
-
-      drawLargeSelHeading(
-        pdf,
-        primary,
-        secondary,
-        x + page.labelWidthMm / 2,
-        topAreaStartY,
-        topAreaHeight,
-        layoutStrategy,
-        code,
-      );
-
-      await drawVectorBarcode(
-        pdf,
-        svg2pdf,
-        jsBarcode,
-        encodedValue,
-        barcodeX,
-        barcodeY,
-        barcodeGeometry.widthMm,
-        barcodeGeometry.heightMm,
-        typography.barcodeModuleThicknessMm,
-      );
-
-      // Keep encoded payload visible under the barcode for print/download parity.
-      setPdfBoldFont(pdf);
-      pdf.setFontSize(mmToPt(LARGE_ENCODED_TEXT_SIZE_MM));
-      pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
-      pdf.text(
-        encodedValue,
-        x + page.labelWidthMm / 2,
-        barcodeY +
-        barcodeGeometry.heightMm +
-        barcodeGeometry.marginBottomMm / 2 +
-        LARGE_ENCODED_TEXT_SIZE_MM * typography.pdfEncodedTextBaselineOffsetFactor,
-        { align: 'center' },
-      );
-
-      continue;
-    }
-
-    const measurePdfPrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
-      if (!text) {
-        return 0;
-      }
-
-      if (!pdf.getTextWidth) {
-        return estimatePrimaryTextWidthMm(text, fontSizeMm, letterSpacingMm);
-      }
-
-      setPdfBoldFont(pdf);
-      pdf.setFontSize(mmToPt(fontSizeMm));
-      const glyphWidth = pdf.getTextWidth(text);
-      const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
-      return glyphWidth + spacingWidth;
-    };
-    const primaryFontSizeMm = fitMiniPrimaryFontSizeMm(primary, layoutStrategy, measurePdfPrimaryTextWidthMm);
-
-    setPdfBoldFont(pdf);
-    pdf.setFontSize(mmToPt(primaryFontSizeMm));
-    pdf.setCharSpace(typography.primaryLetterSpacingMm);
-    const primaryBaselineY = y + getPdfBaselineFromCenterMm(
-      typography.primaryCenterFromTileTopMm,
-      primaryFontSizeMm,
-      typography.pdfTextBaselineOffsetFactor,
-    );
-    pdf.text(primary, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
-
-    if (secondary) {
-      setPdfBoldFont(pdf);
-      pdf.setFontSize(mmToPt(typography.secondaryTextSizeMm));
-      pdf.setCharSpace(0);
-      pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.secondaryBaselineFromTileTopMm, { align: 'center' });
-    }
-
-    const barcodeY =
-      y +
-      page.labelHeightMm -
-      typography.tilePaddingBottomMm -
-      barcodeGeometry.marginBottomMm -
-      barcodeGeometry.heightMm;
-    const centeredBarcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
-    await drawVectorBarcode(
+    const drawTile = layoutStrategy.mode === 'large-sel' ? drawLargeSelTile : drawMiniSelTile;
+    await drawTile({
       pdf,
-      svg2pdf,
+      code,
+      x,
+      y,
+      layoutStrategy,
       jsBarcode,
-      encodedValue,
-      centeredBarcodeX,
-      barcodeY,
-      barcodeGeometry.widthMm,
-      barcodeGeometry.heightMm,
-      typography.barcodeModuleThicknessMm,
-    );
-
-    // Keep encoded payload visible under the barcode for print/download parity.
-    setPdfBoldFont(pdf);
-    pdf.setFontSize(mmToPt(MINI_ENCODED_TEXT_SIZE_MM));
-    pdf.setCharSpace(ENCODED_TEXT_LETTER_SPACING_MM);
-    pdf.text(
-      encodedValue,
-      x + page.labelWidthMm / 2,
-      barcodeY +
-      barcodeGeometry.heightMm +
-      barcodeGeometry.marginBottomMm / 2 +
-      MINI_ENCODED_TEXT_SIZE_MM * typography.pdfEncodedTextBaselineOffsetFactor,
-      { align: 'center' },
-    );
+      svg2pdf,
+    });
   }
 };
 

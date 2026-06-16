@@ -1,13 +1,44 @@
-export const MIN_AISLE_VALUE = 0;
-export const MAX_AISLE_VALUE = 99;
-export const MAX_BAY_VALUE = 99;
-export const MAX_SHELF_LETTER = 'L';
-export const SHORT_CODE_PREFIXES = ['BAK', 'FOS'] as const;
-export const SPECIAL_AISLE_VALUES = ['FLORAL', 'KIOSK', 'SEASONAL'] as const;
+export const LABEL_CONSTRAINTS = {
+	aisle: {
+		min: 0,
+		max: 99,
+		specialValues: ['FLORAL', 'KIOSK', 'SEASONAL'] as const,
+	},
+	bay: {
+		min: 1,
+		max: 99,
+	},
+	shelf: {
+		min: 'A',
+		max: 'L',
+	},
+	shortCode: {
+		prefixes: ['BAK', 'FOS'] as const,
+	},
+	pdfExport: {
+		// Conservative raster export profile to preserve label edge fidelity.
+		scale: 3,
+		imageCompression: 'NONE' as const,
+	},
+	labelGeneration: {
+		softLimit: 500,
+		hardLimit: 1000,
+	},
+} as const;
 
-// Conservative raster export profile to preserve label edge fidelity.
-export const PDF_EXPORT_SCALE = 3;
-export const PDF_IMAGE_COMPRESSION = 'NONE' as const;
+export const MIN_AISLE_VALUE = LABEL_CONSTRAINTS.aisle.min;
+export const MAX_AISLE_VALUE = LABEL_CONSTRAINTS.aisle.max;
+export const MIN_BAY_VALUE = LABEL_CONSTRAINTS.bay.min;
+export const MAX_BAY_VALUE = LABEL_CONSTRAINTS.bay.max;
+export const MIN_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.min;
+export const MAX_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.max;
+export const SHORT_CODE_PREFIXES = LABEL_CONSTRAINTS.shortCode.prefixes;
+export const SPECIAL_AISLE_VALUES = LABEL_CONSTRAINTS.aisle.specialValues;
+
+export const PDF_EXPORT_SCALE = LABEL_CONSTRAINTS.pdfExport.scale;
+export const PDF_IMAGE_COMPRESSION = LABEL_CONSTRAINTS.pdfExport.imageCompression;
+export const LABEL_SOFT_LIMIT = LABEL_CONSTRAINTS.labelGeneration.softLimit;
+export const LABEL_HARD_LIMIT = LABEL_CONSTRAINTS.labelGeneration.hardLimit;
 
 export const formatTwoDigitValue = (value: number): string => {
 	return value.toString().padStart(2, '0');
@@ -43,4 +74,3 @@ export const isShortCodePrefix = (value: string): boolean => {
 export const isSpecialAisleValue = (value: string): boolean => {
 	return isAllowedValue(value, SPECIAL_AISLE_VALUES);
 };
-

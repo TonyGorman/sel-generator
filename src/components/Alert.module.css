@@ -9,3 +9,16 @@
   padding: 12px;
   width: 100%;
 }
+
+.alertWarning {
+  background-color: #fff4cc;
+  border: 1px solid #e6b800;
+  border-radius: 4px;
+  color: #5c4300;
+  display: flex;
+  font-size: 1rem;
+  font-weight: 400;
+  justify-content: space-between;
+  padding: 12px;
+  width: 100%;
+}

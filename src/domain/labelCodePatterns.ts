@@ -13,4 +13,3 @@ export const buildCompactShortCodePattern = (shortCodePrefix: string): RegExp =>
 
   return new RegExp(`^${escapedPrefix}(${BAY_TOKEN_PATTERN})(${SHELF_TOKEN_PATTERN})$`);
 };
-

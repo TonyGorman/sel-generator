@@ -10,9 +10,18 @@ import {
     MAX_BAY_VALUE,
     MAX_SHELF_LETTER,
     SPECIAL_AISLE_VALUES,
+    LABEL_SOFT_LIMIT,
+    LABEL_HARD_LIMIT,
 } from '../config/labelConfig';
+import {
+    VALIDATION_MESSAGES,
+    getLabelHardLimitMessage,
+    getLabelSoftLimitMessage,
+    getSpecificInvalidLabelMessage,
+} from '../config/validationMessages';
 import { Button, TextField } from './FormControls';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
+import { normalizeSpecificInputCodes } from '../domain/labelGenerationUseCases';
 
 const SpecificLabelForm: React.FC = () => {
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
@@ -22,14 +31,11 @@ const SpecificLabelForm: React.FC = () => {
     const [initLabelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+    const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
     }
-
-    const normalizeSpecificInput = (code: string): string => {
-        return code.trim().toUpperCase();
-    };
 
     const isValidSpecificCode = (code: string): boolean => {
         const result = validateSpecificLabelCode(code, {
@@ -43,25 +49,38 @@ const SpecificLabelForm: React.FC = () => {
     };
 
     const generateLabel = ():void => {
-        const labelTexts = initLabelText
-            .split(',')
-            .map((text) => normalizeSpecificInput(text))
-            .filter((text) => text.length > 0);
+        const labelTexts = normalizeSpecificInputCodes(initLabelText);
 
         if (labelTexts.length === 0) {
-            setErrorMessage('Enter at least one label value.');
+            setErrorMessage(VALIDATION_MESSAGES.specificEmpty);
+            setWarningMessage(null);
+            setGeneratedLabels(null);
+            return;
+        }
+
+        if (labelTexts.length > LABEL_HARD_LIMIT) {
+            setErrorMessage(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
+            setWarningMessage(null);
             setGeneratedLabels(null);
             return;
         }
 
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
-            setErrorMessage(`Use valid label codes only. Supported formats: 01L01A, ${SHORT_CODE_PREFIXES[0]}01A, ${SHORT_CODE_PREFIXES[1]}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}`);
+            setErrorMessage(getSpecificInvalidLabelMessage({
+                backPrefix: SHORT_CODE_PREFIXES[0],
+                frontPrefix: SHORT_CODE_PREFIXES[1],
+                namedAisleExamples,
+                bayRangeText,
+                shelfRangeText,
+            }));
+            setWarningMessage(null);
             setGeneratedLabels(null);
             return;
         }
 
         setErrorMessage(null);
+        setWarningMessage(labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
         setGeneratedLabels(labelTexts);
     }
 
@@ -75,6 +94,11 @@ const SpecificLabelForm: React.FC = () => {
             {errorMessage && (
                 <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
                     <div><span>{errorMessage}</span></div>
+                </div>
+            )}
+            {warningMessage && (
+                <div role="status" aria-live="polite" aria-atomic="true" className={alertStyles.alertWarning}>
+                    <div><span>{warningMessage}</span></div>
                 </div>
             )}
 

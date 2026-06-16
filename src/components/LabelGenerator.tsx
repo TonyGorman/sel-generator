@@ -9,11 +9,39 @@ import LabelTile from './LabelTile';
 import { Button } from './FormControls';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
-import { drawVectorPage, drawRasterPage, type JsPdfInstance, type JsBarcodeFn } from './LabelPdfExport';
 import { buildLayoutCssVars } from './labelLayoutCssVars';
+import { usePaginatedLabels } from './usePaginatedLabels';
+import { usePrintPortal } from './usePrintPortal';
+import { exportLabelPdf } from './labelPdfExporter';
+import { LabelPdfExportError } from './labelPdfExportError';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
+};
+
+export const getDownloadErrorMessage = (error: unknown): string => {
+  if (error instanceof LabelPdfExportError) {
+    switch (error.code) {
+      case 'print-pages-missing':
+        return 'No labels are available to export.';
+      case 'dependency-load-failed':
+        return 'Download failed because export libraries could not be loaded.';
+      case 'pdf-initialization-failed':
+        return 'Download failed while preparing the PDF document.';
+      case 'raster-fallback-failed':
+        return 'Download failed: both vector export and raster fallback failed.';
+      case 'vector-export-failed':
+        return 'Download failed while saving the PDF file.';
+      default:
+        return 'Download failed. Please try again.';
+    }
+  }
+
+  if (error instanceof Error && error.message === 'Export surface is not ready.') {
+    return 'Download failed because the export surface is not ready.';
+  }
+
+  return 'Download failed. Please try again.';
 };
 
 const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
@@ -23,97 +51,31 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
   const pdfRef = React.useRef<HTMLDivElement>(null);
   const [loading, setLoading] = React.useState(false);
   const [downloadError, setDownloadError] = React.useState<string | null>(null);
-  const [items, setItems] = React.useState<string[]>(() => labelCodes.slice(0, itemsPerPage));
-  const [printContainer, setPrintContainer] = React.useState<HTMLElement | null>(null);
-
-  React.useEffect(() => {
-    const id = 'label-print-surface';
-    let el = document.getElementById(id);
-    if (!el) {
-      el = document.createElement('div');
-      el.id = id;
-      document.body.appendChild(el);
-    }
-    setPrintContainer(el);
-    return () => {
-      if (el && el.parentNode) {
-        el.parentNode.removeChild(el);
-      }
-    };
-  }, []);
-  const pagedItems = React.useMemo(() => {
-    const pages: string[][] = [];
-
-    for (let index = 0; index < labelCodes.length; index += itemsPerPage) {
-      pages.push(labelCodes.slice(index, index + itemsPerPage));
-    }
-
-    return pages;
-  }, [labelCodes, itemsPerPage]);
-
-  React.useEffect(() => {
-    setItems(labelCodes.slice(0, itemsPerPage));
-  }, [labelCodes, itemsPerPage]);
+  const printContainer = usePrintPortal();
+  const { pagedItems, previewItems, handlePageChange } = usePaginatedLabels(labelCodes, itemsPerPage);
 
   const handleGeneratePdf = React.useCallback(async (): Promise<void> => {
     setDownloadError(null);
     setLoading(true);
 
     try {
-      const [{ jsPDF }, { default: JsBarcode }, { svg2pdf }] = await Promise.all([
-        import('jspdf'),
-        import('jsbarcode'),
-        import('svg2pdf.js'),
-      ]);
-
       const exportRoot = pdfRef.current;
       if (!exportRoot) {
         throw new Error('Export surface is not ready.');
       }
 
-      const pageElements = Array.from(exportRoot.querySelectorAll(`.${styles.printPage}`));
-      if (pageElements.length === 0) {
-        throw new Error('No print pages available for export.');
-      }
-
-      const pageWidthMm = layoutStrategy.page.sheetWidthMm;
-      const pageHeightMm = layoutStrategy.page.sheetHeightMm;
-
-      const pdf = new jsPDF({
-        orientation: layoutStrategy.page.orientation,
-        unit: 'mm',
-        format: [pageWidthMm, pageHeightMm],
-        compress: true,
-      }) as JsPdfInstance;
-
-      for (let index = 0; index < pageElements.length; index += 1) {
-        const pageElement = pageElements[index] as HTMLElement;
-
-        if (index > 0) {
-          pdf.addPage([pageWidthMm, pageHeightMm], layoutStrategy.page.orientation);
-        }
-
-        const pageItems = pagedItems[index] ?? [];
-
-        try {
-            await drawVectorPage(pdf, pageItems, layoutStrategy, JsBarcode as unknown as JsBarcodeFn, svg2pdf);
-        } catch {
-          // Fallback preserves download even if SVG vector conversion fails in a browser runtime.
-          await drawRasterPage(pdf, pageElement, pageWidthMm, pageHeightMm);
-        }
-      }
-
-      pdf.save('labels.pdf');
-    } catch {
-      setDownloadError('Download failed. Please try again.');
+      await exportLabelPdf({
+        exportRoot,
+        printPageClassName: styles.printPage,
+        pagedItems,
+        layoutStrategy,
+      });
+    } catch (error: unknown) {
+      setDownloadError(getDownloadErrorMessage(error));
     } finally {
       setLoading(false);
     }
   }, [layoutStrategy, pagedItems]);
-
-  const handlePageChange = React.useCallback((currentItems: string[]): void => {
-    setItems(currentItems);
-  }, []);
 
   const handlePrint = React.useCallback((): void => {
     window.print();
@@ -180,7 +142,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
       )}
       <div className={styles.pdfDiv}>
         <div className={styles.previewPage} style={pageStyle}>
-          {renderLabelGrid(items)}
+          {renderLabelGrid(previewItems)}
         </div>
       </div>
       {labelCodes.length > itemsPerPage && <Pagination data={labelCodes} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} />}

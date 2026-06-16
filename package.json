@@ -11,7 +11,8 @@
     "build": "npm run typecheck && npm run build:bundle",
     "build:bundle": "vite build",
     "validate:ci": "npm run styles:types:check && npm run styles:audit && npm run typecheck && npm run test:unit && npm run build:bundle",
-    "validate:release": "npm run validate:ci && npm run test:a11y && npm run test:e2e",
+    "validate:release": "npm run validate:ci && npm run audit:prod && npm run test:a11y && npm run test:e2e",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
     "preview": "vite preview",
     "prepare": "node scripts/setup-git-hooks.mjs",
     "styles:types": "node scripts/generate-css-module-types.mjs",
@@ -52,8 +53,11 @@
     "jsdom": "^29.1.1",
     "pdfjs-dist": "^5.7.284",
     "typescript": "^6.0.3",
-    "vite": "^8.0.11",
+    "vite": "^8.0.16",
     "vitest": "^4.1.5",
     "vitest-axe": "^0.1.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.10"
   }
 }

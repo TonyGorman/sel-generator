@@ -93,4 +93,17 @@ describe('BackLabelForm', () => {
     expect(inputs[0]).toHaveValue('');
     expect(screen.queryByDisplayValue('NaN')).not.toBeInTheDocument();
   });
+
+  it('blocks generation when total labels exceed hard limit', () => {
+    render(<BackLabelForm />);
+
+    const inputs = screen.getAllByRole('textbox');
+    fireEvent.change(inputs[0], { target: { value: '1' } });
+    fireEvent.change(inputs[1], { target: { value: '99' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'L' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
 });

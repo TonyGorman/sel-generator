@@ -3,11 +3,16 @@ import {
   SHORT_CODE_PREFIXES,
   MIN_AISLE_VALUE,
   MAX_AISLE_VALUE,
+  MIN_BAY_VALUE,
   MAX_BAY_VALUE,
+  MIN_SHELF_LETTER,
   MAX_SHELF_LETTER,
   SPECIAL_AISLE_VALUES,
   PDF_EXPORT_SCALE,
   PDF_IMAGE_COMPRESSION,
+  LABEL_SOFT_LIMIT,
+  LABEL_HARD_LIMIT,
+  LABEL_CONSTRAINTS,
   formatTwoDigitValue,
   isSpecialAisleValue,
   isShortCodePrefix,
@@ -17,10 +22,33 @@ import {
 
 describe('labelConfig', () => {
   it('keeps the published range limits stable', () => {
+    expect(MIN_BAY_VALUE).toBe(1);
     expect(MIN_AISLE_VALUE).toBe(0);
     expect(MAX_AISLE_VALUE).toBe(99);
     expect(MAX_BAY_VALUE).toBe(99);
+    expect(MIN_SHELF_LETTER).toBe('A');
     expect(MAX_SHELF_LETTER).toBe('L');
+  });
+
+  it('derives exported constraints from LABEL_CONSTRAINTS single source', () => {
+    expect(MIN_AISLE_VALUE).toBe(LABEL_CONSTRAINTS.aisle.min);
+    expect(MAX_AISLE_VALUE).toBe(LABEL_CONSTRAINTS.aisle.max);
+    expect(MIN_BAY_VALUE).toBe(LABEL_CONSTRAINTS.bay.min);
+    expect(MAX_BAY_VALUE).toBe(LABEL_CONSTRAINTS.bay.max);
+    expect(MIN_SHELF_LETTER).toBe(LABEL_CONSTRAINTS.shelf.min);
+    expect(MAX_SHELF_LETTER).toBe(LABEL_CONSTRAINTS.shelf.max);
+    expect(SHORT_CODE_PREFIXES).toEqual(LABEL_CONSTRAINTS.shortCode.prefixes);
+    expect(SPECIAL_AISLE_VALUES).toEqual(LABEL_CONSTRAINTS.aisle.specialValues);
+    expect(PDF_EXPORT_SCALE).toBe(LABEL_CONSTRAINTS.pdfExport.scale);
+    expect(PDF_IMAGE_COMPRESSION).toBe(LABEL_CONSTRAINTS.pdfExport.imageCompression);
+    expect(LABEL_SOFT_LIMIT).toBe(LABEL_CONSTRAINTS.labelGeneration.softLimit);
+    expect(LABEL_HARD_LIMIT).toBe(LABEL_CONSTRAINTS.labelGeneration.hardLimit);
+  });
+
+  it('keeps generation safety limits stable', () => {
+    expect(LABEL_SOFT_LIMIT).toBe(500);
+    expect(LABEL_HARD_LIMIT).toBe(1000);
+    expect(LABEL_SOFT_LIMIT).toBeLessThan(LABEL_HARD_LIMIT);
   });
 
   it('keeps PDF export profile stable for scan reliability', () => {

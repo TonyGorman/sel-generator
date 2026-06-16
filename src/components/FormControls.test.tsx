@@ -17,6 +17,30 @@ describe('FormControls', () => {
     expect(ref.current).toBe(screen.getByPlaceholderText('Input'));
   });
 
+  it('supports function refs for single-line and multiline TextField', () => {
+    const inputRefSpy = vi.fn();
+    const textareaRefSpy = vi.fn();
+
+    const { rerender } = render(<TextField ref={inputRefSpy} placeholder="Function ref input" />);
+    expect(inputRefSpy).toHaveBeenCalledWith(screen.getByPlaceholderText('Function ref input'));
+
+    rerender(<TextField ref={textareaRefSpy} multiline placeholder="Function ref textarea" />);
+    expect(textareaRefSpy).toHaveBeenCalledWith(screen.getByPlaceholderText('Function ref textarea'));
+  });
+
+  it('auto-grows multiline TextField and preserves external onInput handlers', () => {
+    const onInput = vi.fn();
+    render(<TextField multiline autoGrow onInput={onInput} placeholder="Multiline" />);
+
+    const textarea = screen.getByPlaceholderText('Multiline') as HTMLTextAreaElement;
+    Object.defineProperty(textarea, 'scrollHeight', { configurable: true, value: 72 });
+
+    fireEvent.input(textarea);
+
+    expect(onInput).toHaveBeenCalledTimes(1);
+    expect(textarea.style.height).toBe('72px');
+  });
+
   it('renders radio options and calls onChange with selected key', () => {
     const onChange = vi.fn();
     render(

@@ -89,6 +89,26 @@ describe('AisleLabelForm', () => {
     expect(alert).toHaveTextContent(String(MAX_BAY_VALUE));
   });
 
+  it('shows validation when a side range is partially filled', () => {
+    render(<AisleLabelForm />);
+
+    fillInputs({ 0: '1', 1: '1', 2: '1' });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter both start and end bay values for each selected side.');
+  });
+
+  it('shows bay lower bound validation when side range starts below 1', () => {
+    render(<AisleLabelForm />);
+
+    fillInputs({ 0: '1', 1: '1', 2: '0', 3: '1' });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'A' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Bay values must be between 1 and 99.');
+  });
+
   it('generates labels and updates summary for valid Left and Right ranges', () => {
     render(<AisleLabelForm />);
 
@@ -178,5 +198,28 @@ describe('AisleLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-count')).toHaveAttribute('data-layout-mode', 'large-sel');
+  });
+
+  it('shows soft warning for large but allowed label totals', () => {
+    render(<AisleLabelForm />);
+
+    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '50' });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'L' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Large batch warning');
+    expect(screen.getByTestId('generated-count')).toHaveTextContent('600');
+  });
+
+  it('blocks generation when total labels exceed hard limit', () => {
+    render(<AisleLabelForm />);
+
+    fillInputs({ 0: '0', 1: '99', 2: '1', 3: '99' });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'L' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
+    expect(screen.queryByTestId('generated-count')).not.toBeInTheDocument();
   });
 });

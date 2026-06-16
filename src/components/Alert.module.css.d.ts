@@ -1,5 +1,6 @@
 export type Styles = {
   'alertError': string;
+  'alertWarning': string;
 };
 
 export type ClassNames = keyof Styles;

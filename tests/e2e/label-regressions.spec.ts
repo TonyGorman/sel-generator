@@ -177,6 +177,32 @@ test.describe('Label Generator regressions', () => {
     expect(download.suggestedFilename()).toBe('labels.pdf');
   });
 
+  test('Specific Labels shows a clear error when vector export and raster fallback both fail', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByPlaceholder('Enter labels').fill('01L01A');
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
+
+    await page.evaluate(() => {
+      const originalCreateElementNS = document.createElementNS.bind(document);
+      document.createElementNS = ((namespace: string | null, qualifiedName: string, options?: ElementCreationOptions) => {
+        if (qualifiedName.toLowerCase() === 'svg') {
+          throw new Error('forced vector export failure');
+        }
+        return originalCreateElementNS(namespace, qualifiedName, options);
+      }) as typeof document.createElementNS;
+
+      HTMLCanvasElement.prototype.toDataURL = (() => {
+        throw new Error('forced raster fallback failure');
+      }) as typeof HTMLCanvasElement.prototype.toDataURL;
+    });
+
+    await page.getByRole('button', { name: 'Download Labels' }).click();
+
+    await expect(page.getByRole('alert')).toContainText('Download failed: both vector export and raster fallback failed.');
+  });
+
   test('Specific Labels accepts compact input and rejects non-compact formats', async ({ page }) => {
     await page.goto('/');
 

@@ -80,7 +80,7 @@ class LargeSelLayoutStrategy implements ILabelLayoutStrategy {
     pdfTextBaselineOffsetFactor: 0.34,
     pdfEncodedTextBaselineOffsetFactor: 0.34,
     barcodeModuleThicknessMm: 0.51,
-    barcodeHeightMm: 10,
+    barcodeHeightMm: 8,
     tilePaddingHorizontalMm: 4,
     tilePaddingTopMm: 4,
     tilePaddingBottomMm: 2,

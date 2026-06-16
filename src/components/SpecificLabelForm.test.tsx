@@ -179,4 +179,17 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'mini-sel');
   });
 
+  it('blocks generation when specific labels exceed hard limit', () => {
+    render(<SpecificLabelForm />);
+
+    const labels = Array.from({ length: 1001 }, (_, index) => `01L${String((index % 99) + 1).padStart(2, '0')}A`).join(',');
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: labels },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
+
 });

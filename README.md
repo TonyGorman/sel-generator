@@ -12,6 +12,18 @@ The app provides three workflows for generating shelf edge labels:
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
 - **Short Code  Labels**: Generate labels for back wall or front of store items, with custom prefix support.
 
+### Generation Safety Limits
+
+To prevent oversized jobs from degrading browser preview/export performance, generation uses a soft/hard cap:
+
+- **Soft limit:** `500` labels — generation still succeeds and shows a warning.
+- **Hard limit:** `1000` labels — generation is blocked with an error.
+
+These are centrally configured in `src/config/labelConfig.ts` under:
+
+- `LABEL_CONSTRAINTS.labelGeneration.softLimit`
+- `LABEL_CONSTRAINTS.labelGeneration.hardLimit`
+
 All labels display:
 
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
@@ -19,7 +31,7 @@ All labels display:
 - Primary text shown as side+bay (e.g., "R01")
 - Secondary text shown with spaces in generated Aisle/Back flows
 
-Shelf values are always alphabetical (`A`-`T`) across generated aisle and short code labels. Special aisle values are defined in code.
+Shelf values are always alphabetical (`A`-`L`) across generated aisle and short code labels. Special aisle values are defined in code.
 
 ### Print & Export
 
@@ -31,6 +43,36 @@ Shelf values are always alphabetical (`A`-`T`) across generated aisle and short 
 - The vector PDF export path uses jsPDF built-in **Helvetica** for label text.
 - This is intentional for broad cross-platform support (Windows/macOS/Linux) without requiring system fonts.
 - **Do not** switch to non-built-in font names (for example Calibri) unless the font is explicitly embedded/registered in jsPDF.
+
+## Architecture Overview
+
+```mermaid
+flowchart TD
+  U[User Input] --> A[LabelApp + Tabs]
+  A --> SF[SpecificLabelForm]
+  A --> AF[AisleLabelForm]
+  A --> BF[BackLabelForm]
+
+  SF --> DG[Domain: labelCodeDomain + labelGeneration]
+  AF --> DG
+  BF --> DG
+
+  SF --> LG[LabelGenerator]
+  AF --> LG
+  BF --> LG
+
+  LG --> PL[Preview Path]
+  LG --> PR[Print Portal Path]
+  LG --> EX[labelPdfExporter]
+
+  PL --> LT[LabelTile]
+  PR --> LT
+  LT --> D2[Domain: parser/display/encoding]
+
+  EX --> VP[Vector PDF: drawVectorPage]
+  EX --> RF[Raster Fallback: drawRasterPage]
+  VP --> D2
+```
 
 ## Build and Publish
 
@@ -65,6 +107,7 @@ This repository includes a GitHub Actions workflow that runs quality checks on p
 
 Quality checks run in CI:
 
+- `npm run audit:prod`
 - `npm run styles:types:check`
 - `npm run styles:audit`
 - `npm run test:run`
@@ -78,6 +121,8 @@ Run the same fast gate locally with:
 Run the consolidated release gate (matches deploy confidence) with:
 
 `npm run validate:release`
+
+This includes a production dependency audit (`npm run audit:prod`) and fails on high or critical vulnerabilities.
 
 Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
 
@@ -119,6 +164,10 @@ Run the same combined checks used by GitHub Actions (without E2E):
 Run full release-grade validation (includes E2E):
 
 `npm run validate:release`
+
+Run dependency audit only:
+
+`npm run audit:prod`
 
 ### Accessibility tests
 
@@ -239,7 +288,7 @@ Create at least one sample sheet from each flow:
 
 Include shelf coverage:
 
-- alphabetical shelves only (`A`-`T`)
+- alphabetical shelves only (`A`-`L`)
 
 ### Printer and Media Matrix
 

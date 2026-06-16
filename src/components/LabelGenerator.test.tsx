@@ -1,8 +1,9 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import LabelGenerator from './LabelGenerator';
+import LabelGenerator, { getDownloadErrorMessage } from './LabelGenerator';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+import { LabelPdfExportError, type LabelPdfExportErrorCode } from './labelPdfExportError';
 
 const {
   addPageMock,
@@ -197,7 +198,7 @@ describe('LabelGenerator PDF export', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
+      expect(screen.getByRole('alert')).toHaveTextContent('Download failed while preparing the PDF document.');
     });
     expect(saveMock).not.toHaveBeenCalled();
   });
@@ -208,7 +209,7 @@ describe('LabelGenerator PDF export', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
+      expect(screen.getByRole('alert')).toHaveTextContent('No labels are available to export.');
     });
     expect(saveMock).not.toHaveBeenCalled();
   });
@@ -246,19 +247,27 @@ describe('LabelGenerator PDF export', () => {
 
     printSpy.mockRestore();
   });
+});
 
-  it('shows error alert when download fails', async () => {
-    // Empty labelCodes to trigger error with no print pages available
-    render(<LabelGenerator labelCodes={[]} />);
+describe('getDownloadErrorMessage', () => {
+  it.each<[LabelPdfExportErrorCode, string]>([
+    ['print-pages-missing', 'No labels are available to export.'],
+    ['dependency-load-failed', 'Download failed because export libraries could not be loaded.'],
+    ['pdf-initialization-failed', 'Download failed while preparing the PDF document.'],
+    ['raster-fallback-failed', 'Download failed: both vector export and raster fallback failed.'],
+    ['vector-export-failed', 'Download failed while saving the PDF file.'],
+  ])('maps %s to a specific user message', (code, expectedMessage) => {
+    expect(getDownloadErrorMessage(new LabelPdfExportError(code, 'x'))).toBe(expectedMessage);
+  });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Labels' }));
-
-    await waitFor(
-      () => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Download failed. Please try again.');
-      },
-      { timeout: 5000 },
+  it('maps export-surface initialization errors to an explicit message', () => {
+    expect(getDownloadErrorMessage(new Error('Export surface is not ready.'))).toBe(
+      'Download failed because the export surface is not ready.',
     );
   });
 
+  it('falls back to default message for unknown errors', () => {
+    expect(getDownloadErrorMessage(new Error('unexpected'))).toBe('Download failed. Please try again.');
+    expect(getDownloadErrorMessage('unexpected')).toBe('Download failed. Please try again.');
+  });
 });
