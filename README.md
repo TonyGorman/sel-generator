@@ -53,7 +53,7 @@ The compiled output is written to `dist`.
 
 ### Publish
 
-To publish this app, deploy the contents of `dist` using your preferred static hosting provider or web server.
+To publish this app, deploy the contents of `dist` using your preferred static hosting provider or web server. Currently the app uses Github Pages.
 
 Before publishing, validate the build locally if needed with:
 
@@ -82,11 +82,11 @@ Run the consolidated release gate (matches deploy confidence) with:
 Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
 
 1. Push your latest changes to `main`.
-2. In GitHub, open Settings > Pages.
-3. Set Source to GitHub Actions.
+2. In GitHub, open Settings > Pages (already enabled).
+3. Set Source to GitHub Actions (already enabled).
 4. Wait for the `Deploy to GitHub Pages` workflow to finish.
 
-The site will be available at [https://tonygorman.github.io/barcode-generator/](https://tonygorman.github.io/barcode-generator/)
+The site will be available at [https://tonygorman.github.io/sel-generator/](https://tonygorman.github.io/sel-generator/)
 
 ## Testing
 
