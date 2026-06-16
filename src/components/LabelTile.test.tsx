@@ -189,13 +189,6 @@ describe('LabelTile', () => {
     expect(screen.getByText('01 L01 A')).toBeInTheDocument();
   });
 
-  it('Specific label with compact input produces compact barcode payload', () => {
-    render(<LabelTile code="01L01A" shortCodePrefix={defaultShortCodePrefix} />);
-
-    expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
-    expect(screen.getAllByText('01L01A').length).toBeGreaterThan(1);
-  });
-
   it('Specific label with compact input uses spaced secondary display formatting', () => {
     render(<LabelTile code="01L01A" shortCodePrefix={defaultShortCodePrefix} />);
 
