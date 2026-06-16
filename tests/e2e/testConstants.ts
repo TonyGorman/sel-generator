@@ -1,1 +1,1 @@
-export { SHORT_CODE_PREFIXES } from '../../src/config/labelConfig';
+export const SHORT_CODE_PREFIXES = ['BAK', 'FOS'] as const;

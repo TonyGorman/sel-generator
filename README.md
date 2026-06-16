@@ -182,7 +182,7 @@ The barcode payload is always stored and encoded in **compact format (no dashes 
 Users can input label codes in any supported format — the barcode encoder normalizes all to compact form:
 
 | Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Short code Labels) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Compact | `01L01A` | `01L01A` (always compact, no separators) | `01L01A` | `01 L01 A` |
 
 ### Display Impact
