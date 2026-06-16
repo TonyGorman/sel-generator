@@ -65,7 +65,7 @@ describe('LabelTile helpers', () => {
     });
   });
 
-  it('returns compact back wall primary text for valid back wall values', () => {
+  it('returns compact short code primary text for valid short code values', () => {
     expect(
       getPrimaryLabelText(`${SHORT_CODE_PREFIXES[0]}01A`),
     ).toEqual({
@@ -136,17 +136,17 @@ describe('LabelTile helpers', () => {
     expect(getMiniPrimaryFontSizeMm('LONGSHELFTOKEN999', large)).toBe(large.typography.primaryTextMaxSizeMm);
   });
 
-  it('shrinks BACK plus bay tokens enough to avoid mini-label overflow', () => {
+  it('shrinks short code token enough to avoid mini-label overflow', () => {
     const mini = getLabelLayoutStrategy('mini-sel');
-    const fitted = getMiniPrimaryFontSizeMm('BACK01', mini);
+    const fitted = getMiniPrimaryFontSizeMm(`${SHORT_CODE_PREFIXES[0]}01`, mini);
 
     expect(fitted).toBeGreaterThanOrEqual(mini.typography.primaryTextMinSizeMm);
-    expect(fitted).toBeLessThanOrEqual(9.5);
+    expect(fitted).toBeLessThan(mini.typography.primaryTextMaxSizeMm);
   });
 
   it('shrinks long named aisles enough to avoid mini-label overflow', () => {
     const mini = getLabelLayoutStrategy('mini-sel');
-    const fitted = getMiniPrimaryFontSizeMm('BACKWALL', mini);
+    const fitted = getMiniPrimaryFontSizeMm('SEASONAL', mini);
 
     expect(fitted).toBeGreaterThanOrEqual(mini.typography.primaryTextMinSizeMm);
     expect(fitted).toBeLessThanOrEqual(7.5);
@@ -164,9 +164,9 @@ describe('LabelTile', () => {
   });
 
   it('anchors mini-sel secondary text with a fixed baseline style independent of primary length', () => {
-    render(<LabelTile code="BACKWALL" shortCodePrefix={defaultShortCodePrefix} />);
+    render(<LabelTile code="BAK" shortCodePrefix={defaultShortCodePrefix} />);
 
-    const secondary = screen.getAllByText('BACKWALL')[1];
+    const secondary = screen.getAllByText('BAK')[1];
 
     expect(secondary.getAttribute('style')).toContain('--current-mini-secondary-top-from-content-top-mm');
   });

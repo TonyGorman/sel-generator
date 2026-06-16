@@ -110,7 +110,7 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
-  it('accepts compact back wall values and renders generated list', () => {
+  it('accepts compact short code values and renders generated list', () => {
     render(<SpecificLabelForm />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {

@@ -116,7 +116,7 @@ const BackLabelForm: React.FC = () => {
                 <section className={shellStyles.sectionBox}>
                     <h2 className={shellStyles.sectionTitle}>Prefix</h2>
                     <RadioGroup
-                        name={`${idPrefix}-wall-type`}
+                        name={`${idPrefix}-short-code-type`}
                         options={SHORT_CODE_PREFIX_OPTIONS}
                         selectedKey={selectedShortCodePrefix}
                         onChange={setSelectedShortCodePrefix}

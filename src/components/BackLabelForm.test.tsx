@@ -69,7 +69,7 @@ describe('BackLabelForm', () => {
     expect(screen.getByRole('option', { name: MAX_SHELF_LETTER })).toBeInTheDocument();
   });
 
-  it('switches wall type to Front and generates FOS labels', () => {
+  it('switches short code type to Front and generates FOS labels', () => {
     render(<BackLabelForm />);
 
     fireEvent.click(screen.getByLabelText('FOS'));

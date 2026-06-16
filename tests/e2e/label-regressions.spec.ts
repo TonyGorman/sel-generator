@@ -206,16 +206,16 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('alert')).toHaveCount(1);
   });
 
-  test('Specific Labels accepts both Back and Front Of Store compact wall prefixes', async ({ page }) => {
+  test('Specific Labels accepts both Back and Front Of Store compact short code prefixes', async ({ page }) => {
     await page.goto('/');
 
-    const mixedWallInput = [
+    const mixedShortCodeInput = [
       `${SHORT_CODE_PREFIXES[0]}01A`,
       `${SHORT_CODE_PREFIXES[1]}01A`,
     ].join(',');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await page.getByPlaceholder('Enter labels').fill(mixedWallInput);
+    await page.getByPlaceholder('Enter labels').fill(mixedShortCodeInput);
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('alert')).toHaveCount(0);
@@ -232,7 +232,7 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and select a last shelf.');
   });
 
-  test('Back tab wall type selector generates Front Of Store compact codes', async ({ page }) => {
+  test('Back/FOS tab short code type selector generates Front Of Store compact codes', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'FOS/Bak Labels' }).click();

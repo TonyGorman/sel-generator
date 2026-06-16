@@ -35,11 +35,13 @@ describe('validateSpecificLabelCode', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.parsed.kind).toBe('short');
-      expect(result.parsed.parts.prefix).toBe(SHORT_CODE_PREFIXES[1]);
+      if (result.parsed.kind === 'short') {
+        expect(result.parsed.parts.prefix).toBe(SHORT_CODE_PREFIXES[1]);
+      }
     }
   });
 
-  it('rejects unsupported wall prefixes', () => {
+  it('rejects unsupported short code prefixes', () => {
     const result = validateSpecificLabelCode('9901A', defaultOptions);
 
     expect(result).toEqual({ ok: false, reason: 'unparseable' });

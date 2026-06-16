@@ -68,10 +68,10 @@ describe('labelConfig', () => {
 
 
   it('normalizes value lists without truncation', () => {
-    expect(normalizePrefix([' kiosk ', 'Floral123', 'Bakwall', 'ProduceZone'])).toEqual([
+    expect(normalizePrefix([' kiosk ', 'Floral123', 'seasonal', 'ProduceZone'])).toEqual([
       'KIOSK',
       'FLORAL',
-      'BAKWALL',
+      'SEASONAL',
       'PRODUCEZONE',
     ]);
   });

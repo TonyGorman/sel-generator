@@ -10,7 +10,7 @@ The app provides three workflows for generating barcode labels:
 
 - **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (e.g. `01L01A`). Spaces and dashes are not accepted.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
-- **Back Wall Labels**: Generate labels for back-wall merchandise, with custom prefix support.
+- **Short Code  Labels**: Generate labels for back wall and front of store merchandise, with custom prefix support.
 
 All labels display:
 
@@ -19,7 +19,7 @@ All labels display:
 - Primary text shown as side+bay (e.g., "R01")
 - Secondary text shown with spaces in generated Aisle/Back flows; Specific Labels preserves user-entered separators
 
-Shelf values are always alphabetical (`A`-`T`) across generated aisle and back-wall labels. Special aisle values are defined in code.
+Shelf values are always alphabetical (`A`-`T`) across generated aisle and short code labels. Special aisle values are defined in code.
 
 ### Print & Export
 
@@ -181,7 +181,7 @@ The barcode payload is always stored and encoded in **compact format (no dashes 
 
 Users can input label codes in any supported format—the barcode encoder normalizes all to compact form:
 
-| Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Back Wall Labels) |
+| Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Short code Labels) |
 |---|---|---|---|---|
 | Compact | `01L01A` | `01L01A` (always compact, no separators) | `01L01A` | `01 L01 A` |
 
@@ -190,10 +190,10 @@ Users can input label codes in any supported format—the barcode encoder normal
 Display separators are presentational and do not affect barcode payload:
 
 - **Specific Labels** accepts compact input only; secondary display stays compact.
-- **Aisle Labels** and **Back Wall Labels** generate codes programmatically; secondary display always uses spaces.
+- **Aisle Labels** and **Short Code Labels** generate codes programmatically; secondary display always uses spaces.
 - Barcode in every case is always `01L01A`-style compact payload.
 
-Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`, `BACKWALL`) rather than inferred from generic alphabetic input.
+Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`, `SEASONAL`) rather than inferred from generic alphabetic input.
 
 ### Why Compact Encoding
 
@@ -207,7 +207,7 @@ The app supports two label sizes, selectable per print run.
 
 - Paper: A4 landscape, 39mm × 39mm labels
 - Layout: 7 columns × 5 rows (35 labels per page)
-- Available on: Aisle Labels, Back Wall Labels, and Specific Labels tabs
+- Available on: Aisle Labels, Short code Labels, and Specific Labels tabs
 
 ### Large SEL
 
@@ -234,7 +234,7 @@ Confirm generated labels remain machine-readable after:
 Create at least one sample sheet from each flow:
 
 - Aisle flow: low, mid, high values (for example 01, 50, 99) and multiple side ranges
-- Back (wall) flow: bay range and shelf range coverage
+- Short code flow: bay range and shelf range coverage
 - Specific flow: all supported input styles (compact and dashed)
 
 Include shelf coverage:
