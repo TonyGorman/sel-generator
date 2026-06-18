@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AISLE_PREFIXES,
   SHORT_CODE_PREFIXES,
   MIN_AISLE_VALUE,
   MAX_AISLE_VALUE,
@@ -14,6 +15,7 @@ import {
   LABEL_HARD_LIMIT,
   LABEL_CONSTRAINTS,
   formatTwoDigitValue,
+  isAislePrefix,
   isSpecialAisleValue,
   isShortCodePrefix,
   normalizeAllowedValue,
@@ -37,6 +39,7 @@ describe('labelConfig', () => {
     expect(MAX_BAY_VALUE).toBe(LABEL_CONSTRAINTS.bay.max);
     expect(MIN_SHELF_LETTER).toBe(LABEL_CONSTRAINTS.shelf.min);
     expect(MAX_SHELF_LETTER).toBe(LABEL_CONSTRAINTS.shelf.max);
+    expect(AISLE_PREFIXES).toEqual(LABEL_CONSTRAINTS.aisle.prefixes);
     expect(SHORT_CODE_PREFIXES).toEqual(LABEL_CONSTRAINTS.shortCode.prefixes);
     expect(SPECIAL_AISLE_VALUES).toEqual(LABEL_CONSTRAINTS.aisle.specialValues);
     expect(PDF_EXPORT_SCALE).toBe(LABEL_CONSTRAINTS.pdfExport.scale);
@@ -60,6 +63,15 @@ describe('labelConfig', () => {
     expect(SHORT_CODE_PREFIXES[0]).toBe('BAK');
     expect(SHORT_CODE_PREFIXES[1]).toBe('FOS');
     expect(SHORT_CODE_PREFIXES).toEqual([SHORT_CODE_PREFIXES[0], SHORT_CODE_PREFIXES[1]]);
+  });
+
+  it('keeps configured aisle prefixes stable and case-insensitive', () => {
+    expect(AISLE_PREFIXES).toEqual(['BR', 'BL', 'FL', 'FR']);
+    expect(isAislePrefix('BR')).toBe(true);
+    expect(isAislePrefix('bl')).toBe(true);
+    expect(isAislePrefix(' br ')).toBe(true);
+    expect(isAislePrefix('F L')).toBe(false);
+    expect(isAislePrefix('PR')).toBe(false);
   });
 
   it('keeps named aisle allowlist stable and case-insensitive', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SHORT_CODE_PREFIXES, MAX_SHELF_LETTER } from '../config/labelConfig';
-import { validateSpecificLabelCode } from './labelCodeDomain';
+import { parseLabelCode, validateSpecificLabelCode } from './labelCodeDomain';
 
 const defaultOptions = {
   shortCodePrefixes: SHORT_CODE_PREFIXES,
@@ -11,6 +11,58 @@ const defaultOptions = {
 };
 
 describe('validateSpecificLabelCode', () => {
+  it('parses configured compact prefixed aisle labels', () => {
+    const result = parseLabelCode('BR1L01A');
+
+    expect(result).toEqual({
+      kind: 'aisle',
+      parts: {
+        aisle: 'BR1',
+        side: 'L',
+        bay: '01',
+        shelf: 'A',
+      },
+    });
+  });
+
+  it('parses configured compact prefixed aisle labels with multi-digit aisle numbers', () => {
+    const result = parseLabelCode('BR10L01A');
+
+    expect(result).toEqual({
+      kind: 'aisle',
+      parts: {
+        aisle: 'BR10',
+        side: 'L',
+        bay: '01',
+        shelf: 'A',
+      },
+    });
+  });
+
+  it('accepts configured compact prefixed aisle labels within bounds', () => {
+    const result = validateSpecificLabelCode('BR1L01A', defaultOptions);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.parsed.kind).toBe('aisle');
+      if (result.parsed.kind === 'aisle') {
+        expect(result.parsed.parts.aisle).toBe('BR1');
+      }
+    }
+  });
+
+  it('accepts configured compact prefixed aisles with multi-digit aisle numbers within bounds', () => {
+    const result = validateSpecificLabelCode('BR10L01A', defaultOptions);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.parsed.kind).toBe('aisle');
+      if (result.parsed.kind === 'aisle') {
+        expect(result.parsed.parts.aisle).toBe('BR10');
+      }
+    }
+  });
+
   it('accepts compact aisle labels within bounds', () => {
     const result = validateSpecificLabelCode('01L01A', defaultOptions);
 
@@ -45,6 +97,27 @@ describe('validateSpecificLabelCode', () => {
     const result = validateSpecificLabelCode('9901A', defaultOptions);
 
     expect(result).toEqual({ ok: false, reason: 'unparseable' });
+  });
+
+  it('rejects unsupported aisle prefixes', () => {
+    const result = validateSpecificLabelCode('PR1L01A', defaultOptions);
+
+    expect(result).toEqual({ ok: false, reason: 'unparseable' });
+  });
+
+  it('rejects out-of-range prefixed aisle numbers', () => {
+    const result = validateSpecificLabelCode('BR100L01A', defaultOptions);
+
+    expect(result).toEqual({ ok: false, reason: 'unparseable' });
+  });
+
+  it('rejects configured prefixed aisles when validator aisle prefix options exclude the prefix', () => {
+    const result = validateSpecificLabelCode('BR1L01A', {
+      ...defaultOptions,
+      aislePrefixes: ['BL'],
+    });
+
+    expect(result).toEqual({ ok: false, reason: 'invalid-aisle-prefix' });
   });
 
   it('rejects codes with prefixes that are not configured, even when passed as preferred prefixes', () => {

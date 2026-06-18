@@ -8,7 +8,7 @@ Generate Shelf Edge Labels for printing.
 
 The app provides three workflows for generating shelf edge labels:
 
-- **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (e.g. `01L01A`). Spaces and dashes are not accepted.
+- **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (for example `01L01A`, `BR10L01A`, `BAK01A`). Spaces and dashes are not accepted.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
 - **Short Code  Labels**: Generate labels for back wall or front of store items, with custom prefix support.
 
@@ -228,11 +228,13 @@ The barcode payload is always stored and encoded in **compact format (no dashes 
 
 ### Input Format Normalization
 
-Users can input label codes in any supported format — the barcode encoder normalizes all to compact form:
+Specific Labels accepts compact input only (no spaces/dashes). Parsed valid inputs are encoded/scanned in compact form:
 
 | Input Format | Barcode Payload | Barcode Output (Encoded/Scanned Value) | Display (Specific Labels) | Display (Aisle / Short code Labels) |
 | --- | --- | --- | --- | --- |
-| Compact | `01L01A` | `01L01A` (always compact, no separators) | `01L01A` | `01 L01 A` |
+| Compact numeric aisle | `01L01A` | `01L01A` (always compact, no separators) | `01L01A` | `01 L01 A` |
+| Compact prefixed aisle | `BR10L01A` | `BR10L01A` (always compact, no separators) | `BR10L01A` | `BR10 L01 A` |
+| Compact short code | `BAK01A` | `BAK01A` (always compact, no separators) | `BAK01A` | `BAK 01 A` |
 
 ### Display Impact
 
@@ -243,6 +245,7 @@ Display separators are presentational and do not affect barcode payload:
 - Barcode in every case is always `01L01A`-style compact payload.
 
 Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`, `SEASONAL`) rather than inferred from generic alphabetic input.
+Configured compact prefixed aisle inputs are validated against the configured aisle-prefix allow-list (default: `BR`, `BL`, `FL`, `FR`) and aisle numeric min/max bounds.
 
 ### Why Compact Encoding
 
@@ -284,7 +287,7 @@ Create at least one sample sheet from each flow:
 
 - Aisle flow: low, mid, high values (for example 01, 50, 99) and multiple side ranges
 - Short code flow: bay range and shelf range coverage
-- Specific flow: all supported input styles (compact and dashed)
+- Specific flow: compact numeric aisle, compact prefixed aisle (for example BR10L01A), short code, and named aisle values
 
 Include shelf coverage:
 

@@ -30,6 +30,7 @@ export const getLabelSoftLimitMessage = (softLimit: number): string => {
 };
 
 interface ISpecificInvalidLabelMessageArgs {
+  aislePrefixedExamples: string;
   backPrefix: string;
   frontPrefix: string;
   namedAisleExamples: string;
@@ -38,11 +39,12 @@ interface ISpecificInvalidLabelMessageArgs {
 }
 
 export const getSpecificInvalidLabelMessage = ({
+  aislePrefixedExamples,
   backPrefix,
   frontPrefix,
   namedAisleExamples,
   bayRangeText,
   shelfRangeText,
 }: ISpecificInvalidLabelMessageArgs): string => {
-  return `Use valid label codes only. Supported formats: 01L01A, ${backPrefix}01A, ${frontPrefix}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}`;
+  return `Use valid label codes only. Supported formats: 01L01A, ${aislePrefixedExamples}, ${backPrefix}01A, ${frontPrefix}01A, or named aisle values (${namedAisleExamples}) with no bay or shelf. Bay must be ${bayRangeText} and shelf must be ${shelfRangeText}`;
 };

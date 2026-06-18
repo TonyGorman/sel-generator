@@ -21,6 +21,10 @@ describe('LabelTile helpers', () => {
     expect(normalizeLabelCode('01L01A')).toBe('01 L01 A');
   });
 
+  it('formats configured prefixed aisle code into spaced display output', () => {
+    expect(normalizeLabelCode('BR1L01A')).toBe('BR1 L01 A');
+  });
+
   it('formats compact short code into spaced display output', () => {
     expect(normalizeLabelCode(`${SHORT_CODE_PREFIXES[0]}01A`)).toBe(`${SHORT_CODE_PREFIXES[0]} 01 A`);
   });
@@ -32,6 +36,10 @@ describe('LabelTile helpers', () => {
 
   it('encodes compact aisle values without separators for scanners', () => {
     expect(getEncodedLabelCode('01L01A')).toBe('01L01A');
+  });
+
+  it('encodes configured prefixed aisle values without separators for scanners', () => {
+    expect(getEncodedLabelCode('BR1L01A')).toBe('BR1L01A');
   });
 
   it('encodes lowercase named aisle values as uppercase barcode payloads', () => {
@@ -105,6 +113,14 @@ describe('LabelTile helpers', () => {
   it('parses large-sel display parts from aisle values', () => {
     expect(getLargeSelDisplayParts('31L03A')).toEqual({
       prefix: '31',
+      main: 'L03',
+      suffix: 'A',
+    });
+  });
+
+  it('parses large-sel display parts from prefixed aisle values', () => {
+    expect(getLargeSelDisplayParts('BR1L03A')).toEqual({
+      prefix: 'BR1',
       main: 'L03',
       suffix: 'A',
     });
@@ -187,6 +203,13 @@ describe('LabelTile', () => {
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
     expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+  });
+
+  it('barcode payload stays compact with configured prefixed aisle input', () => {
+    render(<LabelTile code="BR1L01A" shortCodePrefix={defaultShortCodePrefix} />);
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('BR1L01A');
+    expect(screen.getByText('BR1 L01 A')).toBeInTheDocument();
   });
 
   it('Specific label with compact input uses spaced secondary display formatting', () => {

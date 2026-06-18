@@ -2,6 +2,7 @@ export const LABEL_CONSTRAINTS = {
 	aisle: {
 		min: 0,
 		max: 99,
+		prefixes: ['BR', 'BL', 'FL', 'FR'] as const,
 		specialValues: ['FLORAL', 'KIOSK', 'SEASONAL'] as const,
 	},
 	bay: {
@@ -32,6 +33,7 @@ export const MIN_BAY_VALUE = LABEL_CONSTRAINTS.bay.min;
 export const MAX_BAY_VALUE = LABEL_CONSTRAINTS.bay.max;
 export const MIN_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.min;
 export const MAX_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.max;
+export const AISLE_PREFIXES = LABEL_CONSTRAINTS.aisle.prefixes;
 export const SHORT_CODE_PREFIXES = LABEL_CONSTRAINTS.shortCode.prefixes;
 export const SPECIAL_AISLE_VALUES = LABEL_CONSTRAINTS.aisle.specialValues;
 
@@ -69,6 +71,10 @@ const isAllowedValue = (value: string, allowedValues: readonly string[]): boolea
 
 export const isShortCodePrefix = (value: string): boolean => {
 	return isAllowedValue(value, SHORT_CODE_PREFIXES);
+};
+
+export const isAislePrefix = (value: string): boolean => {
+	return isAllowedValue(value, AISLE_PREFIXES);
 };
 
 export const isSpecialAisleValue = (value: string): boolean => {

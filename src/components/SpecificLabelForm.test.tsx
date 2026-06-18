@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import SpecificLabelForm from './SpecificLabelForm';
-import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
+import { AISLE_PREFIXES, SHORT_CODE_PREFIXES } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ labelCodes, layoutMode }: { labelCodes: string[]; layoutMode?: string }) => (
@@ -40,6 +40,29 @@ describe('SpecificLabelForm', () => {
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-labels')).toHaveTextContent('00L01A|00L02A');
+  });
+
+  it('accepts configured prefixed aisle values in compact form', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: `${AISLE_PREFIXES[0]}10L01A,${AISLE_PREFIXES[1]}2L02B` },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${AISLE_PREFIXES[0]}10L01A|${AISLE_PREFIXES[1]}2L02B`);
+  });
+
+  it('rejects unsupported prefixed aisle values', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: 'PR1L01A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Use valid label codes only.');
   });
 
   it('accepts named aisle values without bay or shelf', () => {

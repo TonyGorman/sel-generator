@@ -1,10 +1,12 @@
 import type { ParsedLabelCode } from './labelCodeParser';
 import { parseLabelCode } from './labelCodeParser';
+import { AISLE_PREFIXES, isAislePrefix, normalizePrefix } from '../config/labelConfig';
 
 export type SpecificLabelValidationErrorReason =
   | 'not-compact'
   | 'unparseable'
   | 'unsupported-kind'
+  | 'invalid-aisle-prefix'
   | 'invalid-aisle-range'
   | 'invalid-bay-range'
   | 'invalid-shelf-range';
@@ -20,6 +22,7 @@ export type SpecificLabelValidationResult =
   };
 
 export interface ISpecificLabelValidationOptions {
+  aislePrefixes?: readonly string[];
   shortCodePrefixes?: readonly string[];
   minAisleValue: number;
   maxAisleValue: number;
@@ -37,17 +40,56 @@ const isShelfTokenValid = (token: string, maxShelfLetter: string): boolean => {
   return shelfIndex >= 1 && shelfIndex <= maxShelfIndex;
 };
 
-const isBoundedTwoDigitNumber = (value: string, max: number, min: number = 1): boolean => {
+const isBoundedNumericToken = (value: string, max: number, min: number = 1): boolean => {
+  if (!/^\d+$/.test(value)) {
+    return false;
+  }
+
   const numericValue = Number(value);
   return numericValue >= min && numericValue <= max;
 };
 
-const isAisleTokenValid = (aisleToken: string, minAisleValue: number, maxAisleValue: number): boolean => {
-  if (!/^\d{2}$/.test(aisleToken)) {
-    return false;
+const isNumericAisleToken = (aisleToken: string): boolean => {
+  return /^\d{2}$/.test(aisleToken);
+};
+
+const getConfiguredAislePrefixes = (configuredPrefixes?: readonly string[]): string[] => {
+  const normalizedConfiguredPrefixes = normalizePrefix(configuredPrefixes ?? AISLE_PREFIXES);
+  return normalizedConfiguredPrefixes.filter((prefix) => isAislePrefix(prefix));
+};
+
+const getPrefixedAisleNumberToken = (
+  aisleToken: string,
+  configuredPrefixes: readonly string[],
+): string | null => {
+  const sortedPrefixes = [...configuredPrefixes].sort((left, right) => right.length - left.length);
+  const matchedPrefix = sortedPrefixes.find((prefix) => aisleToken.startsWith(prefix));
+  if (!matchedPrefix) {
+    return null;
   }
 
-  return isBoundedTwoDigitNumber(aisleToken, maxAisleValue, minAisleValue);
+  return aisleToken.slice(matchedPrefix.length);
+};
+
+const getAisleValidationError = (
+  aisleToken: string,
+  options: Pick<ISpecificLabelValidationOptions, 'aislePrefixes' | 'minAisleValue' | 'maxAisleValue'>,
+): Extract<SpecificLabelValidationErrorReason, 'invalid-aisle-prefix' | 'invalid-aisle-range'> | null => {
+  if (isNumericAisleToken(aisleToken)) {
+    return isBoundedNumericToken(aisleToken, options.maxAisleValue, options.minAisleValue)
+      ? null
+      : 'invalid-aisle-range';
+  }
+
+  const configuredPrefixes = getConfiguredAislePrefixes(options.aislePrefixes);
+  const aisleNumberToken = getPrefixedAisleNumberToken(aisleToken, configuredPrefixes);
+  if (!aisleNumberToken) {
+    return 'invalid-aisle-prefix';
+  }
+
+  return isBoundedNumericToken(aisleNumberToken, options.maxAisleValue, options.minAisleValue)
+    ? null
+    : 'invalid-aisle-range';
 };
 
 export const validateSpecificLabelCode = (
@@ -74,11 +116,13 @@ export const validateSpecificLabelCode = (
 
   if (parsed.kind === 'aisle') {
     const { aisle, bay, shelf } = parsed.parts;
-    if (!isAisleTokenValid(aisle, options.minAisleValue, options.maxAisleValue)) {
-      return { ok: false, reason: 'invalid-aisle-range' };
+
+    const aisleValidationError = getAisleValidationError(aisle, options);
+    if (aisleValidationError) {
+      return { ok: false, reason: aisleValidationError };
     }
 
-    if (!isBoundedTwoDigitNumber(bay, options.maxBayValue)) {
+    if (!isBoundedNumericToken(bay, options.maxBayValue)) {
       return { ok: false, reason: 'invalid-bay-range' };
     }
 
@@ -91,7 +135,7 @@ export const validateSpecificLabelCode = (
 
   if (parsed.kind === 'short') {
     const { bay, shelf } = parsed.parts;
-    if (!isBoundedTwoDigitNumber(bay, options.maxBayValue)) {
+    if (!isBoundedNumericToken(bay, options.maxBayValue)) {
       return { ok: false, reason: 'invalid-bay-range' };
     }
 

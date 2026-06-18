@@ -4,6 +4,7 @@ import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
+    AISLE_PREFIXES,
     SHORT_CODE_PREFIXES,
     MIN_AISLE_VALUE,
     MAX_AISLE_VALUE,
@@ -27,6 +28,7 @@ const SpecificLabelForm: React.FC = () => {
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const namedAisleExamples = SPECIAL_AISLE_VALUES.join(', ');
+    const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
 
     const [initLabelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
@@ -39,6 +41,8 @@ const SpecificLabelForm: React.FC = () => {
 
     const isValidSpecificCode = (code: string): boolean => {
         const result = validateSpecificLabelCode(code, {
+            aislePrefixes: AISLE_PREFIXES,
+            shortCodePrefixes: SHORT_CODE_PREFIXES,
             minAisleValue: MIN_AISLE_VALUE,
             maxAisleValue: MAX_AISLE_VALUE,
             maxBayValue: MAX_BAY_VALUE,
@@ -68,6 +72,7 @@ const SpecificLabelForm: React.FC = () => {
         const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
         if (hasInvalidCode) {
             setErrorMessage(getSpecificInvalidLabelMessage({
+                aislePrefixedExamples,
                 backPrefix: SHORT_CODE_PREFIXES[0],
                 frontPrefix: SHORT_CODE_PREFIXES[1],
                 namedAisleExamples,
@@ -87,7 +92,7 @@ const SpecificLabelForm: React.FC = () => {
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Specific Labels</h1>
-            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {SHORT_CODE_PREFIXES[0]}01A, {SHORT_CODE_PREFIXES[1]}01A, {SPECIAL_AISLE_VALUES[0]}). 
+            <p className={styles.sectionIntro}>Enter one label or a comma-separated list (for example: 01L01A, {aislePrefixedExamples}, {SHORT_CODE_PREFIXES[0]}01A, {SHORT_CODE_PREFIXES[1]}01A, {SPECIAL_AISLE_VALUES[0]}).
                 <br/>Labels must have no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
             </p>

@@ -164,6 +164,20 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01L01A')).toBe(true);
   });
 
+  it('draws encoded prefixed aisle barcode text under barcode in large-sel PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      ['BR1L01A'],
+      getLabelLayoutStrategy('large-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === 'BR1L01A')).toBe(true);
+  });
+
   it('uses structured heading parts for aisle codes in large-sel PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
 
@@ -176,6 +190,22 @@ describe('drawVectorPage', () => {
     );
 
     expect(textCalls.some((call) => call.text === '31')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'L03')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+  });
+
+  it('uses structured heading parts for prefixed aisle codes in large-sel PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      ['BR1L03A'],
+      getLabelLayoutStrategy('large-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === 'BR1')).toBe(true);
     expect(textCalls.some((call) => call.text === 'L03')).toBe(true);
     expect(textCalls.some((call) => call.text === 'A')).toBe(true);
   });
