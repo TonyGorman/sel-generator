@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { drawVectorPage, type JsBarcodeFn, type JsPdfInstance } from './LabelPdfExport';
 import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+import { fitMiniPrimaryFontSizeMm, getMiniAisleThreeRowGeometry, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
 
 const MM_TO_PT = 72 / 25.4;
 const mmToPt = (mm: number): number => mm * MM_TO_PT;
@@ -56,51 +57,44 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01L01A')).toBe(true);
   });
 
-  it('anchors mini-sel secondary text at the configured tile baseline', async () => {
+  it('renders mini-sel stacked rows for aisle values in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
-    const miniStrategy = getLabelLayoutStrategy('mini-sel');
 
     await drawVectorPage(
       pdf,
       ['01L01A'],
-      miniStrategy,
+      getLabelLayoutStrategy('mini-sel'),
       jsBarcodeStub,
       svg2pdfStub,
     );
 
-    const secondaryCall = textCalls.find((call) => call.text === '01 L01 A');
-
-    expect(secondaryCall).toBeDefined();
-    expect(secondaryCall?.y).toBeCloseTo(
-      miniStrategy.page.pagePadTopMm + miniStrategy.typography.secondaryBaselineFromTileTopMm,
-      5,
-    );
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'L01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+    expect(textCalls.some((call) => call.text === '01 L01 A')).toBe(false);
   });
 
-  it('does not draw a mini-sel secondary line for special aisle values', async () => {
+  it('renders mini-sel stacked rows for short-code values in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
-    const miniStrategy = getLabelLayoutStrategy('mini-sel');
 
     await drawVectorPage(
       pdf,
-      ['FLORAL'],
-      miniStrategy,
+      [`${SHORT_CODE_PREFIXES[0]}01A`],
+      getLabelLayoutStrategy('mini-sel'),
       jsBarcodeStub,
       svg2pdfStub,
     );
 
-    const secondaryBaselineY =
-      miniStrategy.page.pagePadTopMm + miniStrategy.typography.secondaryBaselineFromTileTopMm;
-    const secondaryCall = textCalls.find(
-      (call) => call.text === 'FLORAL' && Math.abs(call.y - secondaryBaselineY) < 0.001,
-    );
-
-    expect(secondaryCall).toBeUndefined();
+    expect(textCalls.some((call) => call.text === SHORT_CODE_PREFIXES[0])).toBe(true);
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+    expect(textCalls.some((call) => call.text === `${SHORT_CODE_PREFIXES[0]} 01 A`)).toBe(false);
   });
 
   it('shrinks long mini-sel primary text in PDF output to avoid overflow', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
+    const miniAisleGeometry = getMiniAisleThreeRowGeometry(miniStrategy);
 
     await drawVectorPage(
       pdf,
@@ -111,23 +105,32 @@ describe('drawVectorPage', () => {
     );
 
     const primaryCall = textCalls.find((call) => call.text === 'LONGSHELFTOKEN999');
+    const centerFromTileTopMm =
+      miniStrategy.typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm;
     const baselineAtMaxMm =
       miniStrategy.page.pagePadTopMm +
-      miniStrategy.typography.primaryCenterFromTileTopMm +
-      miniStrategy.typography.primaryTextMaxSizeMm * miniStrategy.typography.pdfTextBaselineOffsetFactor;
+      getPdfBaselineFromCenterMm(
+        centerFromTileTopMm,
+        miniAisleGeometry.mainMaxTextSizeMm,
+        miniStrategy.typography.pdfTextBaselineOffsetFactor,
+      );
     const baselineAtMinMm =
       miniStrategy.page.pagePadTopMm +
-      miniStrategy.typography.primaryCenterFromTileTopMm +
-      miniStrategy.typography.primaryTextMinSizeMm * miniStrategy.typography.pdfTextBaselineOffsetFactor;
+      getPdfBaselineFromCenterMm(
+        centerFromTileTopMm,
+        miniStrategy.typography.primaryTextMinSizeMm,
+        miniStrategy.typography.pdfTextBaselineOffsetFactor,
+      );
 
     expect(primaryCall).toBeDefined();
-    expect(primaryCall?.y).toBeLessThan(baselineAtMaxMm);
+    expect(primaryCall?.y).toBeLessThanOrEqual(baselineAtMaxMm);
     expect(primaryCall?.y).toBeGreaterThanOrEqual(baselineAtMinMm);
   });
 
-  it('positions mini-sel primary text from shared center anchor in PDF output', async () => {
+  it('positions mini-sel primary text from stacked main-row center anchor in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
+    const miniAisleGeometry = getMiniAisleThreeRowGeometry(miniStrategy);
 
     await drawVectorPage(
       pdf,
@@ -138,14 +141,23 @@ describe('drawVectorPage', () => {
     );
 
     const primaryCall = textCalls.find((call) => call.text === 'L01');
-    const primaryFontPt = (pdf.setFontSize as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-    const primaryFontMm = primaryFontPt / MM_TO_PT;
+    const expectedPrimaryFontMm = Math.min(
+      fitMiniPrimaryFontSizeMm('L01', miniStrategy, (text: string, fontSizeMm: number, letterSpacingMm: number) => {
+        const glyphWidth = text.length * fontSizeMm * 0.42;
+        const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
+        return glyphWidth + spacingWidth;
+      }),
+      miniAisleGeometry.mainMaxTextSizeMm,
+    );
 
     expect(primaryCall).toBeDefined();
     expect(primaryCall?.y).toBeCloseTo(
       miniStrategy.page.pagePadTopMm +
-      miniStrategy.typography.primaryCenterFromTileTopMm +
-      primaryFontMm * miniStrategy.typography.pdfTextBaselineOffsetFactor,
+      getPdfBaselineFromCenterMm(
+        miniStrategy.typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm,
+        expectedPrimaryFontMm,
+        miniStrategy.typography.pdfTextBaselineOffsetFactor,
+      ),
       5,
     );
   });
@@ -254,5 +266,22 @@ describe('drawVectorPage', () => {
     );
 
     expect(textCalls.some((call) => call.text === 'FLORAL')).toBe(true);
+  });
+
+  it('renders prefixed aisle token as top row in mini PDF output', async () => {
+    const { pdf, textCalls } = createPdfMock();
+
+    await drawVectorPage(
+      pdf,
+      ['BR1L01A'],
+      getLabelLayoutStrategy('mini-sel'),
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === 'BR1')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'L01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'BR1 L01 A')).toBe(false);
   });
 });

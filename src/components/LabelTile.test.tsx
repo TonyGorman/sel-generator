@@ -170,21 +170,24 @@ describe('LabelTile helpers', () => {
 });
 
 describe('LabelTile', () => {
-  it('renders primary and secondary text for aisle label value', () => {
+  it('renders stacked mini rows for aisle label value', () => {
     render(<LabelTile code="01L01A" shortCodePrefix={defaultShortCodePrefix} />);
 
+    expect(screen.getByText('01')).toBeInTheDocument();
     expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
     expect(screen.getAllByText('01L01A')).toHaveLength(2);
   });
 
-  it('anchors mini-sel secondary text with a fixed baseline style independent of primary length', () => {
+  it('anchors stacked mini top and bottom rows using explicit style variables', () => {
     render(<LabelTile code="BAK" shortCodePrefix={defaultShortCodePrefix} />);
 
-    const secondary = screen.getAllByText('BAK')[1];
-
-    expect(secondary.getAttribute('style')).toContain('--current-mini-secondary-top-from-content-top-mm');
+    const topRow = document.querySelector('[class*="miniAisleTopCode"]');
+    const bottomRow = document.querySelector('[class*="miniAisleBottomCode"]');
+    expect(topRow?.getAttribute('style')).toContain('--current-mini-aisle-top-center-from-content-top-mm');
+    expect(bottomRow?.getAttribute('style')).toContain('--current-mini-aisle-bottom-center-from-content-top-mm');
   });
 
   it('uses layout strategy label sizing for large-sel mode', () => {
@@ -202,39 +205,50 @@ describe('LabelTile', () => {
     render(<LabelTile code="01L01A" shortCodePrefix={defaultShortCodePrefix} />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
-    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+    expect(screen.getByText('01')).toBeInTheDocument();
+    expect(screen.getByText('L01')).toBeInTheDocument();
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
   });
 
   it('barcode payload stays compact with configured prefixed aisle input', () => {
     render(<LabelTile code="BR1L01A" shortCodePrefix={defaultShortCodePrefix} />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('BR1L01A');
-    expect(screen.getByText('BR1 L01 A')).toBeInTheDocument();
+    expect(screen.getByText('BR1')).toBeInTheDocument();
+    expect(screen.getByText('L01')).toBeInTheDocument();
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.queryByText('BR1 L01 A')).not.toBeInTheDocument();
   });
 
-  it('Specific label with compact input uses spaced secondary display formatting', () => {
+  it('Specific label with compact input uses stacked row formatting', () => {
     render(<LabelTile code="01L01A" shortCodePrefix={defaultShortCodePrefix} />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
     expect(screen.getAllByText('01L01A').length).toBeGreaterThan(1);
-    expect(screen.getByText('01 L01 A')).toBeInTheDocument();
+    expect(screen.getByText('01')).toBeInTheDocument();
+    expect(screen.getByText('L01')).toBeInTheDocument();
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
   });
 
   it('Specific back label with compact input produces compact barcode payload', () => {
     render(<LabelTile code={`${SHORT_CODE_PREFIXES[0]}01A`} shortCodePrefix={defaultShortCodePrefix} />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent(`${SHORT_CODE_PREFIXES[0]}01A`);
-    expect(screen.getByText(`${SHORT_CODE_PREFIXES[0]} 01 A`)).toBeInTheDocument();
+    expect(screen.getByText(SHORT_CODE_PREFIXES[0], { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText(`${SHORT_CODE_PREFIXES[0]} 01 A`)).not.toBeInTheDocument();
   });
 
-  it('Specific named aisle value renders only in primary text for mini-sel', () => {
+  it('Specific named aisle value renders in stacked main row for mini-sel', () => {
     const { container } = render(<LabelTile code="FLORAL" shortCodePrefix={defaultShortCodePrefix} />);
 
     expect(screen.getAllByText('FLORAL').length).toBeGreaterThan(1);
     expect(screen.getByTestId('label-value')).toHaveTextContent('FLORAL');
-    const secondary = container.querySelector('[class*="secondaryCode"]');
-    expect(secondary).not.toBeNull();
-    expect(secondary).toHaveTextContent('');
+    const legacySecondary = container.querySelector('[class*="secondaryCode"]');
+    expect(legacySecondary).toBeNull();
     expect(screen.queryByText('ORA')).not.toBeInTheDocument();
   });
 
@@ -247,5 +261,14 @@ describe('LabelTile', () => {
 
     // Ensure compact barcode payload remains unchanged from normalized special value.
     expect(screen.getByTestId('label-value')).toHaveTextContent('FLORAL');
+  });
+
+  it('places prefixed aisle token on top row with side+bay and shelf below', () => {
+    render(<LabelTile code="BR1L01A" shortCodePrefix={defaultShortCodePrefix} />);
+
+    expect(screen.getByText('BR1')).toBeInTheDocument();
+    expect(screen.getByText('L01')).toBeInTheDocument();
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.queryByText('BR1 L01 A')).not.toBeInTheDocument();
   });
 });

@@ -11,10 +11,11 @@ export type {
 export { validateSpecificLabelCode } from './labelCodeValidator';
 
 // Display exports
-export type { ILargeLabelDisplayParts } from './labelCodeDisplay';
+export type { ILargeLabelDisplayParts, IMiniThreeRowDisplayParts } from './labelCodeDisplay';
 export {
   normalizeLabelCode,
   getEncodedLabelCode,
   getPrimaryLabelText,
   getLargeSelDisplayParts,
+  getMiniThreeRowDisplayParts,
 } from './labelCodeDisplay';

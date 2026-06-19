@@ -303,6 +303,57 @@ test.describe('Label Generator regressions', () => {
     await expect.poll(async () => page.evaluate(() => (window as typeof window & { __printCalls?: number }).__printCalls ?? 0)).toBe(1);
   });
 
+  test('Mini SEL stacked layout renders as top/main/bottom lines', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await visibleInputs.nth(2).fill('1');
+    await visibleInputs.nth(3).fill('1');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
+
+    const firstLabelTile = page.locator('[class*="labelBox"]').first();
+    await expect(firstLabelTile.getByText('01', { exact: true })).toBeVisible();
+    await expect(firstLabelTile.getByText('L01', { exact: true })).toBeVisible();
+    await expect(firstLabelTile.getByText('A', { exact: true })).toBeVisible();
+    await expect(firstLabelTile.getByText('01 L01 A', { exact: true })).toHaveCount(0);
+  });
+
+  test('Mini SEL stacked layout PDF download keeps mini page contract stable', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await visibleInputs.nth(2).fill('1');
+    await visibleInputs.nth(3).fill('1');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Download Labels' })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Labels' }).click();
+    const download = await downloadPromise;
+
+    const filePath = await download.path();
+    expect(filePath).not.toBeNull();
+
+    const pdfBytes = await readFile(filePath as string);
+    const contractSnapshot = buildPdfContractSnapshot(pdfBytes);
+
+    expect(contractSnapshot.pageCount).toBe(1);
+    expect(contractSnapshot.pageBoxes[0]?.orientation).toBe('landscape');
+  });
+
   test('Large SEL mode is only available from Aisle tab', async ({ page }) => {
     await page.goto('/');
 
@@ -429,6 +480,39 @@ test.describe('Label Generator regressions', () => {
     const firstPagePng = await renderFirstPdfPageAsPng(page, pdfBytes);
 
     expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
+  });
+
+  test('captures Mini SEL stacked layout aisle preview baseline', async ({ page }) => {
+    await page.setViewportSize({ width: 1800, height: 1400 });
+    await page.goto('/');
+
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
+
+    // Generate a range of aisle labels to show stacked layout
+    const labelValues = [
+      '01L01A', '01L02A', '01L03A', '01L04A', '01L05A',
+      '02L01A', '02L02A', '02L03A', '02L04A', '02L05A',
+      '03L01A', '03L02A', '03L03A', '03L04A', '03L05A',
+      '04L01A', '04L02A', '04L03A', '04L04A', '04L05A',
+      '05L01A', '05L02A', '05L03A', '05L04A', '05L05A',
+      '06L01A', '06L02A', '06L03A', '06L04A', '06L05A',
+      '07L01A', '07L02A', '07L03A', '07L04A', '07L05A',
+    ].join(',');
+    
+    await page.getByPlaceholder('Enter labels').fill(labelValues);
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
+
+    const labelAppRoot = page.locator('[class*="labelAppRoot"]').first();
+    await labelAppRoot.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
+
+    const previewPage = page.locator('[class*="previewPage"]').first();
+    await expect(previewPage).toHaveScreenshot('mini-sel-stacked-layout-aisle-preview.png', {
+      animations: 'disabled',
+    });
   });
 
   test('captures full preview of 35 labels with default settings', async ({ page }) => {

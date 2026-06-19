@@ -62,7 +62,8 @@ describe('labelConfig', () => {
   it('keeps Back prefix default stable', () => {
     expect(SHORT_CODE_PREFIXES[0]).toBe('BAK');
     expect(SHORT_CODE_PREFIXES[1]).toBe('FOS');
-    expect(SHORT_CODE_PREFIXES).toEqual([SHORT_CODE_PREFIXES[0], SHORT_CODE_PREFIXES[1]]);
+    expect(SHORT_CODE_PREFIXES[2]).toBe('FNT');
+    expect(SHORT_CODE_PREFIXES).toEqual([SHORT_CODE_PREFIXES[0], SHORT_CODE_PREFIXES[1], SHORT_CODE_PREFIXES[2]]);
   });
 
   it('keeps configured aisle prefixes stable and case-insensitive', () => {

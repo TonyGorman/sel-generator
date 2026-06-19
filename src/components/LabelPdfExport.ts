@@ -1,7 +1,17 @@
 import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
-import { getEncodedLabelCode, getLargeSelDisplayParts, getPrimaryLabelText } from '../domain/labelCodeDomain';
+import {
+  getEncodedLabelCode,
+  getLargeSelDisplayParts,
+  getMiniThreeRowDisplayParts,
+  getPrimaryLabelText,
+} from '../domain/labelCodeDomain';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
-import { estimatePrimaryTextWidthMm, fitMiniPrimaryFontSizeMm, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
+import {
+  estimatePrimaryTextWidthMm,
+  fitMiniPrimaryFontSizeMm,
+  getMiniAisleThreeRowGeometry,
+  getPdfBaselineFromCenterMm,
+} from './labelLayoutGeometry';
 
 const MM_TO_PT = 72 / 25.4;
 const MM_TO_PX = 96 / 25.4;
@@ -10,6 +20,7 @@ const LARGE_ENCODED_TEXT_SIZE_MM = 3;
 const ENCODED_TEXT_LETTER_SPACING_MM = 0.02;
 const LARGE_SEL_PREFIX_GAP_MM = 0.8;
 const LARGE_SEL_SUFFIX_GAP_MM = 1.5;
+const MINI_AISLE_AUX_TEXT_GRAY = 74;
 const PDF_PRIMARY_FONT = 'helvetica';
 
 export type JsPdfInstance = {
@@ -61,6 +72,10 @@ const getTextWidthMm = (pdf: JsPdfInstance, text: string, fontSizeMm: number): n
 
 const setPdfBoldFont = (pdf: JsPdfInstance): void => {
   pdf.setFont(PDF_PRIMARY_FONT, 'bold');
+};
+
+const setPdfRegularFont = (pdf: JsPdfInstance): void => {
+  pdf.setFont(PDF_PRIMARY_FONT, 'normal');
 };
 
 const drawVectorBarcode = async (
@@ -177,7 +192,9 @@ const drawMiniSelTile = async ({
   svg2pdf,
 }: IVectorTileContext): Promise<void> => {
   const { page, typography, barcodeGeometry } = layoutStrategy;
-  const { primary, secondary } = getPrimaryLabelText(code);
+  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code);
+  const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
+  const primaryText = miniThreeRowDisplayParts.main;
   const encodedValue = getEncodedLabelCode(code);
 
   const measurePdfPrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
@@ -195,24 +212,39 @@ const drawMiniSelTile = async ({
     const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
     return glyphWidth + spacingWidth;
   };
-  const primaryFontSizeMm = fitMiniPrimaryFontSizeMm(primary, layoutStrategy, measurePdfPrimaryTextWidthMm);
+  const primaryFontSizeMm = Math.min(
+    fitMiniPrimaryFontSizeMm(primaryText, layoutStrategy, measurePdfPrimaryTextWidthMm),
+    miniAisleGeometry.mainMaxTextSizeMm,
+  );
 
   setPdfBoldFont(pdf);
   pdf.setFontSize(mmToPt(primaryFontSizeMm));
   pdf.setCharSpace(typography.primaryLetterSpacingMm);
+  const primaryCenterFromTileTopMm = typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm;
   const primaryBaselineY = y + getPdfBaselineFromCenterMm(
-    typography.primaryCenterFromTileTopMm,
+    primaryCenterFromTileTopMm,
     primaryFontSizeMm,
     typography.pdfTextBaselineOffsetFactor,
   );
-  pdf.text(primary, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
+  pdf.text(primaryText, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
 
-  if (secondary) {
-    setPdfBoldFont(pdf);
-    pdf.setFontSize(mmToPt(typography.secondaryTextSizeMm));
-    pdf.setCharSpace(0);
-    pdf.text(secondary, x + page.labelWidthMm / 2, y + typography.secondaryBaselineFromTileTopMm, { align: 'center' });
-  }
+  setPdfRegularFont(pdf);
+  pdf.setFontSize(mmToPt(miniAisleGeometry.auxTextSizeMm));
+  pdf.setCharSpace(0);
+  pdf.setTextColor(MINI_AISLE_AUX_TEXT_GRAY);
+  const topBaselineY = y + getPdfBaselineFromCenterMm(
+    typography.tilePaddingTopMm + miniAisleGeometry.topCenterFromContentTopMm,
+    miniAisleGeometry.auxTextSizeMm,
+    typography.pdfTextBaselineOffsetFactor,
+  );
+  const bottomBaselineY = y + getPdfBaselineFromCenterMm(
+    typography.tilePaddingTopMm + miniAisleGeometry.bottomCenterFromContentTopMm,
+    miniAisleGeometry.auxTextSizeMm,
+    typography.pdfTextBaselineOffsetFactor,
+  );
+  pdf.text(miniThreeRowDisplayParts.top, x + page.labelWidthMm / 2, topBaselineY, { align: 'center' });
+  pdf.text(miniThreeRowDisplayParts.bottom, x + page.labelWidthMm / 2, bottomBaselineY, { align: 'center' });
+  pdf.setTextColor(0);
 
   const barcodeY =
     y +

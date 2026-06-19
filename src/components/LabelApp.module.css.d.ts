@@ -21,6 +21,8 @@ export type Styles = {
   'largeSelHeadingSuffix': string;
   'largeSelLabelTextArea': string;
   'loaderBox': string;
+  'miniAisleBottomCode': string;
+  'miniAisleTopCode': string;
   'pdfDiv': string;
   'previewPage': string;
   'primaryCode': string;

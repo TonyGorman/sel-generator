@@ -14,7 +14,7 @@ export const LABEL_CONSTRAINTS = {
 		max: 'L',
 	},
 	shortCode: {
-		prefixes: ['BAK', 'FOS'] as const,
+		prefixes: ['BAK', 'FOS', 'FNT'] as const,
 	},
 	pdfExport: {
 		// Conservative raster export profile to preserve label edge fidelity.

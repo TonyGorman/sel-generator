@@ -33,6 +33,16 @@ All labels display:
 
 Shelf values are always alphabetical (`A`-`L`) across generated aisle and short code labels. Special aisle values are defined in code.
 
+### Mini SEL Stacked Layout
+
+Mini SEL labels use a stacked layout in preview, print, and vector PDF export:
+
+- Row 1: aisle token or shortcode prefix and aisle token or Special aisle
+- Row 2: side + bay or just bay (shortcode)
+- Row 3: shelf token
+
+Barcode payload encoding remains unchanged and always uses compact values.
+
 ### Print & Export
 
 - **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper
@@ -221,6 +231,8 @@ If UI changes are intentional, update the snapshot baselines with:
 Snapshot files are stored under:
 
 `tests/e2e/label-regressions.spec.ts-snapshots`
+
+The label regression suite includes a dedicated visual snapshot baseline for the default Mini SEL stacked layout aisle preview.
 
 ## Barcode Format
 

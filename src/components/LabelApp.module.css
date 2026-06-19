@@ -179,7 +179,7 @@
   transform: translateY(-50%);
   font-size: var(--current-mini-primary-text-size-mm, 13mm);
   line-height: 1;
-  font-weight: 800;
+  font-weight: var(--current-mini-primary-font-weight, 800);
   letter-spacing: 0.07mm;
   white-space: nowrap;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -193,6 +193,32 @@
   font-size: 5.8mm;
   line-height: 1.05;
   font-weight: 700;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.miniAisleTopCode {
+  position: absolute;
+  top: var(--current-mini-aisle-top-center-from-content-top-mm, 2.2mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-aisle-aux-text-size-mm, 6.8mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #4a4a4a;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.miniAisleBottomCode {
+  position: absolute;
+  top: var(--current-mini-aisle-bottom-center-from-content-top-mm, 15mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-aisle-aux-text-size-mm, 6.8mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #4a4a4a;
   white-space: nowrap;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

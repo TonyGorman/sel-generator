@@ -6,13 +6,13 @@ import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStra
 import {
   getEncodedLabelCode,
   getLargeSelDisplayParts,
+  getMiniThreeRowDisplayParts,
   getPrimaryLabelText,
 } from '../domain/labelCodeDomain';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
-  getMiniPrimaryCenterFromContentTopMm,
-  getMiniSecondaryTopFromContentTopMm,
+  getMiniAisleThreeRowGeometry,
 } from './labelLayoutGeometry';
 
 const MM_TO_PX = 96 / 25.4;
@@ -76,32 +76,25 @@ interface ILabelTileProps {
 
 interface IMiniSelTileContentProps {
   primary: string;
-  secondary: string;
   primaryFontSizeMm: number;
+  primaryFontWeight?: number;
   primaryCenterFromContentTopMm: number;
-  secondaryTopFromContentTopMm: number;
 }
 
 const MiniSelTileContent: React.FC<IMiniSelTileContentProps> = ({
   primary,
-  secondary,
   primaryFontSizeMm,
+  primaryFontWeight,
   primaryCenterFromContentTopMm,
-  secondaryTopFromContentTopMm,
 }) => {
   const primaryCodeStyle = {
     '--current-mini-primary-text-size-mm': `${primaryFontSizeMm}mm`,
+    '--current-mini-primary-font-weight': String(primaryFontWeight ?? 800),
     '--current-mini-primary-center-from-content-top-mm': `${primaryCenterFromContentTopMm}mm`,
-  } as React.CSSProperties;
-  const secondaryCodeStyle = {
-    '--current-mini-secondary-top-from-content-top-mm': `${secondaryTopFromContentTopMm}mm`,
   } as React.CSSProperties;
 
   return (
-    <>
-      <div className={styles.primaryCode} style={primaryCodeStyle}>{primary}</div>
-      <div className={styles.secondaryCode} style={secondaryCodeStyle}>{secondary}</div>
-    </>
+    <div className={styles.primaryCode} style={primaryCodeStyle}>{primary}</div>
   );
 };
 
@@ -143,15 +136,16 @@ const LabelTile: React.FC<ILabelTileProps> = ({
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const { typography } = layoutStrategy;
-  const { primary, secondary } = getPrimaryLabelText(
-    code,
-    shortCodePrefix,
-  );
+  const { primary, secondary } = getPrimaryLabelText(code, shortCodePrefix);
   const labelValue = getEncodedLabelCode(code, shortCodePrefix);
   const isLargeSel = layoutMode === 'large-sel';
-  const primaryFontSizeMm = getMiniPrimaryFontSizeMm(primary, layoutStrategy);
-  const primaryCenterFromContentTopMm = getMiniPrimaryCenterFromContentTopMm(typography);
-  const secondaryTopFromContentTopMm = getMiniSecondaryTopFromContentTopMm(typography);
+  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code, shortCodePrefix);
+  const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
+  const miniPrimaryText = miniThreeRowDisplayParts.main;
+  const primaryFontSizeMm = isLargeSel
+    ? getMiniPrimaryFontSizeMm(primary, layoutStrategy)
+    : Math.min(getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy), miniAisleGeometry.mainMaxTextSizeMm);
+  const primaryCenterFromContentTopMm = miniAisleGeometry.mainCenterFromContentTopMm;
 
   return (
     <div className={isLargeSel ? styles.labelBoxLargeSel : styles.labelBox}>
@@ -164,13 +158,32 @@ const LabelTile: React.FC<ILabelTileProps> = ({
             shortCodePrefix={shortCodePrefix}
           />
         ) : (
-          <MiniSelTileContent
-            primary={primary}
-            secondary={secondary}
-            primaryFontSizeMm={primaryFontSizeMm}
-            primaryCenterFromContentTopMm={primaryCenterFromContentTopMm}
-            secondaryTopFromContentTopMm={secondaryTopFromContentTopMm}
-          />
+          <>
+            <div
+              className={styles.miniAisleTopCode}
+              style={{
+                '--current-mini-aisle-top-center-from-content-top-mm': `${miniAisleGeometry.topCenterFromContentTopMm}mm`,
+                '--current-mini-aisle-aux-text-size-mm': `${miniAisleGeometry.auxTextSizeMm}mm`,
+              } as React.CSSProperties}
+            >
+              {miniThreeRowDisplayParts.top}
+            </div>
+            <MiniSelTileContent
+              primary={miniThreeRowDisplayParts.main}
+              primaryFontSizeMm={primaryFontSizeMm}
+              primaryFontWeight={900}
+              primaryCenterFromContentTopMm={primaryCenterFromContentTopMm}
+            />
+            <div
+              className={styles.miniAisleBottomCode}
+              style={{
+                '--current-mini-aisle-bottom-center-from-content-top-mm': `${miniAisleGeometry.bottomCenterFromContentTopMm}mm`,
+                '--current-mini-aisle-aux-text-size-mm': `${miniAisleGeometry.auxTextSizeMm}mm`,
+              } as React.CSSProperties}
+            >
+              {miniThreeRowDisplayParts.bottom}
+            </div>
+          </>
         )}
       </div>
       <div className={isLargeSel ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>

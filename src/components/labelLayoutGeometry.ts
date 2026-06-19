@@ -1,7 +1,12 @@
-import { ILabelLayoutStrategy, ILabelTypographyGeometry } from '../models/ILabelLayoutStrategy';
+import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 
 const PRIMARY_TEXT_AVERAGE_GLYPH_WIDTH_FACTOR = 0.62;
 const PRIMARY_TEXT_FIT_SAFETY_RATIO = 0.95;
+const MINI_AISLE_AUX_TEXT_SIZE_MM = 6.8;
+const MINI_AISLE_MAIN_MAX_TEXT_SIZE_MM = 9.2;
+const MINI_AISLE_TOP_SAFE_GUTTER_MM = 1.2;
+const MINI_AISLE_BOTTOM_SAFE_GUTTER_MM = 1.8;
+const MINI_AISLE_MIN_ROW_GAP_MM = 2;
 
 const clampMm = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
@@ -59,17 +64,40 @@ export const fitMiniPrimaryFontSizeMm = (
   return clampMm(refinedFit, minSizeMm, maxSizeMm);
 };
 
-export const getMiniPrimaryCenterFromContentTopMm = (typography: ILabelTypographyGeometry): number => {
-  return typography.primaryCenterFromTileTopMm - typography.tilePaddingTopMm;
-};
-
-export const getMiniSecondaryTopFromContentTopMm = (typography: ILabelTypographyGeometry): number => {
-  return typography.secondaryBaselineFromTileTopMm - typography.tilePaddingTopMm - typography.secondaryDomTopOffsetMm;
-};
-
 export const getMiniBarcodeTopFromTileTopMm = (layoutStrategy: ILabelLayoutStrategy): number => {
   const { page, typography, barcodeGeometry } = layoutStrategy;
   return page.labelHeightMm - typography.tilePaddingBottomMm - barcodeGeometry.marginBottomMm - barcodeGeometry.heightMm;
+};
+
+export interface IMiniAisleThreeRowGeometry {
+  topCenterFromContentTopMm: number;
+  mainCenterFromContentTopMm: number;
+  bottomCenterFromContentTopMm: number;
+  auxTextSizeMm: number;
+  mainMaxTextSizeMm: number;
+}
+
+export const getMiniAisleThreeRowGeometry = (layoutStrategy: ILabelLayoutStrategy): IMiniAisleThreeRowGeometry => {
+  const barcodeTopFromTileTopMm = getMiniBarcodeTopFromTileTopMm(layoutStrategy);
+  const availableHeightFromContentTopMm = barcodeTopFromTileTopMm - layoutStrategy.typography.tilePaddingTopMm;
+
+  const auxHalfHeight = MINI_AISLE_AUX_TEXT_SIZE_MM / 2;
+  let topCenter = MINI_AISLE_TOP_SAFE_GUTTER_MM + auxHalfHeight;
+  let bottomCenter = availableHeightFromContentTopMm - MINI_AISLE_BOTTOM_SAFE_GUTTER_MM - auxHalfHeight;
+
+  if (bottomCenter - topCenter < MINI_AISLE_MIN_ROW_GAP_MM * 2) {
+    const middle = availableHeightFromContentTopMm / 2;
+    topCenter = middle - MINI_AISLE_MIN_ROW_GAP_MM;
+    bottomCenter = middle + MINI_AISLE_MIN_ROW_GAP_MM;
+  }
+
+  return {
+    topCenterFromContentTopMm: topCenter,
+    mainCenterFromContentTopMm: (topCenter + bottomCenter) / 2,
+    bottomCenterFromContentTopMm: bottomCenter,
+    auxTextSizeMm: MINI_AISLE_AUX_TEXT_SIZE_MM,
+    mainMaxTextSizeMm: MINI_AISLE_MAIN_MAX_TEXT_SIZE_MM,
+  };
 };
 
 export const getPdfBaselineFromCenterMm = (

@@ -2,9 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
+  getMiniAisleThreeRowGeometry,
   getMiniBarcodeTopFromTileTopMm,
-  getMiniPrimaryCenterFromContentTopMm,
-  getMiniSecondaryTopFromContentTopMm,
   getPdfBaselineFromCenterMm,
 } from './labelLayoutGeometry';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
@@ -104,17 +103,16 @@ describe('labelLayoutGeometry', () => {
     expect(result).toBeLessThanOrEqual(mini.typography.primaryTextMaxSizeMm);
   });
 
-  it('computes mini and PDF geometry offsets', () => {
+  it('computes stacked mini and PDF geometry offsets', () => {
     const mini = createMiniStrategy();
+    const geometry = getMiniAisleThreeRowGeometry(mini);
 
-    expect(getMiniPrimaryCenterFromContentTopMm(mini.typography)).toBe(
-      mini.typography.primaryCenterFromTileTopMm - mini.typography.tilePaddingTopMm,
-    );
-    expect(getMiniSecondaryTopFromContentTopMm(mini.typography)).toBe(
-      mini.typography.secondaryBaselineFromTileTopMm -
-        mini.typography.tilePaddingTopMm -
-        mini.typography.secondaryDomTopOffsetMm,
-    );
+    expect(geometry.topCenterFromContentTopMm).toBeGreaterThan(0);
+    expect(geometry.mainCenterFromContentTopMm).toBeGreaterThan(geometry.topCenterFromContentTopMm);
+    expect(geometry.bottomCenterFromContentTopMm).toBeGreaterThan(geometry.mainCenterFromContentTopMm);
+    expect(geometry.auxTextSizeMm).toBeGreaterThan(0);
+    expect(geometry.mainMaxTextSizeMm).toBeGreaterThan(geometry.auxTextSizeMm);
+
     expect(getMiniBarcodeTopFromTileTopMm(mini)).toBe(
       mini.page.labelHeightMm -
         mini.typography.tilePaddingBottomMm -
