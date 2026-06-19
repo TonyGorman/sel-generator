@@ -7,7 +7,6 @@ import {
   getEncodedLabelCode,
   getLargeSelDisplayParts,
   getMiniThreeRowDisplayParts,
-  getPrimaryLabelText,
 } from '../domain/labelCodeDomain';
 import {
   estimatePrimaryTextWidthMm,
@@ -61,13 +60,11 @@ export const getMiniPrimaryFontSizeMm = (primaryText: string, layoutStrategy: IL
 export {
   normalizeLabelCode,
   getEncodedLabelCode,
-  getPrimaryLabelText,
   getLargeSelDisplayParts,
 } from '../domain/labelCodeDomain';
 
 interface ILabelTileProps {
   code: string;
-  shortCodePrefix?: string;
   layoutMode?: LabelPrintMode;
 }
 
@@ -97,19 +94,12 @@ const MiniSelTileContent: React.FC<IMiniSelTileContentProps> = ({
 
 interface ILargeSelTileContentProps {
   code: string;
-  primary: string;
-  secondary: string;
-  shortCodePrefix?: string;
 }
 
 const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
   code,
-  primary,
-  secondary,
-  shortCodePrefix,
 }) => {
-  const largeDisplayParts = getLargeSelDisplayParts(code, shortCodePrefix);
-  const fallbackHeadingText = secondary || primary;
+  const largeDisplayParts = getLargeSelDisplayParts(code);
 
   return (
     <div className={styles.largeSelHeading}>
@@ -119,27 +109,23 @@ const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
           <span className={styles.largeSelHeadingMain}>{largeDisplayParts.main}</span>
           <span className={styles.largeSelHeadingSuffix}>{largeDisplayParts.suffix}</span>
         </>
-      ) : (
-        <span className={styles.largeSelHeadingFallback}>{fallbackHeadingText}</span>
-      )}
+      ) : null}
     </div>
   );
 };
 
 const LabelTile: React.FC<ILabelTileProps> = ({
   code,
-  shortCodePrefix,
   layoutMode = DEFAULT_LABEL_PRINT_MODE,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
-  const { primary, secondary } = getPrimaryLabelText(code, shortCodePrefix);
-  const labelValue = getEncodedLabelCode(code, shortCodePrefix);
+  const labelValue = getEncodedLabelCode(code);
   const isLargeSel = layoutMode === 'large-sel';
-  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code, shortCodePrefix);
+  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code);
   const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
   const miniPrimaryText = miniThreeRowDisplayParts.main;
   const primaryFontSizeMm = isLargeSel
-    ? getMiniPrimaryFontSizeMm(primary, layoutStrategy)
+    ? getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy)
     : Math.min(getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy), miniAisleGeometry.mainMaxTextSizeMm);
   const primaryCenterFromContentTopMm = miniAisleGeometry.mainCenterFromContentTopMm;
 
@@ -149,9 +135,6 @@ const LabelTile: React.FC<ILabelTileProps> = ({
         {isLargeSel ? (
           <LargeSelTileContent
             code={code}
-            primary={primary}
-            secondary={secondary}
-            shortCodePrefix={shortCodePrefix}
           />
         ) : (
           <>

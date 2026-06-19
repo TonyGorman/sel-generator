@@ -83,7 +83,7 @@ vi.mock('./LabelTile', () => ({
   normalizeLabelCode: (code: string) => code,
   getEncodedLabelCode: (code: string) => code,
   getMiniPrimaryFontSizeMm: () => 13,
-  getPrimaryLabelText: (code: string) => ({ primary: code, secondary: code }),
+
   getLargeSelDisplayParts: () => null,
 }));
 

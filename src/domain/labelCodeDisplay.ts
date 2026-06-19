@@ -61,42 +61,7 @@ export const getEncodedLabelCode = (
   return normalizedCode;
 };
 
-export const getPrimaryLabelText = (
-  code: string,
-  shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
-): { primary: string; secondary: string } => {
 
-  const upperCode = code.toUpperCase();
-  const secondaryDisplayValue = normalizeLabelCode(upperCode, shortCodePrefix);
-
-  const parsed = parseLabelCode(upperCode, shortCodePrefix);
-  if (parsed) {
-    if (parsed.kind === 'special') {
-      return {
-        primary: parsed.value,
-        secondary: '',
-      };
-    }
-
-    if (parsed.kind === 'aisle') {
-      const { side, bay } = parsed.parts;
-      return {
-        primary: `${side}${bay}`,
-        secondary: secondaryDisplayValue,
-      };
-    }
-
-    return {
-      primary: parsed.parts.prefix,
-      secondary: secondaryDisplayValue,
-    };
-  }
-
-  return {
-    primary: upperCode,
-    secondary: secondaryDisplayValue,
-  };
-};
 
 export interface ILargeLabelDisplayParts {
   prefix: string;

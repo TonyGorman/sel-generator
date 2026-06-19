@@ -266,8 +266,7 @@
 }
 
 .largeSelHeadingPrefix,
-.largeSelHeadingSuffix,
-.largeSelHeadingFallback {
+.largeSelHeadingSuffix {
   font-size: var(--current-large-prefix-text-size-mm, 12mm);
 }
 

@@ -15,7 +15,6 @@ export type { ILargeLabelDisplayParts, IMiniThreeRowDisplayParts } from './label
 export {
   normalizeLabelCode,
   getEncodedLabelCode,
-  getPrimaryLabelText,
   getLargeSelDisplayParts,
   getMiniThreeRowDisplayParts,
 } from './labelCodeDisplay';

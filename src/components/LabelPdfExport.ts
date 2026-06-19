@@ -3,7 +3,6 @@ import {
   getEncodedLabelCode,
   getLargeSelDisplayParts,
   getMiniThreeRowDisplayParts,
-  getPrimaryLabelText,
 } from '../domain/labelCodeDomain';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import {
@@ -112,8 +111,6 @@ const drawVectorBarcode = async (
 
 const drawLargeSelHeading = (
   pdf: JsPdfInstance,
-  primary: string,
-  secondary: string,
   xCenter: number,
   topY: number,
   topAreaHeight: number,
@@ -123,14 +120,10 @@ const drawLargeSelHeading = (
   const { largePrefixTextSizeMm, largeMainTextSizeMm, largeSuffixTextSizeMm } = layoutStrategy.typography;
   const baselineOffsetFactor = layoutStrategy.typography.pdfTextBaselineOffsetFactor;
   const displayParts = getLargeSelDisplayParts(code);
-  const fallbackHeadingText = secondary || primary;
 
   const mainBaselineY = topY + topAreaHeight / 2 + largeMainTextSizeMm * baselineOffsetFactor;
 
   if (!displayParts) {
-    setPdfBoldFont(pdf);
-    pdf.setFontSize(mmToPt(largeMainTextSizeMm));
-    pdf.text(fallbackHeadingText, xCenter, mainBaselineY, { align: 'center' });
     return;
   }
 
@@ -290,7 +283,6 @@ const drawLargeSelTile = async ({
   svg2pdf,
 }: IVectorTileContext): Promise<void> => {
   const { page, typography, barcodeGeometry } = layoutStrategy;
-  const { primary, secondary } = getPrimaryLabelText(code);
   const encodedValue = getEncodedLabelCode(code);
   const barcodeX = x + (page.labelWidthMm - barcodeGeometry.widthMm) / 2;
   const barcodeY =
@@ -304,8 +296,6 @@ const drawLargeSelTile = async ({
 
   drawLargeSelHeading(
     pdf,
-    primary,
-    secondary,
     x + page.labelWidthMm / 2,
     topAreaStartY,
     topAreaHeight,

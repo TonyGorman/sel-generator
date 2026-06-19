@@ -15,7 +15,6 @@ export type Styles = {
   'labelDiv': string;
   'labelText': string;
   'largeSelHeading': string;
-  'largeSelHeadingFallback': string;
   'largeSelHeadingMain': string;
   'largeSelHeadingPrefix': string;
   'largeSelHeadingSuffix': string;
