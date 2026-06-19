@@ -1,8 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import LabelTile, { normalizeLabelCode, getEncodedLabelCode, getLargeSelDisplayParts, getMiniPrimaryFontSizeMm, getPrimaryLabelText } from './LabelTile';
-import { SHORT_CODE_PREFIXES, SPECIAL_AISLE_VALUES } from '../config/labelConfig';
+import { SHORT_CODE_PREFIXES } from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 
 const MM_TO_PX = 96 / 25.4;

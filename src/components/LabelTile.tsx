@@ -16,9 +16,6 @@ import {
 } from './labelLayoutGeometry';
 
 const MM_TO_PX = 96 / 25.4;
-const MINI_LABEL_HEIGHT_MM = 8;
-const LARGE_LABEL_HEIGHT_MM = 10;
-const LABEL_MODULE_WIDTH_MM = 0.23;
 const PRIMARY_TEXT_FONT_WEIGHT = 800;
 const PRIMARY_TEXT_FONT_FAMILY = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
@@ -135,7 +132,6 @@ const LabelTile: React.FC<ILabelTileProps> = ({
   layoutMode = DEFAULT_LABEL_PRINT_MODE,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
-  const { typography } = layoutStrategy;
   const { primary, secondary } = getPrimaryLabelText(code, shortCodePrefix);
   const labelValue = getEncodedLabelCode(code, shortCodePrefix);
   const isLargeSel = layoutMode === 'large-sel';

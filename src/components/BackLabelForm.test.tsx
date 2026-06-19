@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackLabelForm from './BackLabelForm';
@@ -9,8 +8,6 @@ vi.mock('./LabelGenerator', () => ({
     <div data-testid="generated-labels">{labelCodes.join('|')}</div>
   ),
 }));
-
-const defaultShortCodePrefix = SHORT_CODE_PREFIXES[0];
 
 describe('BackLabelForm', () => {
   it('shows validation error when fields are missing', () => {

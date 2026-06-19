@@ -1,8 +1,7 @@
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
-import { SHORT_CODE_PREFIXES, MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ labelCodes, layoutMode }: { labelCodes: string[]; layoutMode?: string }) => (

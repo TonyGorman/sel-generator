@@ -5,7 +5,6 @@ import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { fitMiniPrimaryFontSizeMm, getMiniAisleThreeRowGeometry, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
 
 const MM_TO_PT = 72 / 25.4;
-const mmToPt = (mm: number): number => mm * MM_TO_PT;
 
 const createPdfMock = () => {
   const textCalls: Array<{ text: string; x: number; y: number; options?: { align?: 'center' | 'left' | 'right' } }> = [];

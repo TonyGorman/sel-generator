@@ -185,18 +185,6 @@
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.secondaryCode {
-  position: absolute;
-  top: var(--current-mini-secondary-top-from-content-top-mm, 16.5mm);
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 5.8mm;
-  line-height: 1.05;
-  font-weight: 700;
-  white-space: nowrap;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
 .miniAisleTopCode {
   position: absolute;
   top: var(--current-mini-aisle-top-center-from-content-top-mm, 2.2mm);

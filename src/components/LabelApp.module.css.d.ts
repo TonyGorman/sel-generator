@@ -29,7 +29,6 @@ export type Styles = {
   'printLabelDiv': string;
   'printPage': string;
   'printPortal': string;
-  'secondaryCode': string;
   'sectionIntro': string;
   'tabButton': string;
   'tabButtonActive': string;
