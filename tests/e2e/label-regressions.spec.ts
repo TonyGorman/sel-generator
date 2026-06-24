@@ -120,7 +120,12 @@ const renderFirstPdfPageAsPng = async (page: Page, pdfBytes: Buffer, scale: numb
 
             return canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
           } finally {
-            await documentProxy.destroy();
+            // pdfjs-dist API differs by version/build: documentProxy.destroy may be absent.
+            if (typeof documentProxy.destroy === 'function') {
+              await documentProxy.destroy();
+            } else if (typeof loadingTask.destroy === 'function') {
+              await loadingTask.destroy();
+            }
           }
         } finally {
           URL.revokeObjectURL(pdfBundleUrl);
