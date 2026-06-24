@@ -1,4 +1,4 @@
-import { IAisleCodeParts } from '../models/IAisleCodeParts';
+import { AisleSide, IAisleCodeParts } from '../models/IAisleCodeParts';
 import { IShortCodeParts } from '../models/IShortCodeParts';
 import {
   AISLE_PREFIXES,
@@ -29,7 +29,7 @@ const parseCompactAisleCode = (code: string): IAisleCodeParts | null => {
   }
 
   const [, aisle, side, bay, shelf] = match;
-  return { aisle, side, bay, shelf };
+  return { aisle, side: side as AisleSide, bay, shelf };
 };
 
 const normalizeConfiguredAislePrefixes = (prefixes: readonly string[]): string[] => {
@@ -55,7 +55,7 @@ const parseCompactConfiguredAisleCode = (
   const [, prefix, aisleNumber, side, bay, shelf] = match;
   return {
     aisle: `${prefix}${aisleNumber}`,
-    side,
+    side: side as AisleSide,
     bay,
     shelf,
   };

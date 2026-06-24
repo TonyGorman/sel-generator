@@ -27,7 +27,7 @@ describe('Pagination', () => {
 
     expect(screen.getAllByRole('button')).toHaveLength(2);
 
-    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
 
     await waitFor(() => {
       expect(onPageChange).toHaveBeenCalledWith(fullData.slice(8, 16));
@@ -44,7 +44,7 @@ describe('Pagination', () => {
       expect(onPageChange).toHaveBeenCalledWith(fullData.slice(0, 35));
     });
 
-    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
 
     await waitFor(() => {
       expect(onPageChange).toHaveBeenCalledWith(fullData.slice(35, 70));
@@ -55,6 +55,80 @@ describe('Pagination', () => {
 
     await waitFor(() => {
       expect(onPageChange).toHaveBeenLastCalledWith(reducedData);
+    });
+  });
+
+  it('renders navigation landmark with accessible label', () => {
+    const onPageChange = vi.fn();
+    const data = Array.from({ length: 70 }, (_, i) => `item-${i + 1}`);
+
+    render(<Pagination data={data} onPageChange={onPageChange} />);
+
+    expect(screen.getByRole('navigation', { name: 'Label pages' })).toBeInTheDocument();
+  });
+
+  it('marks the active page button with aria-current', async () => {
+    const onPageChange = vi.fn();
+    const data = Array.from({ length: 70 }, (_, i) => `item-${i + 1}`);
+
+    render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
+
+    const page1Button = screen.getByRole('button', { name: 'Go to page 1' });
+    const page2Button = screen.getByRole('button', { name: 'Go to page 2' });
+
+    expect(page1Button).toHaveAttribute('aria-current', 'page');
+    expect(page2Button).not.toHaveAttribute('aria-current');
+
+    fireEvent.click(page2Button);
+
+    await waitFor(() => {
+      expect(page2Button).toHaveAttribute('aria-current', 'page');
+    });
+    expect(page1Button).not.toHaveAttribute('aria-current');
+  });
+
+  it('handles single page of data without rendering page buttons', async () => {
+    const onPageChange = vi.fn();
+    const data = Array.from({ length: 10 }, (_, i) => `item-${i + 1}`);
+
+    render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith(data);
+    });
+
+    expect(screen.queryAllByRole('button')).toHaveLength(1);
+  });
+
+  it('handles data length exactly equal to itemsPerPage', async () => {
+    const onPageChange = vi.fn();
+    const data = Array.from({ length: 35 }, (_, i) => `item-${i + 1}`);
+
+    render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith(data);
+    });
+
+    expect(screen.queryAllByRole('button')).toHaveLength(1);
+  });
+
+  it('navigates back to first page correctly', async () => {
+    const onPageChange = vi.fn();
+    const data = Array.from({ length: 105 }, (_, i) => `item-${i + 1}`);
+
+    render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go to page 3' }));
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenCalledWith(data.slice(70, 105));
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go to page 1' }));
+
+    await waitFor(() => {
+      expect(onPageChange).toHaveBeenLastCalledWith(data.slice(0, 35));
     });
   });
 });

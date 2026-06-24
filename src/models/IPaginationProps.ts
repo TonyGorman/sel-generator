@@ -1,5 +1,5 @@
 export interface IPaginationProps {
-    data:string[],
-    onPageChange:(item?: string[]) => void;
+    data: string[];
+    onPageChange: (items: string[]) => void;
     itemsPerPage?: number;
   }

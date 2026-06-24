@@ -11,7 +11,7 @@ export const usePaginatedLabels = (labelCodes: string[], itemsPerPage: number) =
     return pages;
   }, [labelCodes, itemsPerPage]);
 
-  const [previewItems, setPreviewItems] = React.useState<string[]>(() => labelCodes.slice(0, itemsPerPage));
+  const [previewItems, setPreviewItems] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     setPreviewItems(labelCodes.slice(0, itemsPerPage));
