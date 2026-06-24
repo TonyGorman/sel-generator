@@ -142,9 +142,6 @@ export const getMiniThreeRowDisplayParts = (
     };
   }
 
-  return {
-    top: '',
-    main: normalizedCode,
-    bottom: '',
-  };
+  const _exhaustiveCheck: never = parsed;
+  return _exhaustiveCheck;
 };

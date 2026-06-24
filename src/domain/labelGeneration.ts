@@ -4,6 +4,7 @@ import {
   getShortBayRangeValidationMessage,
   getSideBayRangeValidationMessage,
 } from '../config/validationMessages';
+import { AisleSide } from '../models/IAisleCodeParts';
 
 export interface IAisleLabelInput {
   aisle_start: number | null;
@@ -41,7 +42,7 @@ const getShelfTokens = (lastShelf: string): string[] => {
 
 const buildAisleSideCodes = (
   aisle: number,
-  side: 'L' | 'R' | 'E' | 'F',
+  side: AisleSide,
   start: number,
   end: number,
   shelfTokens: string[],
@@ -129,14 +130,14 @@ export const generateAisleLabelCodes = (
   }
 
   const shelfTokens = getShelfTokens(input.shelves);
-  const labelsBySide: Record<'L' | 'R' | 'E' | 'F', string[]> = {
+  const labelsBySide: Record<AisleSide, string[]> = {
     L: [],
     R: [],
     E: [],
     F: [],
   };
   const selectedSideCandidates: Array<{
-    side: 'L' | 'R' | 'E' | 'F';
+    side: AisleSide;
     start: number | null;
     end: number | null;
   }> = [
@@ -145,9 +146,9 @@ export const generateAisleLabelCodes = (
     { side: 'E', start: input.ef_start, end: input.ef_end },
     { side: 'F', start: input.ft_start, end: input.ft_end },
   ];
-  const selectedSides: Array<{ side: 'L' | 'R' | 'E' | 'F'; start: number; end: number }> =
+  const selectedSides: Array<{ side: AisleSide; start: number; end: number }> =
     selectedSideCandidates
-      .filter((range): range is { side: 'L' | 'R' | 'E' | 'F'; start: number; end: number } => {
+      .filter((range): range is { side: AisleSide; start: number; end: number } => {
         return hasValue(range.start) && hasValue(range.end);
       });
 
