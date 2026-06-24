@@ -22,7 +22,7 @@ import {
 } from '../config/validationMessages';
 import { Button, TextField } from './FormControls';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
-import { normalizeSpecificInputCodes } from '../domain/labelGenerationUseCases';
+import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 
 const SpecificLabelForm: React.FC = () => {
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;

@@ -2,7 +2,7 @@
 
 ## Core Objective
 
-This project is A4 print-first. The primary and non-negotiable use case is printing shelf edge labels on A4 SEL paper for mini labels and A4 73mm x 105mm  SEL paper for large labels.
+This project is A4 print-first. The primary and non-negotiable use case is printing shelf edge labels on A4 SEL paper for 39mm x 39mm mini labels and A4 SEL paper for 73mm x 105mm large labels.
 This has to be millimeter perfect to ensure the labels fit within the perforated lines on the paper.
 Protect physical label accuracy and scan reliability before making UI/UX changes.
 
@@ -36,7 +36,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - Prefixed aisle tokens are allow-listed by configuration (default `BR`, `BL`, `FL`, `FR`) and their numeric suffix is validated against configured aisle min/max bounds.
 - Shelf tokens are **alphabetical only** (`A`-`L`) for aisle and short label codes.
 - **Barcode payload is always compact**, identical to the input after uppercasing.
-- Display text (human-readable secondary line) uses spaces for visual treatment only — this is a rendering concern, not an input format.
+- Display text uses font size and weight for visual treatment only — this is a rendering concern, not an input format.
 - Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a compact payload.
 - PDF export uses the same compact encoding via `LabelPdfExport.ts`.
 - Scanner reliability depends on compact, separator-free payloads.

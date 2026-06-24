@@ -18,7 +18,7 @@ import {
     generateShortLabelCodes,
     parseNumericInput,
     validateShortLabelInput,
-} from '../domain/labelGenerationUseCases';
+} from '../domain/labelGeneration';
 
 const SHORT_CODE_PREFIX_OPTIONS = SHORT_CODE_PREFIXES.map((prefix) => ({
     key: prefix,

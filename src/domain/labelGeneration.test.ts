@@ -8,7 +8,7 @@ import {
   validateShortLabelInput,
   type IAisleLabelInput,
   type IShortLabelInput,
-} from './labelGenerationUseCases';
+} from './labelGeneration';
 
 const formatTwoDigitValue = (value: number): string => value.toString().padStart(2, '0');
 

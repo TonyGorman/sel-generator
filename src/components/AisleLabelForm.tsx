@@ -20,7 +20,7 @@ import {
     IAisleLabelInput,
     parseNumericInput,
     validateAisleLabelInput,
-} from '../domain/labelGenerationUseCases';
+} from '../domain/labelGeneration';
 
 type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelves'>;
 
