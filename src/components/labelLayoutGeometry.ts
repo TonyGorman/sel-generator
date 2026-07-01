@@ -31,7 +31,7 @@ export const fitMiniPrimaryFontSizeMm = (
 ): number => {
   const { page, typography } = layoutStrategy;
 
-  if (layoutStrategy.mode !== 'mini-sel' || !typography.primaryAutoFitEnabled) {
+  if (layoutStrategy.tileLayout !== 'mini-stacked' || !typography.primaryAutoFitEnabled) {
     return typography.primaryTextMaxSizeMm;
   }
 

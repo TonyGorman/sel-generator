@@ -1,5 +1,6 @@
 import { AisleSide, IAisleCodeParts } from '../models/IAisleCodeParts';
 import { IShortCodeParts } from '../models/IShortCodeParts';
+import { ISpecialCodeParts } from '../models/ISpecialCodeParts';
 import {
   AISLE_PREFIXES,
   SHORT_CODE_PREFIXES,
@@ -16,7 +17,7 @@ import {
 } from './labelCodePatterns';
 
 export type ParsedLabelCode =
-  | { kind: 'special'; value: string }
+  | { kind: 'special'; parts: ISpecialCodeParts }
   | { kind: 'aisle'; parts: IAisleCodeParts }
   | { kind: 'short'; parts: IShortCodeParts };
 
@@ -110,7 +111,7 @@ export const parseLabelCode = (
 
   const specialAisle = normalizeAllowedValue(normalizedCode, SPECIAL_AISLE_VALUES);
   if (specialAisle) {
-    return { kind: 'special', value: specialAisle };
+    return { kind: 'special', parts: { value: specialAisle } };
   }
 
   const configuredAisleCode = parseCompactAisleCodeByConfiguredPrefix(normalizedCode);

@@ -1,4 +1,5 @@
 export type LabelPrintMode = 'mini-sel' | 'large-sel';
+export type TileLayout = 'mini-stacked' | 'large-heading';
 export type PageOrientation = 'landscape' | 'portrait';
 
 export interface ILabelPageGeometry {
@@ -45,6 +46,7 @@ export interface IBarcodeGeometry {
 
 export interface ILabelLayoutStrategy {
   mode: LabelPrintMode;
+  tileLayout: TileLayout;
   displayName: string;
   page: ILabelPageGeometry;
   typography: ILabelTypographyGeometry;

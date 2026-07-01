@@ -11,7 +11,7 @@ export type {
 export { validateSpecificLabelCode } from './labelCodeValidator';
 
 // Display exports
-export type { ILargeLabelDisplayParts, IMiniThreeRowDisplayParts } from './labelCodeDisplay';
+export type { CompactLabelCode, ILargeLabelDisplayParts, IMiniThreeRowDisplayParts } from './labelCodeDisplay';
 export {
   normalizeLabelCode,
   getEncodedLabelCode,

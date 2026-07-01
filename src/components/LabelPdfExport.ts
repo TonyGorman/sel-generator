@@ -352,7 +352,7 @@ export const drawVectorPage = async (
     const y = page.pagePadTopMm + row * page.labelHeightMm;
 
     pdf.rect(x, y, page.labelWidthMm, page.labelHeightMm);
-    const drawTile = layoutStrategy.mode === 'large-sel' ? drawLargeSelTile : drawMiniSelTile;
+    const drawTile = layoutStrategy.tileLayout === 'large-heading' ? drawLargeSelTile : drawMiniSelTile;
     await drawTile({
       pdf,
       code,

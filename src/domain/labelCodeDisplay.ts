@@ -1,12 +1,15 @@
 import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
 import { parseLabelCode } from './labelCodeParser';
+import { CompactLabelCode, asCompactLabelCode } from '../models/ILabelCode';
 
-const compactAisleCode = (aisle: string, side: string, bay: string, shelf: string): string => {
-  return `${aisle}${side}${bay}${shelf}`;
+export type { CompactLabelCode } from '../models/ILabelCode';
+
+const compactAisleCode = (aisle: string, side: string, bay: string, shelf: string): CompactLabelCode => {
+  return asCompactLabelCode(`${aisle}${side}${bay}${shelf}`);
 };
 
-const compactBackCode = (prefix: string, bay: string, shelf: string): string => {
-  return `${prefix}${bay}${shelf}`;
+const compactBackCode = (prefix: string, bay: string, shelf: string): CompactLabelCode => {
+  return asCompactLabelCode(`${prefix}${bay}${shelf}`);
 };
 
 export const normalizeLabelCode = (
@@ -18,7 +21,7 @@ export const normalizeLabelCode = (
 
   if (parsed) {
     if (parsed.kind === 'special') {
-      return parsed.value;
+      return parsed.parts.value;
     }
 
     if (parsed.kind === 'aisle') {
@@ -38,13 +41,13 @@ export const normalizeLabelCode = (
 export const getEncodedLabelCode = (
   code: string,
   shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
-): string => {
+): CompactLabelCode => {
   const normalizedCode = code.toUpperCase();
 
   const parsed = parseLabelCode(normalizedCode, shortCodePrefix);
   if (parsed) {
     if (parsed.kind === 'special') {
-      return parsed.value;
+      return asCompactLabelCode(parsed.parts.value);
     }
 
     if (parsed.kind === 'aisle') {
@@ -58,7 +61,7 @@ export const getEncodedLabelCode = (
     }
   }
 
-  return normalizedCode;
+  return asCompactLabelCode(normalizedCode);
 };
 
 
@@ -137,7 +140,7 @@ export const getMiniThreeRowDisplayParts = (
   if (parsed.kind === 'special') {
     return {
       top: '',
-      main: parsed.value,
+      main: parsed.parts.value,
       bottom: '',
     };
   }

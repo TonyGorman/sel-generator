@@ -1,7 +1,8 @@
-import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
+import { ILabelLayoutStrategy, LabelPrintMode, TileLayout } from '../models/ILabelLayoutStrategy';
 
 class MiniSelLayoutStrategy implements ILabelLayoutStrategy {
   mode: LabelPrintMode = 'mini-sel';
+  tileLayout: TileLayout = 'mini-stacked';
 
   displayName = 'Mini SEL';
 
@@ -50,6 +51,7 @@ class MiniSelLayoutStrategy implements ILabelLayoutStrategy {
 
 class LargeSelLayoutStrategy implements ILabelLayoutStrategy {
   mode: LabelPrintMode = 'large-sel';
+  tileLayout: TileLayout = 'large-heading';
 
   displayName = 'Large SEL';
 
@@ -99,8 +101,13 @@ class LargeSelLayoutStrategy implements ILabelLayoutStrategy {
 const miniSelLayoutStrategy = new MiniSelLayoutStrategy();
 const largeSelLayoutStrategy = new LargeSelLayoutStrategy();
 
+const strategyByMode = new Map<LabelPrintMode, ILabelLayoutStrategy>([
+  ['mini-sel', miniSelLayoutStrategy],
+  ['large-sel', largeSelLayoutStrategy],
+]);
+
 export const getLabelLayoutStrategy = (mode: LabelPrintMode): ILabelLayoutStrategy => {
-  return mode === 'large-sel' ? largeSelLayoutStrategy : miniSelLayoutStrategy;
+  return strategyByMode.get(mode) ?? miniSelLayoutStrategy;
 };
 
 export const DEFAULT_LABEL_PRINT_MODE: LabelPrintMode = 'mini-sel';

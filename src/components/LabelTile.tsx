@@ -120,19 +120,19 @@ const LabelTile: React.FC<ILabelTileProps> = ({
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const labelValue = getEncodedLabelCode(code);
-  const isLargeSel = layoutMode === 'large-sel';
+  const isLargeHeading = layoutStrategy.tileLayout === 'large-heading';
   const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code);
   const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
   const miniPrimaryText = miniThreeRowDisplayParts.main;
-  const primaryFontSizeMm = isLargeSel
+  const primaryFontSizeMm = isLargeHeading
     ? getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy)
     : Math.min(getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy), miniAisleGeometry.mainMaxTextSizeMm);
   const primaryCenterFromContentTopMm = miniAisleGeometry.mainCenterFromContentTopMm;
 
   return (
-    <div className={isLargeSel ? styles.labelBoxLargeSel : styles.labelBox}>
-      <div className={isLargeSel ? styles.largeSelLabelTextArea : styles.labelText}>
-        {isLargeSel ? (
+    <div className={isLargeHeading ? styles.labelBoxLargeSel : styles.labelBox}>
+      <div className={isLargeHeading ? styles.largeSelLabelTextArea : styles.labelText}>
+        {isLargeHeading ? (
           <LargeSelTileContent
             code={code}
           />
@@ -165,7 +165,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           </>
         )}
       </div>
-      <div className={isLargeSel ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
+      <div className={isLargeHeading ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
         <Barcode
           value={labelValue}
           format="CODE128B"
@@ -174,7 +174,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           height={mmToPx(layoutStrategy.typography.barcodeHeightMm)}
           margin={0}
         />
-        <div className={isLargeSel ? styles.encodedValueLargeSel : styles.encodedValue}>{labelValue}</div>
+        <div className={isLargeHeading ? styles.encodedValueLargeSel : styles.encodedValue}>{labelValue}</div>
       </div>
     </div>
   );

@@ -283,4 +283,42 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === 'A')).toBe(true);
     expect(textCalls.some((call) => call.text === 'BR1 L01 A')).toBe(false);
   });
+
+  it('dispatches tile drawing via tileLayout not mode — mini-stacked strategy renders stacked rows', async () => {
+    const { pdf, textCalls } = createPdfMock();
+    const miniStrategy = getLabelLayoutStrategy('mini-sel');
+
+    expect(miniStrategy.tileLayout).toBe('mini-stacked');
+
+    await drawVectorPage(
+      pdf,
+      ['01L02A'],
+      miniStrategy,
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'L02')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+  });
+
+  it('dispatches tile drawing via tileLayout not mode — large-heading strategy renders heading parts', async () => {
+    const { pdf, textCalls } = createPdfMock();
+    const largeStrategy = getLabelLayoutStrategy('large-sel');
+
+    expect(largeStrategy.tileLayout).toBe('large-heading');
+
+    await drawVectorPage(
+      pdf,
+      ['01L02A'],
+      largeStrategy,
+      jsBarcodeStub,
+      svg2pdfStub,
+    );
+
+    expect(textCalls.some((call) => call.text === '01')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'L02')).toBe(true);
+    expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+  });
 });

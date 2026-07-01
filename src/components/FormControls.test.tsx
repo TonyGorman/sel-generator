@@ -1,7 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { Button, RadioGroup, TextField } from './FormControls';
+import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
+import { MAX_SHELF_LETTER } from '../config/labelConfig';
 
 describe('FormControls', () => {
   it('renders Button with default type button', () => {
@@ -60,5 +61,46 @@ describe('FormControls', () => {
 
     fireEvent.click(screen.getByLabelText('Option two'));
     expect(onChange).toHaveBeenCalledWith('two');
+  });
+});
+
+describe('ShelfSelect', () => {
+  it('renders a placeholder option and all shelf letters up to MAX_SHELF_LETTER', () => {
+    const onChange = vi.fn();
+    render(<ShelfSelect value="" onChange={onChange} />);
+
+    const select = screen.getByRole('combobox');
+    const options = Array.from(select.querySelectorAll('option'));
+    const optionValues = options.map((o) => o.value);
+
+    expect(optionValues[0]).toBe('');
+
+    const maxCode = MAX_SHELF_LETTER.charCodeAt(0);
+    const expectedLetters = Array.from({ length: maxCode - 'A'.charCodeAt(0) + 1 }, (_, i) =>
+      String.fromCharCode('A'.charCodeAt(0) + i),
+    );
+    expect(optionValues.slice(1)).toEqual(expectedLetters);
+  });
+
+  it('reflects the selected value', () => {
+    const onChange = vi.fn();
+    render(<ShelfSelect value="C" onChange={onChange} />);
+
+    expect(screen.getByRole('combobox')).toHaveValue('C');
+  });
+
+  it('calls onChange with the selected letter when an option is chosen', () => {
+    const onChange = vi.fn();
+    render(<ShelfSelect value="" onChange={onChange} />);
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'E' } });
+    expect(onChange).toHaveBeenCalledWith('E');
+  });
+
+  it('accepts an id prop for label association', () => {
+    const onChange = vi.fn();
+    render(<ShelfSelect id="shelf-input" value="A" onChange={onChange} />);
+
+    expect(screen.getByRole('combobox')).toHaveAttribute('id', 'shelf-input');
   });
 });

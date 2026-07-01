@@ -25,6 +25,24 @@ describe('validateSpecificLabelCode', () => {
     });
   });
 
+  it('parses special aisle values into ISpecialCodeParts shape', () => {
+    const result = parseLabelCode('KIOSK');
+
+    expect(result).toEqual({
+      kind: 'special',
+      parts: { value: 'KIOSK' },
+    });
+  });
+
+  it('parses special aisle values case-insensitively into ISpecialCodeParts shape', () => {
+    const result = parseLabelCode('floral');
+
+    expect(result).toEqual({
+      kind: 'special',
+      parts: { value: 'FLORAL' },
+    });
+  });
+
   it('parses configured compact prefixed aisle labels with multi-digit aisle numbers', () => {
     const result = parseLabelCode('BR10L01A');
 

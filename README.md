@@ -77,12 +77,41 @@ flowchart TD
 
   PL --> LT[LabelTile]
   PR --> LT
-  LT --> D2[Domain: parser/display/encoding]
+  LT --> DH[Domain: display helpers getMiniThreeRowDisplayParts / getLargeSelDisplayParts]
+  LT --> D2[Domain: parser / encoding getEncodedLabelCode]
 
   EX --> VP[Vector PDF: drawVectorPage]
   EX --> RF[Raster Fallback: drawRasterPage]
+  VP --> DH
   VP --> D2
 ```
+
+## Domain Model
+
+The domain layer is split across three files:
+
+- **`labelCodeParser.ts`**: Parses compact input into a `ParsedLabelCode` discriminated union with three branches: `{ kind: 'special'; parts: ISpecialCodeParts }`, `{ kind: 'aisle'; parts: IAisleCodeParts }`, and `{ kind: 'short'; parts: IShortCodeParts }`.
+- **`labelCodeDisplay.ts`**: Converts parsed codes to display and encoding formats. `getEncodedLabelCode()` returns a `CompactLabelCode` branded type guaranteeing separator-free barcode payloads.
+- **`labelCodeValidator.ts`**: Validates specific label codes against configured bounds.
+
+Both `IAisleCodeParts` and `IShortCodeParts` extend a common `IBaseCodeParts` base (`bay`, `shelf`).
+
+## Layout Strategies
+
+Label layout is controlled by objects implementing `ILabelLayoutStrategy`. Each strategy declares two discriminants:
+
+- **`mode`** (`LabelPrintMode`): `'mini-sel'` or `'large-sel'` — maps to the physical paper format.
+- **`tileLayout`** (`TileLayout`): `'mini-stacked'` or `'large-heading'` — controls which rendering path is used in `LabelTile` and `drawVectorPage`.
+
+Strategies are registered in a `Map<LabelPrintMode, ILabelLayoutStrategy>` inside `labelLayoutStrategies.ts`. Adding a new mini-sel variant requires:
+
+1. A new strategy class implementing `ILabelLayoutStrategy` with a new `tileLayout` value (e.g. `'mini-two-row'`).
+2. Adding the new `TileLayout` literal to `src/models/ILabelLayoutStrategy.ts`.
+3. Adding a dispatch branch in `LabelTile.tsx` and `LabelPdfExport.ts` for the new `tileLayout`.
+4. Adding geometry functions in `labelLayoutGeometry.ts` for the new row structure.
+5. Registering the strategy in the `strategyByMode` map in `labelLayoutStrategies.ts`.
+
+All geometry values must remain in millimeters.
 
 ## Build and Publish
 

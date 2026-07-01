@@ -21,6 +21,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 
 - Screen preview and print portal use the same `LabelTile` render path.
 - Download uses a calibrated vector PDF path by default, with raster fallback.
+- `LabelTile` and `drawVectorPage` dispatch to layout-specific rendering based on `layoutStrategy.tileLayout` (`'mini-stacked'` or `'large-heading'`), not `layoutStrategy.mode`.
 - If print and download diverge, treat it as a rendering-path calibration issue first.
 
 ## Label Safety Rules
@@ -37,7 +38,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - Shelf tokens are **alphabetical only** (`A`-`L`) for aisle and short label codes.
 - **Barcode payload is always compact**, identical to the input after uppercasing.
 - Display text uses font size and weight for visual treatment only — this is a rendering concern, not an input format.
-- Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a compact payload.
+- Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a `CompactLabelCode` branded payload (a `string` subtype that prevents accidental use of display-formatted codes as barcode values).
 - PDF export uses the same compact encoding via `LabelPdfExport.ts`.
 - Scanner reliability depends on compact, separator-free payloads.
 
