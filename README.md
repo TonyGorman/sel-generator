@@ -26,10 +26,9 @@ These are centrally configured in `src/config/labelConfig.ts` under:
 
 All labels display:
 
+- Aisle, side, bay, shelf values in several different variations as disccused next.
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
 - Encoded barcode value as readable text below the barcode for visual verification
-- Primary text shown as side+bay (e.g., "R01")
-- Secondary text shown with spaces in generated Aisle/Back flows
 
 Shelf values are always alphabetical (`A`-`Z`) across generated aisle and short code labels. Special aisle values are defined in code.
 
