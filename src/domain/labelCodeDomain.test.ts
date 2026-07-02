@@ -180,7 +180,7 @@ describe('validateSpecificLabelCode', () => {
   it('rejects out-of-range shelf values', () => {
     const result = validateSpecificLabelCode('01L01Z', {
       ...defaultOptions,
-      maxShelfLetter: MAX_SHELF_LETTER,
+      maxShelfLetter: 'X',
     });
 
     expect(result).toEqual({ ok: false, reason: 'invalid-shelf-range' });
