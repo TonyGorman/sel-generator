@@ -3,47 +3,31 @@ import { IMiniCompositionVariant, MiniCompositionVariantId } from '../models/IMi
 import { miniShelfEmphasisVariant } from './variants/miniShelfEmphasisVariant';
 import { miniThreeRowVariant } from './variants/miniThreeRowVariant';
 
+export const DEFAULT_MINI_COMPOSITION_VARIANT_ID: MiniCompositionVariantId = 'mini-three-row';
+
 const variantRegistry = new Map<MiniCompositionVariantId, IMiniCompositionVariant>([
-  ['mini-three-row', miniThreeRowVariant],
+  [DEFAULT_MINI_COMPOSITION_VARIANT_ID, miniThreeRowVariant],
   ['mini-shelf-emphasis', miniShelfEmphasisVariant],
 ]);
 
-const isMiniCompositionVariantId = (value: unknown): value is MiniCompositionVariantId => {
-  return value === 'mini-three-row' || value === 'mini-shelf-emphasis';
-};
+export const MINI_VARIANT_OPTIONS: ReadonlyArray<{ id: MiniCompositionVariantId; label: string }> =
+  Array.from(variantRegistry.values()).map((v) => ({ id: v.id, label: v.displayLabel }));
 
-const resolveQuerystringMiniVariant = (): MiniCompositionVariantId | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  const queryVariant = new URLSearchParams(window.location.search).get('miniVariant');
-  if (!isMiniCompositionVariantId(queryVariant)) {
-    return null;
-  }
-
-  return queryVariant;
-};
-
-const resolveConfiguredMiniVariant = (): MiniCompositionVariantId => {
-  const queryVariant = resolveQuerystringMiniVariant();
-  if (queryVariant) {
-    return queryVariant;
-  }
-
-  return 'mini-three-row';
+export const isMiniCompositionVariantId = (value: unknown): value is MiniCompositionVariantId => {
+  return typeof value === 'string' && variantRegistry.has(value as MiniCompositionVariantId);
 };
 
 export const getMiniCompositionVariant = (id: MiniCompositionVariantId): IMiniCompositionVariant => {
   return variantRegistry.get(id) ?? miniThreeRowVariant;
 };
 
-export const DEFAULT_MINI_COMPOSITION_VARIANT_ID: MiniCompositionVariantId = resolveConfiguredMiniVariant();
-
-export const resolveMiniCompositionVariantId = (mode: LabelPrintMode): MiniCompositionVariantId => {
+export const resolveMiniCompositionVariantId = (
+  mode: LabelPrintMode,
+  configuredMiniVariantId: MiniCompositionVariantId = DEFAULT_MINI_COMPOSITION_VARIANT_ID,
+): MiniCompositionVariantId => {
   if (mode === 'mini-sel') {
-    return DEFAULT_MINI_COMPOSITION_VARIANT_ID;
+    return configuredMiniVariantId;
   }
 
-  return 'mini-three-row';
+  return DEFAULT_MINI_COMPOSITION_VARIANT_ID;
 };

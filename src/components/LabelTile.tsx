@@ -4,10 +4,11 @@ import styles from './LabelApp.module.css';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
+  DEFAULT_MINI_COMPOSITION_VARIANT_ID,
   getLargeSelDisplayParts,
   getMiniCompositionVariant,
-  resolveMiniCompositionVariantId,
 } from '../domain/labelCodeDomain';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
@@ -65,7 +66,10 @@ export {
 interface ILabelTileProps {
   code: string;
   layoutMode?: LabelPrintMode;
+  miniVariantId?: MiniCompositionVariantId;
 }
+
+const DEFAULT_MINI_VARIANT_ID: MiniCompositionVariantId = DEFAULT_MINI_COMPOSITION_VARIANT_ID;
 
 interface IMiniSelTileContentProps {
   primary: string;
@@ -140,10 +144,11 @@ const LargeSelTileContent: React.FC<ILargeSelTileContentProps> = ({
 const LabelTile: React.FC<ILabelTileProps> = ({
   code,
   layoutMode = DEFAULT_LABEL_PRINT_MODE,
+  miniVariantId = DEFAULT_MINI_VARIANT_ID,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const isLargeHeading = layoutStrategy.tileLayout === 'large-heading';
-  const miniVariant = getMiniCompositionVariant(resolveMiniCompositionVariantId(layoutStrategy.mode));
+  const miniVariant = getMiniCompositionVariant(miniVariantId);
   const composedMiniLabel = miniVariant.composeLabel(code);
   const miniGeometry = miniVariant.resolveGeometry(layoutStrategy);
   const fittedMiniTypography = miniVariant.fitTypography(

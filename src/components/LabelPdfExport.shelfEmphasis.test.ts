@@ -1,16 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-
-const setQuery = (query: string): void => {
-  const suffix = query ? `?${query}` : '';
-  window.history.replaceState({}, '', `/${suffix}`);
-};
-
-const importDrawVectorPageWithQuery = async (query: string) => {
-  setQuery(query);
-  vi.resetModules();
-  const module = await import('./LabelPdfExport');
-  return module.drawVectorPage;
-};
+import { describe, expect, it, vi } from 'vitest';
+import { drawVectorPage } from './LabelPdfExport';
 
 const MM_TO_PT = 72 / 25.4;
 
@@ -49,14 +38,8 @@ const jsBarcodeStub = (element: SVGElement) => {
 
 const svg2pdfStub = vi.fn(async () => undefined);
 
-afterEach(() => {
-  setQuery('');
-  vi.resetModules();
-});
-
-describe('LabelPdfExport shelf-emphasis override', () => {
-  it('renders shelf-emphasis text rows when query override is set', async () => {
-    const drawVectorPage = await importDrawVectorPageWithQuery('miniVariant=mini-shelf-emphasis');
+describe('LabelPdfExport shelf-emphasis selection', () => {
+  it('renders shelf-emphasis text rows when miniVariantId param is set', async () => {
     const { pdf, textCalls } = createPdfMock();
 
     const { getLabelLayoutStrategy } = await import('../config/labelLayoutStrategies');
@@ -67,6 +50,7 @@ describe('LabelPdfExport shelf-emphasis override', () => {
       getLabelLayoutStrategy('mini-sel'),
       jsBarcodeStub,
       svg2pdfStub,
+      'mini-shelf-emphasis',
     );
 
     expect(textCalls.some((call) => call.text === 'A')).toBe(true);

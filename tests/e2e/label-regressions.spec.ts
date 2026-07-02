@@ -146,6 +146,10 @@ const renderFirstPdfPageAsPng = async (page: Page, pdfBytes: Buffer, scale: numb
   }
 };
 
+const selectMiniVariant = async (page: Page, variant: 'mini-three-row' | 'mini-shelf-emphasis'): Promise<void> => {
+  await page.getByLabel('Mini Variant').selectOption(variant);
+};
+
 test.describe('Label Generator regressions', () => {
 
   test('loads and shows primary tabs', async ({ page }) => {
@@ -331,7 +335,8 @@ test.describe('Label Generator regressions', () => {
   });
 
   test('Mini SEL shelf-emphasis layout renders shelf and full spaced value lines', async ({ page }) => {
-    await page.goto('/?miniVariant=mini-shelf-emphasis');
+    await page.goto('/');
+    await selectMiniVariant(page, 'mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
 
@@ -350,8 +355,18 @@ test.describe('Label Generator regressions', () => {
     await expect(firstLabelTile.getByText('01 L01 A', { exact: true })).toBeVisible();
   });
 
+  test('Mini variant selection persists across reload', async ({ page }) => {
+    await page.goto('/');
+    await selectMiniVariant(page, 'mini-shelf-emphasis');
+
+    await page.reload();
+
+    await expect(page.getByLabel('Mini Variant')).toHaveValue('mini-shelf-emphasis');
+  });
+
   test('Mini SEL shelf-emphasis PDF download keeps mini page contract stable', async ({ page }) => {
-    await page.goto('/?miniVariant=mini-shelf-emphasis');
+    await page.goto('/');
+    await selectMiniVariant(page, 'mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
 
@@ -509,7 +524,8 @@ test.describe('Label Generator regressions', () => {
 
   test('captures Mini SEL shelf-emphasis aisle preview baseline', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
-    await page.goto('/?miniVariant=mini-shelf-emphasis');
+    await page.goto('/');
+    await selectMiniVariant(page, 'mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
 
@@ -540,9 +556,10 @@ test.describe('Label Generator regressions', () => {
     });
   });
 
-  test('captures full preview of 35 labels with shelf-emphasis query override', async ({ page }) => {
+  test('captures full preview of 35 labels with shelf-emphasis UI selection', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
-    await page.goto('/?miniVariant=mini-shelf-emphasis');
+    await page.goto('/');
+    await selectMiniVariant(page, 'mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
 

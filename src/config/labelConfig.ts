@@ -11,7 +11,7 @@ export const LABEL_CONSTRAINTS = {
 	},
 	shelf: {
 		min: 'A',
-		max: 'L',
+		max: 'Z',
 	},
 	shortCode: {
 		prefixes: ['BAK', 'FOS', 'FNT'] as const,

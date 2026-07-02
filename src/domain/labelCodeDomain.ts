@@ -30,5 +30,6 @@ export type {
 export {
   DEFAULT_MINI_COMPOSITION_VARIANT_ID,
   getMiniCompositionVariant,
+  isMiniCompositionVariantId,
   resolveMiniCompositionVariantId,
 } from './miniCompositionVariants';

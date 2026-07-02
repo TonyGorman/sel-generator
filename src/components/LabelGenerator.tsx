@@ -14,6 +14,8 @@ import { usePaginatedLabels } from './usePaginatedLabels';
 import { usePrintPortal } from './usePrintPortal';
 import { exportLabelPdf } from './labelPdfExporter';
 import { LabelPdfExportError } from './labelPdfExportError';
+import { resolveConfiguredMiniVariantId } from '../domain/miniVariantPreference';
+import { resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
@@ -69,6 +71,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
         printPageClassName: styles.printPage,
         pagedItems,
         layoutStrategy,
+        miniVariantId,
       });
     } catch (error: unknown) {
       setDownloadError(getDownloadErrorMessage(error));
@@ -85,18 +88,24 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     () => buildLayoutCssVars(layoutStrategy),
     [layoutStrategy],
   );
+  const miniVariantId = resolveMiniCompositionVariantId(layoutStrategy.mode, resolveConfiguredMiniVariantId());
 
   const renderLabelGrid = React.useCallback(
     (labels: string[], className?: string): React.ReactElement => (
       <div className={className ?? styles.labelDiv}>
         {labels.map((labelCode: string, index: number) => {
           return (
-            <LabelTile key={`${labelCode}-${index}`} code={labelCode} layoutMode={layoutStrategy.mode} />
+            <LabelTile
+              key={`${labelCode}-${index}`}
+              code={labelCode}
+              layoutMode={layoutStrategy.mode}
+              miniVariantId={miniVariantId}
+            />
           );
         })}
       </div>
     ),
-    [layoutStrategy.mode],
+    [layoutStrategy.mode, miniVariantId],
   );
 
 

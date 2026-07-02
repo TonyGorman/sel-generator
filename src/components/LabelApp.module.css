@@ -12,6 +12,39 @@
   color: var(--bodyText, #323130);
 }
 
+.variantControlRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.variantControlLabel {
+  color: #374151;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.variantControlSelect {
+  min-width: 210px;
+  height: 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fff;
+  color: #111827;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.variantControlSelect:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 244, 0.24);
+  border-color: #2f7df4;
+}
+
 .tabList {
   display: flex;
   flex-wrap: wrap;
@@ -109,6 +142,15 @@
   .labelAppRoot {
     width: calc(100% - 24px);
     padding-top: 12px;
+  }
+
+  .variantControlRow {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .variantControlSelect {
+    min-width: 100%;
   }
 
   .tabButton,

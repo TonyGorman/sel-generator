@@ -35,7 +35,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - **Only compact input is accepted** (no dashes or spaces in user input).
 - Compact input (`01L01A`, `BR10L01A`, `BAK01A`, `KIOSK`) is parsed directly to constituent parts (aisle token, side, bay, shelf).
 - Prefixed aisle tokens are allow-listed by configuration (default `BR`, `BL`, `FL`, `FR`) and their numeric suffix is validated against configured aisle min/max bounds.
-- Shelf tokens are **alphabetical only** (`A`-`L`) for aisle and short label codes.
+- Shelf tokens are **alphabetical only** (`A`-`Z`) for aisle and short label codes.
 - **Barcode payload is always compact**, identical to the input after uppercasing.
 - Display text uses font size and weight for visual treatment only — this is a rendering concern, not an input format.
 - Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a `CompactLabelCode` branded payload (a `string` subtype that prevents accidental use of display-formatted codes as barcode values).

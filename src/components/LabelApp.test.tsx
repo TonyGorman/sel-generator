@@ -1,6 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import LabelApp from './LabelApp';
+import { createLocalStorageShim } from '../test/localStorageShim';
+
+const storageShim = createLocalStorageShim();
 
 vi.mock('./SpecificLabelForm', () => ({
   default: () => <div>Specific Form Mock</div>,
@@ -13,6 +16,14 @@ vi.mock('./AisleLabelForm', () => ({
 vi.mock('./BackLabelForm', () => ({
   default: () => <div>Back Mock</div>,
 }));
+
+afterEach(() => {
+  storageShim.reset();
+  cleanup();
+  window.history.replaceState({}, '', '/');
+});
+
+storageShim.install();
 
 describe('LabelApp', () => {
   it('shows specific tab by default', () => {
@@ -46,5 +57,32 @@ describe('LabelApp', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Specific Labels' }));
     expect(screen.getByText('Specific Form Mock')).toBeInTheDocument();
+  });
+
+  it('shows mini variant selector with three-row default', () => {
+    render(<LabelApp />);
+
+    expect(screen.getByLabelText('Mini Variant')).toHaveValue('mini-three-row');
+  });
+
+  it('persists mini variant selection to localStorage when changed', () => {
+    render(<LabelApp />);
+
+    fireEvent.change(screen.getByLabelText('Mini Variant'), {
+      target: { value: 'mini-shelf-emphasis' },
+    });
+
+    expect(window.localStorage.getItem('miniVariant')).toBe('mini-shelf-emphasis');
+  });
+
+  it('loads previously saved mini variant from localStorage', () => {
+    window.localStorage.setItem('miniVariant', 'mini-three-row');
+    window.localStorage.setItem('miniVariant', 'mini-shelf-emphasis');
+
+    render(<LabelApp />);
+
+    expect(screen.getByLabelText('Mini Variant')).toHaveValue('mini-shelf-emphasis');
+    expect(screen.getByLabelText('Mini Variant')).not.toBeDisabled();
+    expect(window.localStorage.getItem('miniVariant')).toBe('mini-shelf-emphasis');
   });
 });

@@ -93,6 +93,7 @@ const fitMiniShelfEmphasisTypography = (
 
 export const miniShelfEmphasisVariant: IMiniCompositionVariant = {
   id: 'mini-shelf-emphasis',
+  displayLabel: 'Big Shelf',
   composeLabel: composeMiniShelfEmphasis,
   resolveGeometry: resolveMiniShelfEmphasisGeometry,
   fitTypography: fitMiniShelfEmphasisTypography,

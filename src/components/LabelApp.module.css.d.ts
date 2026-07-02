@@ -35,6 +35,9 @@ export type Styles = {
   'tabList': string;
   'tabPanelBox': string;
   'tabPanelContent': string;
+  'variantControlLabel': string;
+  'variantControlRow': string;
+  'variantControlSelect': string;
 };
 
 export type ClassNames = keyof Styles;

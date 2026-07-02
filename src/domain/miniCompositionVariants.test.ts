@@ -1,43 +1,54 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createLocalStorageShim } from '../test/localStorageShim';
+import {
+  DEFAULT_MINI_COMPOSITION_VARIANT_ID,
+  resolveMiniCompositionVariantId,
+} from './miniCompositionVariants';
+import {
+  resolveConfiguredMiniVariantId,
+} from './miniVariantPreference';
+import {
+  readPersistedMiniVariantRaw,
+} from '../services/miniVariantPreferenceStore';
 
-const setQuery = (query: string): void => {
-  const suffix = query ? `?${query}` : '';
-  window.history.replaceState({}, '', `/${suffix}`);
-};
-
-const importFresh = async () => {
-  vi.resetModules();
-  return import('./miniCompositionVariants');
-};
+const storageShim = createLocalStorageShim();
 
 afterEach(() => {
-  setQuery('');
+  storageShim.reset();
   vi.resetModules();
 });
 
-describe('miniCompositionVariants query override', () => {
-  it('defaults mini mode to three-row when querystring is not provided', async () => {
-    setQuery('');
-    const module = await importFresh();
+storageShim.install();
 
-    expect(module.DEFAULT_MINI_COMPOSITION_VARIANT_ID).toBe('mini-three-row');
-    expect(module.resolveMiniCompositionVariantId('mini-sel')).toBe('mini-three-row');
-    expect(module.resolveMiniCompositionVariantId('large-sel')).toBe('mini-three-row');
+describe('miniCompositionVariants selection', () => {
+  it('defaults mini mode to three-row when no preference is set', () => {
+    expect(DEFAULT_MINI_COMPOSITION_VARIANT_ID).toBe('mini-three-row');
+    expect(resolveConfiguredMiniVariantId()).toBe('mini-three-row');
+    expect(resolveMiniCompositionVariantId('mini-sel', resolveConfiguredMiniVariantId())).toBe('mini-three-row');
+    expect(resolveMiniCompositionVariantId('large-sel', 'mini-shelf-emphasis')).toBe('mini-three-row');
   });
 
-  it('uses shelf-emphasis when querystring override is valid', async () => {
-    setQuery('miniVariant=mini-shelf-emphasis');
-    const module = await importFresh();
+  it('uses persisted mini variant when available', () => {
+    window.localStorage.setItem('miniVariant', 'mini-shelf-emphasis');
 
-    expect(module.DEFAULT_MINI_COMPOSITION_VARIANT_ID).toBe('mini-shelf-emphasis');
-    expect(module.resolveMiniCompositionVariantId('mini-sel')).toBe('mini-shelf-emphasis');
+    expect(readPersistedMiniVariantRaw()).toBe('mini-shelf-emphasis');
+    expect(resolveConfiguredMiniVariantId()).toBe('mini-shelf-emphasis');
+    expect(resolveMiniCompositionVariantId('mini-sel', resolveConfiguredMiniVariantId())).toBe('mini-shelf-emphasis');
   });
 
-  it('falls back to three-row when querystring override is invalid', async () => {
-    setQuery('miniVariant=not-a-variant');
-    const module = await importFresh();
+  it('falls back to three-row when persisted mini variant is invalid', () => {
+    window.localStorage.setItem('miniVariant', 'not-a-variant');
 
-    expect(module.DEFAULT_MINI_COMPOSITION_VARIANT_ID).toBe('mini-three-row');
-    expect(module.resolveMiniCompositionVariantId('mini-sel')).toBe('mini-three-row');
+    expect(readPersistedMiniVariantRaw()).toBe('not-a-variant');
+    expect(resolveConfiguredMiniVariantId()).toBe('mini-three-row');
+    expect(resolveMiniCompositionVariantId('mini-sel', resolveConfiguredMiniVariantId())).toBe('mini-three-row');
+  });
+
+  it('resolves mini mode dynamically from latest persisted variant', () => {
+    window.localStorage.setItem('miniVariant', 'mini-shelf-emphasis');
+    expect(resolveMiniCompositionVariantId('mini-sel', resolveConfiguredMiniVariantId())).toBe('mini-shelf-emphasis');
+
+    window.localStorage.setItem('miniVariant', 'mini-three-row');
+    expect(resolveMiniCompositionVariantId('mini-sel', resolveConfiguredMiniVariantId())).toBe('mini-three-row');
   });
 });

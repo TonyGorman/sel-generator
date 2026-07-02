@@ -29,7 +29,7 @@ describe('labelConfig', () => {
     expect(MAX_AISLE_VALUE).toBe(99);
     expect(MAX_BAY_VALUE).toBe(99);
     expect(MIN_SHELF_LETTER).toBe('A');
-    expect(MAX_SHELF_LETTER).toBe('L');
+    expect(MAX_SHELF_LETTER).toBe('Z');
   });
 
   it('derives exported constraints from LABEL_CONSTRAINTS single source', () => {

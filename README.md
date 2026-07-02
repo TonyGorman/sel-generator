@@ -31,7 +31,7 @@ All labels display:
 - Primary text shown as side+bay (e.g., "R01")
 - Secondary text shown with spaces in generated Aisle/Back flows
 
-Shelf values are always alphabetical (`A`-`L`) across generated aisle and short code labels. Special aisle values are defined in code.
+Shelf values are always alphabetical (`A`-`Z`) across generated aisle and short code labels. Special aisle values are defined in code.
 
 ### Mini SEL Composition Variants
 
@@ -45,10 +45,7 @@ Mini SEL supports two composition variants that share the same 39mm x 39mm geome
   - Row 1: enlarged shelf token
   - Row 2: full spaced value (for example `01 L01 A`)
 
-Variant override is available via querystring:
-
-- `?miniVariant=mini-three-row`
-- `?miniVariant=mini-shelf-emphasis`
+Variant selection is available in-app via the Mini Variant control.
 
 Barcode payload encoding remains unchanged and always uses compact values.
 
@@ -68,6 +65,7 @@ Barcode payload encoding remains unchanged and always uses compact values.
 ```mermaid
 flowchart TD
   U[User Input] --> A[LabelApp + Tabs]
+  A --> MVU[Mini Variant Control]
   A --> SF[SpecificLabelForm]
   A --> AF[AisleLabelForm]
   A --> BF[BackLabelForm]
@@ -86,15 +84,21 @@ flowchart TD
 
   PL --> LT[LabelTile]
   PR --> LT
-   LT --> MV[Domain: mini variant resolver + registry]
-   MV --> M3[mini-three-row compose/geometry/fit]
-   MV --> MS[mini-shelf-emphasis compose/geometry/fit]
-   LT --> DH[Domain: display helpers getLargeSelDisplayParts]
-  LT --> D2[Domain: parser / encoding getEncodedLabelCode]
+    LT --> MR[Mini variant registry]
+    LG --> MP[Mini variant preference resolver]
+   EX --> MP
+    MP --> ST[Mini variant storage]
+   MP --> MR
+   MVU --> MP
+   MR --> M3[mini-three-row compose/geometry/fit]
+   MR --> MS[mini-shelf-emphasis compose/geometry/fit]
+    LT --> DH[Display helpers: getLargeSelDisplayParts]
+    LT --> D2[Parser / encoding: getEncodedLabelCode]
 
   EX --> VP[Vector PDF: drawVectorPage]
   EX --> RF[Raster Fallback: drawRasterPage]
-   VP --> MV
+   VP --> MR
+   VP --> MP
    VP --> DH
   VP --> D2
 ```
@@ -122,7 +126,7 @@ Mini text arrangement is now handled by mini composition variants in `src/domain
 
 Mini variant selection order:
 
-1. Querystring override `?miniVariant=` when value is allow-listed.
+1. In-app Mini Variant selection (persisted to local storage).
 2. Fallback default: `mini-three-row`.
 
 To add a new mini variant:

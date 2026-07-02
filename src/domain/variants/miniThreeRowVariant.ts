@@ -54,6 +54,7 @@ const fitMiniThreeRowTypography = (
 
 export const miniThreeRowVariant: IMiniCompositionVariant = {
   id: 'mini-three-row',
+  displayLabel: 'Stacked ABS',
   composeLabel: composeMiniThreeRow,
   resolveGeometry: resolveMiniThreeRowGeometry,
   fitTypography: fitMiniThreeRowTypography,

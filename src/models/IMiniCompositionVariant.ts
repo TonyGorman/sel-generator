@@ -34,6 +34,7 @@ export type MiniTextMeasureFn = (text: string, fontSizeMm: number, letterSpacing
 
 export interface IMiniCompositionVariant {
   id: MiniCompositionVariantId;
+  displayLabel: string;
   composeLabel: (code: string, shortCodePrefix?: string) => IComposedMiniLabel;
   resolveGeometry: (layoutStrategy: ILabelLayoutStrategy) => IMiniVariantGeometry;
   fitTypography: (

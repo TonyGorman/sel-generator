@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import LabelTile from './LabelTile';
 
 vi.mock('react-barcode', () => ({
   default: ({ value, width, height }: { value: string; width: number; height: number }) => (
@@ -7,28 +8,9 @@ vi.mock('react-barcode', () => ({
   ),
 }));
 
-const setQuery = (query: string): void => {
-  const suffix = query ? `?${query}` : '';
-  window.history.replaceState({}, '', `/${suffix}`);
-};
-
-const importLabelTileWithQuery = async (query: string) => {
-  setQuery(query);
-  vi.resetModules();
-  const module = await import('./LabelTile');
-  return module.default;
-};
-
-afterEach(() => {
-  setQuery('');
-  vi.resetModules();
-});
-
-describe('LabelTile shelf-emphasis override', () => {
-  it('renders shelf-emphasis mini composition when query override is set', async () => {
-    const LabelTile = await importLabelTileWithQuery('miniVariant=mini-shelf-emphasis');
-
-    render(<LabelTile code="01L01A" />);
+describe('LabelTile shelf-emphasis selection', () => {
+  it('renders shelf-emphasis mini composition when miniVariantId prop is set', () => {
+    render(<LabelTile code="01L01A" miniVariantId="mini-shelf-emphasis" />);
 
     expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
     expect(screen.getByText('01 L01 A', { exact: true })).toBeInTheDocument();

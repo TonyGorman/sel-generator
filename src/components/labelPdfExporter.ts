@@ -1,12 +1,15 @@
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { drawRasterPage, drawVectorPage, JsBarcodeFn, JsPdfInstance } from './LabelPdfExport';
 import { LabelPdfExportError } from './labelPdfExportError';
+import { resolveConfiguredMiniVariantId } from '../domain/miniVariantPreference';
 
 interface IExportLabelPdfOptions {
   exportRoot: HTMLDivElement;
   printPageClassName: string;
   pagedItems: string[][];
   layoutStrategy: ILabelLayoutStrategy;
+  miniVariantId?: MiniCompositionVariantId;
 }
 
 export const exportLabelPdf = async ({
@@ -14,6 +17,7 @@ export const exportLabelPdf = async ({
   printPageClassName,
   pagedItems,
   layoutStrategy,
+  miniVariantId,
 }: IExportLabelPdfOptions): Promise<void> => {
   let jsPDF: (typeof import('jspdf'))['jsPDF'];
   let jsBarcodeFn: JsBarcodeFn;
@@ -62,7 +66,7 @@ export const exportLabelPdf = async ({
     const pageItems = pagedItems[index] ?? [];
 
     try {
-      await drawVectorPage(pdf, pageItems, layoutStrategy, jsBarcodeFn, svg2pdf);
+      await drawVectorPage(pdf, pageItems, layoutStrategy, jsBarcodeFn, svg2pdf, miniVariantId ?? resolveConfiguredMiniVariantId());
     } catch (vectorError: unknown) {
       // Fallback preserves download even if SVG vector conversion fails in a browser runtime.
       try {

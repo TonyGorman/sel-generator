@@ -5,7 +5,9 @@ import {
   getMiniCompositionVariant,
   resolveMiniCompositionVariantId,
 } from '../domain/labelCodeDomain';
+import { DEFAULT_MINI_COMPOSITION_VARIANT_ID } from '../domain/miniCompositionVariants';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
@@ -171,6 +173,7 @@ interface IVectorTileContext {
   x: number;
   y: number;
   layoutStrategy: ILabelLayoutStrategy;
+  miniVariantId: MiniCompositionVariantId;
   jsBarcode: JsBarcodeFn;
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>;
 }
@@ -181,11 +184,13 @@ const drawMiniSelTile = async ({
   x,
   y,
   layoutStrategy,
+  miniVariantId,
   jsBarcode,
   svg2pdf,
 }: IVectorTileContext): Promise<void> => {
   const { page, typography, barcodeGeometry } = layoutStrategy;
-  const miniVariant = getMiniCompositionVariant(resolveMiniCompositionVariantId(layoutStrategy.mode));
+  const resolvedMiniVariantId = resolveMiniCompositionVariantId(layoutStrategy.mode, miniVariantId);
+  const miniVariant = getMiniCompositionVariant(resolvedMiniVariantId);
   const composedMiniLabel = miniVariant.composeLabel(code);
   const miniGeometry = miniVariant.resolveGeometry(layoutStrategy);
   const encodedValue = composedMiniLabel.encodedBarcodeValue;
@@ -356,6 +361,7 @@ export const drawVectorPage = async (
   layoutStrategy: ILabelLayoutStrategy,
   jsBarcode: JsBarcodeFn,
   svg2pdf: (element: Element, doc: unknown, options: { x: number; y: number; width: number; height: number }) => Promise<unknown>,
+  miniVariantId: MiniCompositionVariantId = DEFAULT_MINI_COMPOSITION_VARIANT_ID,
 ): Promise<void> => {
   const { page } = layoutStrategy;
 
@@ -379,6 +385,7 @@ export const drawVectorPage = async (
       x,
       y,
       layoutStrategy,
+      miniVariantId,
       jsBarcode,
       svg2pdf,
     });
