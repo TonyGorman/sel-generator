@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { SHORT_CODE_PREFIXES, MAX_SHELF_LETTER } from '../config/labelConfig';
-import { parseLabelCode, validateSpecificLabelCode } from './labelCodeDomain';
+import {
+  getMiniCompositionVariant,
+  parseLabelCode,
+  validateSpecificLabelCode,
+} from './labelCodeDomain';
 
 const defaultOptions = {
   shortCodePrefixes: SHORT_CODE_PREFIXES,
@@ -221,5 +225,29 @@ describe('validateSpecificLabelCode', () => {
 
     expect(backResult.ok).toBe(true);
     expect(frontResult.ok).toBe(true);
+  });
+});
+
+describe('mini composition variants', () => {
+  it('keeps mini-three-row composition behavior for aisle labels', () => {
+    const variant = getMiniCompositionVariant('mini-three-row');
+    const composed = variant.composeLabel('01L01A');
+
+    expect(composed.primaryLineText).toBe('L01');
+    expect(composed.secondaryLineText).toBe('01');
+    expect(composed.tertiaryLineText).toBe('A');
+    expect(composed.fullSpacedValue).toBe('01 L01 A');
+    expect(composed.encodedBarcodeValue).toBe('01L01A');
+  });
+
+  it('composes shelf-emphasis variant with shelf primary and full spaced secondary line', () => {
+    const variant = getMiniCompositionVariant('mini-shelf-emphasis');
+    const composed = variant.composeLabel('BR1L01A');
+
+    expect(composed.primaryLineText).toBe('A');
+    expect(composed.secondaryLineText).toBe('BR1 L01 A');
+    expect(composed.tertiaryLineText).toBeUndefined();
+    expect(composed.fullSpacedValue).toBe('BR1 L01 A');
+    expect(composed.encodedBarcodeValue).toBe('BR1L01A');
   });
 });

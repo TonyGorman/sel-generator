@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { drawVectorPage, type JsBarcodeFn, type JsPdfInstance } from './LabelPdfExport';
 import {SHORT_CODE_PREFIXES} from '../config/labelConfig';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
-import { fitMiniPrimaryFontSizeMm, getMiniAisleThreeRowGeometry, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
+import { getMiniCompositionVariant, resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
+import { fitMiniPrimaryFontSizeMm, getPdfBaselineFromCenterMm } from './labelLayoutGeometry';
 
 const MM_TO_PT = 72 / 25.4;
 
@@ -56,7 +57,7 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01L01A')).toBe(true);
   });
 
-  it('renders mini-sel stacked rows for aisle values in PDF output', async () => {
+  it('renders stacked mini rows for aisle values in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
 
     await drawVectorPage(
@@ -73,7 +74,7 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01 L01 A')).toBe(false);
   });
 
-  it('renders mini-sel stacked rows for short-code values in PDF output', async () => {
+  it('renders stacked mini rows for short-code values in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
 
     await drawVectorPage(
@@ -93,7 +94,9 @@ describe('drawVectorPage', () => {
   it('shrinks long mini-sel primary text in PDF output to avoid overflow', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
-    const miniAisleGeometry = getMiniAisleThreeRowGeometry(miniStrategy);
+    const variant = getMiniCompositionVariant(resolveMiniCompositionVariantId(miniStrategy.mode));
+    const composed = variant.composeLabel('LONGSHELFTOKEN999');
+    const geometry = variant.resolveGeometry(miniStrategy);
 
     await drawVectorPage(
       pdf,
@@ -103,33 +106,40 @@ describe('drawVectorPage', () => {
       svg2pdfStub,
     );
 
-    const primaryCall = textCalls.find((call) => call.text === 'LONGSHELFTOKEN999');
-    const centerFromTileTopMm =
-      miniStrategy.typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm;
-    const baselineAtMaxMm =
+    const primaryCall = textCalls.find((call) => call.text === composed.primaryLineText);
+    const fit = variant.fitTypography(composed, miniStrategy, geometry, (text: string, fontSizeMm: number, letterSpacingMm: number) => {
+      const glyphWidth = text.length * fontSizeMm * 0.42;
+      const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
+      return glyphWidth + spacingWidth;
+    });
+    const legacyPrimaryFitMm = fitMiniPrimaryFontSizeMm(
+      composed.primaryLineText,
+      miniStrategy,
+      (text: string, fontSizeMm: number, letterSpacingMm: number) => {
+        const glyphWidth = text.length * fontSizeMm * 0.42;
+        const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
+        return glyphWidth + spacingWidth;
+      },
+    );
+    const expectedPrimaryFontMm = Math.min(fit.primaryTextSizeMm, geometry.primaryMaxTextSizeMm, legacyPrimaryFitMm);
+    const baselineExpectedMm =
       miniStrategy.page.pagePadTopMm +
       getPdfBaselineFromCenterMm(
-        centerFromTileTopMm,
-        miniAisleGeometry.mainMaxTextSizeMm,
-        miniStrategy.typography.pdfTextBaselineOffsetFactor,
-      );
-    const baselineAtMinMm =
-      miniStrategy.page.pagePadTopMm +
-      getPdfBaselineFromCenterMm(
-        centerFromTileTopMm,
-        miniStrategy.typography.primaryTextMinSizeMm,
+        miniStrategy.typography.tilePaddingTopMm + geometry.primaryCenterFromContentTopMm,
+        expectedPrimaryFontMm,
         miniStrategy.typography.pdfTextBaselineOffsetFactor,
       );
 
     expect(primaryCall).toBeDefined();
-    expect(primaryCall?.y).toBeLessThanOrEqual(baselineAtMaxMm);
-    expect(primaryCall?.y).toBeGreaterThanOrEqual(baselineAtMinMm);
+    expect(primaryCall?.y).toBeCloseTo(baselineExpectedMm, 5);
   });
 
   it('positions mini-sel primary text from stacked main-row center anchor in PDF output', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
-    const miniAisleGeometry = getMiniAisleThreeRowGeometry(miniStrategy);
+    const variant = getMiniCompositionVariant(resolveMiniCompositionVariantId(miniStrategy.mode));
+    const composed = variant.composeLabel('01L01A');
+    const geometry = variant.resolveGeometry(miniStrategy);
 
     await drawVectorPage(
       pdf,
@@ -139,21 +149,28 @@ describe('drawVectorPage', () => {
       svg2pdfStub,
     );
 
-    const primaryCall = textCalls.find((call) => call.text === 'L01');
-    const expectedPrimaryFontMm = Math.min(
-      fitMiniPrimaryFontSizeMm('L01', miniStrategy, (text: string, fontSizeMm: number, letterSpacingMm: number) => {
+    const primaryCall = textCalls.find((call) => call.text === composed.primaryLineText);
+    const fit = variant.fitTypography(composed, miniStrategy, geometry, (text: string, fontSizeMm: number, letterSpacingMm: number) => {
         const glyphWidth = text.length * fontSizeMm * 0.42;
         const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
         return glyphWidth + spacingWidth;
-      }),
-      miniAisleGeometry.mainMaxTextSizeMm,
+      });
+    const legacyPrimaryFitMm = fitMiniPrimaryFontSizeMm(
+      composed.primaryLineText,
+      miniStrategy,
+      (text: string, fontSizeMm: number, letterSpacingMm: number) => {
+        const glyphWidth = text.length * fontSizeMm * 0.42;
+        const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
+        return glyphWidth + spacingWidth;
+      },
     );
+    const expectedPrimaryFontMm = Math.min(fit.primaryTextSizeMm, geometry.primaryMaxTextSizeMm, legacyPrimaryFitMm);
 
     expect(primaryCall).toBeDefined();
     expect(primaryCall?.y).toBeCloseTo(
       miniStrategy.page.pagePadTopMm +
       getPdfBaselineFromCenterMm(
-        miniStrategy.typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm,
+        miniStrategy.typography.tilePaddingTopMm + geometry.primaryCenterFromContentTopMm,
         expectedPrimaryFontMm,
         miniStrategy.typography.pdfTextBaselineOffsetFactor,
       ),
@@ -284,7 +301,7 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === 'BR1 L01 A')).toBe(false);
   });
 
-  it('dispatches tile drawing via tileLayout not mode — mini-stacked strategy renders stacked rows', async () => {
+  it('dispatches tile drawing via tileLayout not mode — mini strategy renders stacked rows by default', async () => {
     const { pdf, textCalls } = createPdfMock();
     const miniStrategy = getLabelLayoutStrategy('mini-sel');
 
@@ -301,6 +318,7 @@ describe('drawVectorPage', () => {
     expect(textCalls.some((call) => call.text === '01')).toBe(true);
     expect(textCalls.some((call) => call.text === 'L02')).toBe(true);
     expect(textCalls.some((call) => call.text === 'A')).toBe(true);
+    expect(textCalls.some((call) => call.text === '01 L02 A')).toBe(false);
   });
 
   it('dispatches tile drawing via tileLayout not mode — large-heading strategy renders heading parts', async () => {

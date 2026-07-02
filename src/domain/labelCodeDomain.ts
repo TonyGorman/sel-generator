@@ -18,3 +18,17 @@ export {
   getLargeSelDisplayParts,
   getMiniThreeRowDisplayParts,
 } from './labelCodeDisplay';
+
+export type {
+  MiniCompositionVariantId,
+  IComposedMiniLabel,
+  IMiniVariantGeometry,
+  IMiniTypographyFitResult,
+  IMiniCompositionVariant,
+  MiniTextMeasureFn,
+} from '../models/IMiniCompositionVariant';
+export {
+  DEFAULT_MINI_COMPOSITION_VARIANT_ID,
+  getMiniCompositionVariant,
+  resolveMiniCompositionVariantId,
+} from './miniCompositionVariants';

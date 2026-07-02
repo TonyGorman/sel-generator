@@ -2,13 +2,13 @@ import { PDF_EXPORT_SCALE, PDF_IMAGE_COMPRESSION } from '../config/labelConfig';
 import {
   getEncodedLabelCode,
   getLargeSelDisplayParts,
-  getMiniThreeRowDisplayParts,
+  getMiniCompositionVariant,
+  resolveMiniCompositionVariantId,
 } from '../domain/labelCodeDomain';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
-  getMiniAisleThreeRowGeometry,
   getPdfBaselineFromCenterMm,
 } from './labelLayoutGeometry';
 
@@ -185,10 +185,10 @@ const drawMiniSelTile = async ({
   svg2pdf,
 }: IVectorTileContext): Promise<void> => {
   const { page, typography, barcodeGeometry } = layoutStrategy;
-  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code);
-  const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
-  const primaryText = miniThreeRowDisplayParts.main;
-  const encodedValue = getEncodedLabelCode(code);
+  const miniVariant = getMiniCompositionVariant(resolveMiniCompositionVariantId(layoutStrategy.mode));
+  const composedMiniLabel = miniVariant.composeLabel(code);
+  const miniGeometry = miniVariant.resolveGeometry(layoutStrategy);
+  const encodedValue = composedMiniLabel.encodedBarcodeValue;
 
   const measurePdfPrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
     if (!text) {
@@ -205,38 +205,58 @@ const drawMiniSelTile = async ({
     const spacingWidth = Math.max(text.length - 1, 0) * letterSpacingMm;
     return glyphWidth + spacingWidth;
   };
+  const fittedTypography = miniVariant.fitTypography(
+    composedMiniLabel,
+    layoutStrategy,
+    miniGeometry,
+    measurePdfPrimaryTextWidthMm,
+  );
+  const legacyPrimaryFitMm = fitMiniPrimaryFontSizeMm(
+    composedMiniLabel.primaryLineText,
+    layoutStrategy,
+    measurePdfPrimaryTextWidthMm,
+  );
   const primaryFontSizeMm = Math.min(
-    fitMiniPrimaryFontSizeMm(primaryText, layoutStrategy, measurePdfPrimaryTextWidthMm),
-    miniAisleGeometry.mainMaxTextSizeMm,
+    fittedTypography.primaryTextSizeMm,
+    miniGeometry.primaryMaxTextSizeMm,
+    legacyPrimaryFitMm,
   );
 
   setPdfBoldFont(pdf);
   pdf.setFontSize(mmToPt(primaryFontSizeMm));
   pdf.setCharSpace(typography.primaryLetterSpacingMm);
-  const primaryCenterFromTileTopMm = typography.tilePaddingTopMm + miniAisleGeometry.mainCenterFromContentTopMm;
+  const primaryCenterFromTileTopMm = typography.tilePaddingTopMm + miniGeometry.primaryCenterFromContentTopMm;
   const primaryBaselineY = y + getPdfBaselineFromCenterMm(
     primaryCenterFromTileTopMm,
     primaryFontSizeMm,
     typography.pdfTextBaselineOffsetFactor,
   );
-  pdf.text(primaryText, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
+  pdf.text(composedMiniLabel.primaryLineText, x + page.labelWidthMm / 2, primaryBaselineY, { align: 'center' });
 
+  const isThreeRow = composedMiniLabel.variantId === 'mini-three-row';
+  const secondaryCenterFromContentTopMm = isThreeRow
+    ? miniGeometry.secondaryCenterFromContentTopMm
+    : (fittedTypography.secondaryCenterFromContentTopMm ?? miniGeometry.secondaryCenterFromContentTopMm);
   setPdfRegularFont(pdf);
-  pdf.setFontSize(mmToPt(miniAisleGeometry.auxTextSizeMm));
+  pdf.setFontSize(mmToPt(fittedTypography.secondaryTextSizeMm));
   pdf.setCharSpace(0);
-  pdf.setTextColor(MINI_AISLE_AUX_TEXT_GRAY);
+  pdf.setTextColor(isThreeRow ? MINI_AISLE_AUX_TEXT_GRAY : 0);
   const topBaselineY = y + getPdfBaselineFromCenterMm(
-    typography.tilePaddingTopMm + miniAisleGeometry.topCenterFromContentTopMm,
-    miniAisleGeometry.auxTextSizeMm,
+    typography.tilePaddingTopMm + secondaryCenterFromContentTopMm,
+    fittedTypography.secondaryTextSizeMm,
     typography.pdfTextBaselineOffsetFactor,
   );
-  const bottomBaselineY = y + getPdfBaselineFromCenterMm(
-    typography.tilePaddingTopMm + miniAisleGeometry.bottomCenterFromContentTopMm,
-    miniAisleGeometry.auxTextSizeMm,
-    typography.pdfTextBaselineOffsetFactor,
-  );
-  pdf.text(miniThreeRowDisplayParts.top, x + page.labelWidthMm / 2, topBaselineY, { align: 'center' });
-  pdf.text(miniThreeRowDisplayParts.bottom, x + page.labelWidthMm / 2, bottomBaselineY, { align: 'center' });
+  pdf.text(composedMiniLabel.secondaryLineText, x + page.labelWidthMm / 2, topBaselineY, { align: 'center' });
+  if (isThreeRow && composedMiniLabel.tertiaryLineText) {
+    const tertiaryTextSizeMm = fittedTypography.tertiaryTextSizeMm ?? fittedTypography.secondaryTextSizeMm;
+    pdf.setFontSize(mmToPt(tertiaryTextSizeMm));
+    const bottomBaselineY = y + getPdfBaselineFromCenterMm(
+      typography.tilePaddingTopMm + (miniGeometry.tertiaryCenterFromContentTopMm ?? miniGeometry.secondaryCenterFromContentTopMm),
+      tertiaryTextSizeMm,
+      typography.pdfTextBaselineOffsetFactor,
+    );
+    pdf.text(composedMiniLabel.tertiaryLineText, x + page.labelWidthMm / 2, bottomBaselineY, { align: 'center' });
+  }
   pdf.setTextColor(0);
 
   const barcodeY =

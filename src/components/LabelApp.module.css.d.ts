@@ -22,6 +22,7 @@ export type Styles = {
   'loaderBox': string;
   'miniAisleBottomCode': string;
   'miniAisleTopCode': string;
+  'miniShelfFullValue': string;
   'pdfDiv': string;
   'previewPage': string;
   'primaryCode': string;

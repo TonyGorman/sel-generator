@@ -308,7 +308,7 @@ test.describe('Label Generator regressions', () => {
     await expect.poll(async () => page.evaluate(() => (window as typeof window & { __printCalls?: number }).__printCalls ?? 0)).toBe(1);
   });
 
-  test('Mini SEL stacked layout renders as top/main/bottom lines', async ({ page }) => {
+  test('Mini SEL default route renders three-row layout for aisle values', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
@@ -330,8 +330,28 @@ test.describe('Label Generator regressions', () => {
     await expect(firstLabelTile.getByText('01 L01 A', { exact: true })).toHaveCount(0);
   });
 
-  test('Mini SEL stacked layout PDF download keeps mini page contract stable', async ({ page }) => {
-    await page.goto('/');
+  test('Mini SEL shelf-emphasis layout renders shelf and full spaced value lines', async ({ page }) => {
+    await page.goto('/?miniVariant=mini-shelf-emphasis');
+
+    await page.getByRole('tab', { name: 'Aisle Labels' }).click();
+
+    const visibleInputs = page.getByRole('textbox');
+    await visibleInputs.nth(0).fill('1');
+    await visibleInputs.nth(1).fill('1');
+    await visibleInputs.nth(2).fill('1');
+    await visibleInputs.nth(3).fill('1');
+    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+
+    await page.getByRole('button', { name: 'Generate Labels' }).click();
+    await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
+
+    const firstLabelTile = page.locator('[class*="labelBox"]').first();
+    await expect(firstLabelTile.getByText('A', { exact: true })).toBeVisible();
+    await expect(firstLabelTile.getByText('01 L01 A', { exact: true })).toBeVisible();
+  });
+
+  test('Mini SEL shelf-emphasis PDF download keeps mini page contract stable', async ({ page }) => {
+    await page.goto('/?miniVariant=mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
 
@@ -487,13 +507,13 @@ test.describe('Label Generator regressions', () => {
     expect(firstPagePng).toMatchSnapshot('specific-download-first-page.visual.png');
   });
 
-  test('captures Mini SEL stacked layout aisle preview baseline', async ({ page }) => {
+  test('captures Mini SEL shelf-emphasis aisle preview baseline', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
-    await page.goto('/');
+    await page.goto('/?miniVariant=mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
 
-    // Generate a range of aisle labels to show stacked layout
+    // Generate a range of aisle labels to show shelf-emphasis layout
     const labelValues = [
       '01L01A', '01L02A', '01L03A', '01L04A', '01L05A',
       '02L01A', '02L02A', '02L03A', '02L04A', '02L05A',
@@ -515,14 +535,14 @@ test.describe('Label Generator regressions', () => {
     });
 
     const previewPage = page.locator('[class*="previewPage"]').first();
-    await expect(previewPage).toHaveScreenshot('mini-sel-stacked-layout-aisle-preview.png', {
+    await expect(previewPage).toHaveScreenshot('mini-sel-shelf-emphasis-aisle-preview.png', {
       animations: 'disabled',
     });
   });
 
-  test('captures full preview of 35 labels with default settings', async ({ page }) => {
+  test('captures full preview of 35 labels with shelf-emphasis query override', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1400 });
-    await page.goto('/');
+    await page.goto('/?miniVariant=mini-shelf-emphasis');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
 
@@ -538,7 +558,7 @@ test.describe('Label Generator regressions', () => {
     });
 
     const previewPage = page.locator('[class*="previewPage"]').first();
-    await expect(previewPage).toHaveScreenshot('default-config-35-labels.png', {
+    await expect(previewPage).toHaveScreenshot('default-mini-shelf-emphasis-35-labels.png', {
       animations: 'disabled',
     });
   });

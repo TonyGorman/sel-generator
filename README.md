@@ -33,13 +33,22 @@ All labels display:
 
 Shelf values are always alphabetical (`A`-`L`) across generated aisle and short code labels. Special aisle values are defined in code.
 
-### Mini SEL Stacked Layout
+### Mini SEL Composition Variants
 
-Mini SEL labels use a stacked layout in preview, print, and vector PDF export:
+Mini SEL supports two composition variants that share the same 39mm x 39mm geometry and barcode placement:
 
-- Row 1: aisle token or shortcode prefix and aisle token or Special aisle
-- Row 2: side + bay or just bay (shortcode)
-- Row 3: shelf token
+- `mini-three-row` (default):
+  - Row 1: aisle token or shortcode prefix
+  - Row 2: side + bay or bay (shortcode)
+  - Row 3: shelf token
+- `mini-shelf-emphasis`:
+  - Row 1: enlarged shelf token
+  - Row 2: full spaced value (for example `01 L01 A`)
+
+Variant override is available via querystring:
+
+- `?miniVariant=mini-three-row`
+- `?miniVariant=mini-shelf-emphasis`
 
 Barcode payload encoding remains unchanged and always uses compact values.
 
@@ -77,12 +86,16 @@ flowchart TD
 
   PL --> LT[LabelTile]
   PR --> LT
-  LT --> DH[Domain: display helpers getMiniThreeRowDisplayParts / getLargeSelDisplayParts]
+   LT --> MV[Domain: mini variant resolver + registry]
+   MV --> M3[mini-three-row compose/geometry/fit]
+   MV --> MS[mini-shelf-emphasis compose/geometry/fit]
+   LT --> DH[Domain: display helpers getLargeSelDisplayParts]
   LT --> D2[Domain: parser / encoding getEncodedLabelCode]
 
   EX --> VP[Vector PDF: drawVectorPage]
   EX --> RF[Raster Fallback: drawRasterPage]
-  VP --> DH
+   VP --> MV
+   VP --> DH
   VP --> D2
 ```
 
@@ -100,16 +113,24 @@ Both `IAisleCodeParts` and `IShortCodeParts` extend a common `IBaseCodeParts` ba
 
 Label layout is controlled by objects implementing `ILabelLayoutStrategy`. Each strategy declares two discriminants:
 
-- **`mode`** (`LabelPrintMode`): `'mini-sel'` or `'large-sel'` — maps to the physical paper format.
-- **`tileLayout`** (`TileLayout`): `'mini-stacked'` or `'large-heading'` — controls which rendering path is used in `LabelTile` and `drawVectorPage`.
+- **`mode`** (`LabelPrintMode`): `'mini-sel'` or `'large-sel'` - maps to the physical paper format.
+- **`tileLayout`** (`TileLayout`): `'mini-stacked'` or `'large-heading'` - controls large-vs-mini render path dispatch.
 
-Strategies are registered in a `Map<LabelPrintMode, ILabelLayoutStrategy>` inside `labelLayoutStrategies.ts`. Adding a new mini-sel variant requires:
+Strategies remain registered in a `Map<LabelPrintMode, ILabelLayoutStrategy>` inside `labelLayoutStrategies.ts`.
 
-1. A new strategy class implementing `ILabelLayoutStrategy` with a new `tileLayout` value (e.g. `'mini-two-row'`).
-2. Adding the new `TileLayout` literal to `src/models/ILabelLayoutStrategy.ts`.
-3. Adding a dispatch branch in `LabelTile.tsx` and `LabelPdfExport.ts` for the new `tileLayout`.
-4. Adding geometry functions in `labelLayoutGeometry.ts` for the new row structure.
-5. Registering the strategy in the `strategyByMode` map in `labelLayoutStrategies.ts`.
+Mini text arrangement is now handled by mini composition variants in `src/domain/miniCompositionVariants.ts`, not by adding new `TileLayout` values.
+
+Mini variant selection order:
+
+1. Querystring override `?miniVariant=` when value is allow-listed.
+2. Fallback default: `mini-three-row`.
+
+To add a new mini variant:
+
+1. Add a new `MiniCompositionVariantId` literal in `src/models/IMiniCompositionVariant.ts`.
+2. Implement `composeLabel`, `resolveGeometry`, and `fitTypography` in `src/domain/miniCompositionVariants.ts`.
+3. Register the variant in the registry map in `src/domain/miniCompositionVariants.ts`.
+4. Add/update tests for `LabelTile`, `LabelPdfExport`, and domain variant behavior.
 
 All geometry values must remain in millimeters.
 

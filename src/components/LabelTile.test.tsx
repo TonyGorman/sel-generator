@@ -119,10 +119,10 @@ describe('LabelTile', () => {
   it('renders stacked mini rows for aisle label value', () => {
     render(<LabelTile code="01L01A" />);
 
-    expect(screen.getByText('01')).toBeInTheDocument();
-    expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
+    expect(screen.getByText('01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('L01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A', { exact: true })).toBeNull();
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
     expect(screen.getAllByText('01L01A')).toHaveLength(2);
   });
@@ -151,20 +151,20 @@ describe('LabelTile', () => {
     render(<LabelTile code="01L01A" />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
-    expect(screen.getByText('01')).toBeInTheDocument();
-    expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
+    expect(screen.getByText('01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('L01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A', { exact: true })).toBeNull();
   });
 
   it('barcode payload stays compact with configured prefixed aisle input', () => {
     render(<LabelTile code="BR1L01A" />);
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('BR1L01A');
-    expect(screen.getByText('BR1')).toBeInTheDocument();
-    expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.queryByText('BR1 L01 A')).not.toBeInTheDocument();
+    expect(screen.getByText('BR1', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('L01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText('BR1 L01 A', { exact: true })).toBeNull();
   });
 
   it('Specific label with compact input uses stacked row formatting', () => {
@@ -172,10 +172,10 @@ describe('LabelTile', () => {
 
     expect(screen.getByTestId('label-value')).toHaveTextContent('01L01A');
     expect(screen.getAllByText('01L01A').length).toBeGreaterThan(1);
-    expect(screen.getByText('01')).toBeInTheDocument();
-    expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.queryByText('01 L01 A')).not.toBeInTheDocument();
+    expect(screen.getByText('01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('L01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText('01 L01 A', { exact: true })).toBeNull();
   });
 
   it('Specific back label with compact input produces compact barcode payload', () => {
@@ -185,7 +185,7 @@ describe('LabelTile', () => {
     expect(screen.getByText(SHORT_CODE_PREFIXES[0], { exact: true })).toBeInTheDocument();
     expect(screen.getByText('01', { exact: true })).toBeInTheDocument();
     expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
-    expect(screen.queryByText(`${SHORT_CODE_PREFIXES[0]} 01 A`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`${SHORT_CODE_PREFIXES[0]} 01 A`, { exact: true })).toBeNull();
   });
 
   it('Specific named aisle value renders in stacked main row for mini-sel', () => {
@@ -211,9 +211,9 @@ describe('LabelTile', () => {
   it('places prefixed aisle token on top row with side+bay and shelf below', () => {
     render(<LabelTile code="BR1L01A" />);
 
-    expect(screen.getByText('BR1')).toBeInTheDocument();
-    expect(screen.getByText('L01')).toBeInTheDocument();
-    expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.queryByText('BR1 L01 A')).not.toBeInTheDocument();
+    expect(screen.getByText('BR1', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('L01', { exact: true })).toBeInTheDocument();
+    expect(screen.getByText('A', { exact: true })).toBeInTheDocument();
+    expect(screen.queryByText('BR1 L01 A', { exact: true })).toBeNull();
   });
 });

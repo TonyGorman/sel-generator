@@ -4,14 +4,13 @@ import styles from './LabelApp.module.css';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
-  getEncodedLabelCode,
   getLargeSelDisplayParts,
-  getMiniThreeRowDisplayParts,
+  getMiniCompositionVariant,
+  resolveMiniCompositionVariantId,
 } from '../domain/labelCodeDomain';
 import {
   estimatePrimaryTextWidthMm,
   fitMiniPrimaryFontSizeMm,
-  getMiniAisleThreeRowGeometry,
 } from './labelLayoutGeometry';
 
 const MM_TO_PX = 96 / 25.4;
@@ -92,6 +91,30 @@ const MiniSelTileContent: React.FC<IMiniSelTileContentProps> = ({
   );
 };
 
+interface IMiniSecondaryLineContentProps {
+  text: string;
+  centerFromContentTopMm: number;
+  textSizeMm: number;
+  fontWeight?: number;
+}
+
+const MiniSecondaryLineContent: React.FC<IMiniSecondaryLineContentProps> = ({
+  text,
+  centerFromContentTopMm,
+  textSizeMm,
+  fontWeight,
+}) => {
+  const secondaryLineStyle = {
+    '--current-mini-secondary-center-from-content-top-mm': `${centerFromContentTopMm}mm`,
+    '--current-mini-secondary-text-size-mm': `${textSizeMm}mm`,
+    '--current-mini-secondary-font-weight': String(fontWeight ?? 700),
+  } as React.CSSProperties;
+
+  return (
+    <div className={styles.miniShelfFullValue} style={secondaryLineStyle}>{text}</div>
+  );
+};
+
 interface ILargeSelTileContentProps {
   code: string;
 }
@@ -119,15 +142,20 @@ const LabelTile: React.FC<ILabelTileProps> = ({
   layoutMode = DEFAULT_LABEL_PRINT_MODE,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
-  const labelValue = getEncodedLabelCode(code);
   const isLargeHeading = layoutStrategy.tileLayout === 'large-heading';
-  const miniThreeRowDisplayParts = getMiniThreeRowDisplayParts(code);
-  const miniAisleGeometry = getMiniAisleThreeRowGeometry(layoutStrategy);
-  const miniPrimaryText = miniThreeRowDisplayParts.main;
-  const primaryFontSizeMm = isLargeHeading
-    ? getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy)
-    : Math.min(getMiniPrimaryFontSizeMm(miniPrimaryText, layoutStrategy), miniAisleGeometry.mainMaxTextSizeMm);
-  const primaryCenterFromContentTopMm = miniAisleGeometry.mainCenterFromContentTopMm;
+  const miniVariant = getMiniCompositionVariant(resolveMiniCompositionVariantId(layoutStrategy.mode));
+  const composedMiniLabel = miniVariant.composeLabel(code);
+  const miniGeometry = miniVariant.resolveGeometry(layoutStrategy);
+  const fittedMiniTypography = miniVariant.fitTypography(
+    composedMiniLabel,
+    layoutStrategy,
+    miniGeometry,
+    measurePrimaryTextWidthMm,
+  );
+  const primaryFontSizeMm = Math.min(fittedMiniTypography.primaryTextSizeMm, miniGeometry.primaryMaxTextSizeMm);
+  const primaryCenterFromContentTopMm = miniGeometry.primaryCenterFromContentTopMm;
+  const labelValue = composedMiniLabel.encodedBarcodeValue;
+  const isThreeRowMini = composedMiniLabel.variantId === 'mini-three-row';
 
   return (
     <div className={isLargeHeading ? styles.labelBoxLargeSel : styles.labelBox}>
@@ -138,30 +166,43 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           />
         ) : (
           <>
-            <div
-              className={styles.miniAisleTopCode}
-              style={{
-                '--current-mini-aisle-top-center-from-content-top-mm': `${miniAisleGeometry.topCenterFromContentTopMm}mm`,
-                '--current-mini-aisle-aux-text-size-mm': `${miniAisleGeometry.auxTextSizeMm}mm`,
-              } as React.CSSProperties}
-            >
-              {miniThreeRowDisplayParts.top}
-            </div>
             <MiniSelTileContent
-              primary={miniThreeRowDisplayParts.main}
+              primary={composedMiniLabel.primaryLineText}
               primaryFontSizeMm={primaryFontSizeMm}
-              primaryFontWeight={900}
+              primaryFontWeight={fittedMiniTypography.primaryFontWeight}
               primaryCenterFromContentTopMm={primaryCenterFromContentTopMm}
             />
-            <div
-              className={styles.miniAisleBottomCode}
-              style={{
-                '--current-mini-aisle-bottom-center-from-content-top-mm': `${miniAisleGeometry.bottomCenterFromContentTopMm}mm`,
-                '--current-mini-aisle-aux-text-size-mm': `${miniAisleGeometry.auxTextSizeMm}mm`,
-              } as React.CSSProperties}
-            >
-              {miniThreeRowDisplayParts.bottom}
-            </div>
+            {isThreeRowMini ? (
+              <>
+                <div
+                  className={styles.miniAisleTopCode}
+                  style={{
+                    '--current-mini-aisle-top-center-from-content-top-mm': `${miniGeometry.secondaryCenterFromContentTopMm}mm`,
+                    '--current-mini-aisle-aux-text-size-mm': `${fittedMiniTypography.secondaryTextSizeMm}mm`,
+                  } as React.CSSProperties}
+                >
+                  {composedMiniLabel.secondaryLineText}
+                </div>
+                <div
+                  className={styles.miniAisleBottomCode}
+                  style={{
+                    '--current-mini-aisle-bottom-center-from-content-top-mm': `${miniGeometry.tertiaryCenterFromContentTopMm ?? miniGeometry.secondaryCenterFromContentTopMm}mm`,
+                    '--current-mini-aisle-aux-text-size-mm': `${fittedMiniTypography.tertiaryTextSizeMm ?? fittedMiniTypography.secondaryTextSizeMm}mm`,
+                  } as React.CSSProperties}
+                >
+                  {composedMiniLabel.tertiaryLineText ?? ''}
+                </div>
+              </>
+            ) : (
+              <MiniSecondaryLineContent
+                text={composedMiniLabel.secondaryLineText}
+                centerFromContentTopMm={
+                  fittedMiniTypography.secondaryCenterFromContentTopMm ?? miniGeometry.secondaryCenterFromContentTopMm
+                }
+                textSizeMm={fittedMiniTypography.secondaryTextSizeMm}
+                fontWeight={fittedMiniTypography.secondaryFontWeight}
+              />
+            )}
           </>
         )}
       </div>

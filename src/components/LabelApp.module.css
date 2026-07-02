@@ -211,6 +211,20 @@
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.miniShelfFullValue {
+  position: absolute;
+  top: var(--current-mini-secondary-center-from-content-top-mm, 20.7mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-secondary-text-size-mm, 5.6mm);
+  line-height: 1;
+  font-weight: var(--current-mini-secondary-font-weight, 700);
+  letter-spacing: 0;
+  color: #000;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .labelBox {
   display: flex;
   flex-direction: column;
