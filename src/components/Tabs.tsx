@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ICommonTabsProps } from '../models/ICommonTabsProps'
 import styles from './LabelApp.module.css';
+import { TabPanelVisibilityContext } from './TabPanelVisibilityContext';
 
 const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => {
   const buttonRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
@@ -85,7 +86,11 @@ const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => 
             className={styles.tabPanelBox}
             hidden={!isSelected}
           >
-            <div className={styles.tabPanelContent}>{tab.content}</div>
+            <div className={styles.tabPanelContent}>
+              <TabPanelVisibilityContext.Provider value={isSelected}>
+                {tab.content}
+              </TabPanelVisibilityContext.Provider>
+            </div>
           </div>
         );
       })}

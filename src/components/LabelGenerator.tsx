@@ -13,6 +13,7 @@ import { buildLayoutCssVars } from './labelLayoutCssVars';
 import { usePaginatedLabels } from './usePaginatedLabels';
 import { usePrintPortal } from './usePrintPortal';
 import { DEFAULT_MINI_COMPOSITION_VARIANT_ID, resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
+import { TabPanelVisibilityContext } from './TabPanelVisibilityContext';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
@@ -24,6 +25,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     layoutMode = DEFAULT_LABEL_PRINT_MODE,
     miniVariantId: configuredMiniVariantId = DEFAULT_MINI_COMPOSITION_VARIANT_ID,
   } = props;
+  const isTabPanelVisible = React.useContext(TabPanelVisibilityContext);
   const layoutStrategy = React.useMemo(() => getLabelLayoutStrategy(layoutMode), [layoutMode]);
   const itemsPerPage = React.useMemo(() => getItemsPerPage(layoutStrategy), [layoutStrategy]);
   const printContainer = usePrintPortal();
@@ -63,7 +65,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
 
   return (
     <>
-      <style media="print">{`@page { size: A4 ${layoutStrategy.page.orientation}; margin: 0; }`}</style>
+      {isTabPanelVisible && <style media="print">{`@page { size: A4 ${layoutStrategy.page.orientation}; margin: 0; }`}</style>}
 
       <div className={styles.actionBar}>
         <Button aria-label="Print Labels" className={styles.actionButton} onClick={handlePrint}>
@@ -73,7 +75,7 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
       </div>
       {/* Print portal — renders at <body> level so print CSS can isolate it cleanly.
            Hidden off-screen on screen, shown only during print. */}
-      {printContainer && ReactDOM.createPortal(
+      {isTabPanelVisible && printContainer && ReactDOM.createPortal(
         <div className={styles.printPortal}>
           {pagedItems.map((pageItems, pageIndex) => (
             <div key={`page-${pageIndex + 1}`} className={styles.printPage} style={pageStyle}>

@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import LabelGenerator from './LabelGenerator';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
+import { TabPanelVisibilityContext } from './TabPanelVisibilityContext';
 
 vi.mock('./LabelTile', () => ({
   default: ({ code }: { code: string }) => <div>{code}</div>,
@@ -63,5 +64,18 @@ describe('LabelGenerator', () => {
     expect(printSpy).toHaveBeenCalledTimes(1);
 
     printSpy.mockRestore();
+  });
+
+  it('does not render print portal content when inside an inactive tab panel', () => {
+    render(
+      <TabPanelVisibilityContext.Provider value={false}>
+        <LabelGenerator labelCodes={['01L01A']} />
+      </TabPanelVisibilityContext.Provider>,
+    );
+
+    const printSurface = document.getElementById('label-print-surface');
+
+    expect(printSurface).not.toBeNull();
+    expect(printSurface).toBeEmptyDOMElement();
   });
 });
