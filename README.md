@@ -16,8 +16,8 @@ The app provides three workflows for generating shelf edge labels:
 
 To prevent oversized jobs from degrading browser preview/export performance, generation uses a soft/hard cap:
 
-- **Soft limit:** `500` labels — generation still succeeds and shows a warning.
-- **Hard limit:** `1000` labels — generation is blocked with an error.
+- **Soft limit:** `1000` labels — generation still succeeds and shows a warning.
+- **Hard limit:** `2000` labels — generation is blocked with an error.
 
 These are centrally configured in `src/config/labelConfig.ts` under:
 
@@ -130,7 +130,10 @@ All geometry values must remain in millimeters.
 2. Start the development server:
    `npm run dev`
 
-`npm install` also installs the repository's Git hooks, including a `pre-push` hook that runs `npm run validate:ci`.
+`npm install` also installs the repository's Git hooks, including a branch-aware `pre-push` hook:
+
+- pushes to `main` run `npm run validate:release`
+- pushes to other branches run `npm run validate:ci`
 
 ### Production build
 
@@ -158,20 +161,35 @@ Quality checks run in CI:
 - `npm run styles:types:check`
 - `npm run styles:audit`
 - `npm run test:run`
-- `npm run test:a11y`
 - `npm run build`
 
-Run the same fast gate locally with:
+Run the fast local validation gate with:
 
 `npm run validate:ci`
 
-Run the consolidated release gate (matches deploy confidence) with:
+This runs:
+
+- `npm run styles:types:check`
+- `npm run styles:audit`
+- `npm run test:run` (typecheck + unit tests)
+- `npm run build:bundle`
+
+The GitHub Pages deploy workflow uses a slightly stricter quality gate: the same checks as `validate:ci`, plus `npm run audit:prod`.
+
+Run the full release validation gate with:
 
 `npm run validate:release`
 
-This includes a production dependency audit (`npm run audit:prod`) and fails on high or critical vulnerabilities.
+This runs:
 
-Deployment to GitHub Pages runs only after those checks pass, and only for pushes to `main`.
+- `npm run validate:ci`
+- `npm run audit:prod`
+- `npm run test:a11y`
+- `npm run test:e2e`
+
+It fails on high or critical production vulnerabilities. These are the same branch-aware pre-push checks described above: pushes to `main` run `npm run validate:release`, and pushes to other branches run `npm run validate:ci`.
+
+Deployment to GitHub Pages runs only after those checks pass, and for pushes to `main`. Workflow_dispatch can also be used to manually push a branch.
 
 1. Push your latest changes to `main`.
 2. In GitHub, open Settings > Pages (already enabled).
@@ -204,11 +222,11 @@ Run all unit tests:
 
 This now includes a TypeScript import/typecheck pass before Vitest runs.
 
-Run the same combined checks used by GitHub Actions (without E2E):
+Run the fast local validation gate:
 
 `npm run validate:ci`
 
-Run full release-grade validation (includes E2E):
+Run full release validation (adds dependency audit, accessibility, and E2E checks):
 
 `npm run validate:release`
 
@@ -337,7 +355,7 @@ Create at least one sample sheet from each flow:
 
 Include shelf coverage:
 
-- alphabetical shelves only (`A`-`L`)
+- alphabetical shelves only (`A`-`Z`)
 
 ### Printer and Media Matrix
 

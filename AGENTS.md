@@ -39,14 +39,15 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a `CompactLabelCode` branded payload (a `string` subtype that prevents accidental use of display-formatted codes as barcode values).
 - Scanner reliability depends on compact, separator-free payloads.
 
-## Test Workflow (Required)
+## Validation Gates
 
-- Style typing check: `npm run styles:types:check`
-- Style usage audit: `npm run styles:audit`
-- Unit tests: `npm run test:run`
-- Coverage: `npm run test:coverage`
-- E2E: `npm run test:e2e`
-- Visual regressions: `npm run test:visual`
+- Fast local validation gate: `npm run validate:ci`
+- `validate:ci` runs style typing, style audit, `test:run`, and `build:bundle`
+- GitHub Pages deploy workflow quality gate: `validate:ci` checks plus `npm run audit:prod`
+- Full release validation gate: `npm run validate:release`
+- `validate:release` runs `validate:ci`, `npm run audit:prod`, `npm run test:a11y`, and `npm run test:e2e`
+- Coverage remains available when needed: `npm run test:coverage`
+- Visual regressions remain available when needed: `npm run test:visual`
 - Update visual baselines only for intentional UI changes: `npm run test:visual:update`
 
 ## Visual Regression Scope
@@ -130,4 +131,4 @@ Before completing any change that affects label output, verify:
 
 - If test scripts, build commands, or deployment workflow changes, update `README.md` in the same change.
 - Keep `.module.css.d.ts` files in sync with style class changes using `npm run styles:types`.
-- Keep deployment quality gating aligned with `.github/workflows/deploy-pages.yml` (style checks, unit tests, and build must pass before deploy).
+- Keep deployment quality gating aligned with `.github/workflows/deploy-pages.yml` (`npm run audit:prod`, style checks, unit tests, and build must pass before deploy).
