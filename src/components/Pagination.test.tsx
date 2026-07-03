@@ -9,7 +9,7 @@ describe('Pagination', () => {
     render(<Pagination data={[]} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith([]);
+      expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -22,7 +22,7 @@ describe('Pagination', () => {
     render(<Pagination data={fullData} itemsPerPage={8} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(0, 8));
+      expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     expect(screen.getAllByRole('button')).toHaveLength(2);
@@ -30,31 +30,31 @@ describe('Pagination', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(8, 16));
+      expect(onPageChange).toHaveBeenCalledWith(2);
     });
   });
 
-  it('updates rendered slice when data changes and current page is out of range', async () => {
+  it('resets to first page when data changes and current page is out of range', async () => {
     const onPageChange = vi.fn();
     const fullData = Array.from({ length: 70 }, (_, index) => `item-${index + 1}`);
 
     const { rerender } = render(<Pagination data={fullData} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(0, 35));
+      expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(fullData.slice(35, 70));
+      expect(onPageChange).toHaveBeenCalledWith(2);
     });
 
     const reducedData = fullData.slice(0, 20);
     rerender(<Pagination data={reducedData} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenLastCalledWith(reducedData);
+      expect(onPageChange).toHaveBeenLastCalledWith(1);
     });
   });
 
@@ -94,7 +94,7 @@ describe('Pagination', () => {
     render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(data);
+      expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     expect(screen.queryAllByRole('button')).toHaveLength(1);
@@ -107,7 +107,7 @@ describe('Pagination', () => {
     render(<Pagination data={data} itemsPerPage={35} onPageChange={onPageChange} />);
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(data);
+      expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     expect(screen.queryAllByRole('button')).toHaveLength(1);
@@ -122,13 +122,13 @@ describe('Pagination', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Go to page 3' }));
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenCalledWith(data.slice(70, 105));
+      expect(onPageChange).toHaveBeenCalledWith(3);
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Go to page 1' }));
 
     await waitFor(() => {
-      expect(onPageChange).toHaveBeenLastCalledWith(data.slice(0, 35));
+      expect(onPageChange).toHaveBeenLastCalledWith(1);
     });
   });
 });

@@ -13,8 +13,8 @@ vi.mock('./LabelTile', () => ({
 }));
 
 vi.mock('./Pagination', () => ({
-  default: ({ data, itemsPerPage = 35, onPageChange }: { data: string[]; itemsPerPage?: number; onPageChange: (items: string[]) => void }) => (
-    <button data-testid="pagination-trigger" onClick={() => onPageChange(data.slice(itemsPerPage, itemsPerPage * 2))}>Paginate</button>
+  default: ({ onPageChange }: { onPageChange: (pageNumber: number) => void }) => (
+    <button data-testid="pagination-trigger" onClick={() => onPageChange(2)}>Paginate</button>
   ),
 }));
 
