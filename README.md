@@ -189,7 +189,7 @@ This runs:
 
 It fails on high or critical production vulnerabilities. These are the same branch-aware pre-push checks described above: pushes to `main` run `npm run validate:release`, and pushes to other branches run `npm run validate:ci`.
 
-Deployment to GitHub Pages runs only after those checks pass, and for pushes to `main`. Workflow_dispatch can also be used to manually push a branch.
+Deployment to GitHub Pages runs only after those checks pass, and for pushes to `main`. Workflow_dispatch can also be used to manually push a branch. The deploy job automatically retries once if GitHub Pages returns a transient post-upload failure.
 
 1. Push your latest changes to `main`.
 2. In GitHub, open Settings > Pages (already enabled).
