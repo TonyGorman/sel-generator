@@ -200,6 +200,27 @@ The site will be available at [https://tonygorman.github.io/sel-generator/](http
 
 ## Testing
 
+## Skills Check Invocation
+
+For code reviews in Copilot Chat, explicitly request the `react-best-practices` skill and include scope, validation commands, and expected output format.
+
+Use this template:
+
+1. Skill: `react-best-practices`
+2. Scope: files/folders to review
+3. Evidence: commands to run (`npm run validate:ci` or `npm run validate:release`)
+4. Output: findings first, ordered by severity, with file references
+
+Example prompts:
+
+- `Run a react-best-practices skills check on src/components and src/domain, then run npm run validate:ci. Return findings by severity with file links.`
+- `Use react-best-practices for a full repo review and include release evidence from npm run validate:release.`
+- `Skills check only for changed files in this branch using react-best-practices, with accessibility and print-path risks prioritized.`
+
+Shortcut prompt:
+
+- `Do a react-best-practices skills check, full repo, include validate:release, findings first.`
+
 ### Style Safety
 
 Generate typed CSS module declarations:

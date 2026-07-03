@@ -50,6 +50,16 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - Visual regressions remain available when needed: `npm run test:visual`
 - Update visual baselines only for intentional UI changes: `npm run test:visual:update`
 
+## Skills Check Invocation
+
+- For Copilot code reviews, explicitly request the `react-best-practices` skill.
+- Include all four parts in the prompt:
+  - Skill: `react-best-practices`
+  - Scope: files/folders to review
+  - Evidence: `npm run validate:ci` or `npm run validate:release`
+  - Output: findings first, ordered by severity, with file references
+- Preferred shortcut prompt: `Do a react-best-practices skills check, full repo, include validate:release, findings first.`
+
 ## Visual Regression Scope
 
 - Snapshot baselines live under `tests/e2e/label-regressions.spec.ts-snapshots`.
