@@ -97,7 +97,7 @@ describe('BackLabelForm', () => {
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: '1' } });
     fireEvent.change(inputs[1], { target: { value: '99' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'L' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'Z' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');

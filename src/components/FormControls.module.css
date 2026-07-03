@@ -1,4 +1,6 @@
 .button {
+  display: inline-flex;
+  align-items: center;
   appearance: none;
   border: 1px solid #1f5fbf;
   border-radius: 10px;
@@ -24,6 +26,15 @@
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.buttonIcon {
+  margin-left: auto;
+  padding-left: 0.6rem;
+}
+
+.buttonLabel {
+  text-align: left;
 }
 
 .input {

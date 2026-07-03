@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
+import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
     MIN_AISLE_VALUE,
@@ -15,6 +16,7 @@ import {
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import { Button, RadioGroup, RadioOption, ShelfSelect, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
     generateAisleLabelCodes,
     IAisleLabelInput,
@@ -24,7 +26,11 @@ import {
 
 type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelves'>;
 
-const AisleLabelForm: React.FC = () => {
+interface AisleLabelFormProps {
+    miniVariantId?: MiniCompositionVariantId;
+}
+
+const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     const aisleRangeText = `${MIN_AISLE_VALUE}-${MAX_AISLE_VALUE}`;
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
@@ -47,6 +53,10 @@ const AisleLabelForm: React.FC = () => {
         ft_end: null as number | null,
         shelves: null as string | null
     });
+
+    React.useEffect(() => {
+        setGeneratedLabels(null);
+    }, [miniVariantId]);
 
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
@@ -247,7 +257,10 @@ const AisleLabelForm: React.FC = () => {
             )}
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
+                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
+                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
+                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
+                </Button>
             </div>
 
             {generatedLabels && (

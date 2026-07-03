@@ -6,6 +6,7 @@ import { ILabelGenerator } from '../models/ILabelGenerator';
 import Pagination from './Pagination';
 import LabelTile from './LabelTile';
 import { Button } from './FormControls';
+import controlStyles from './FormControls.module.css';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { buildLayoutCssVars } from './labelLayoutCssVars';
@@ -59,7 +60,10 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
       <style media="print">{`@page { size: A4 ${layoutStrategy.page.orientation}; margin: 0; }`}</style>
 
       <div className={styles.actionBar}>
-        <Button className={styles.actionButton} onClick={handlePrint}>Print Labels</Button>
+        <Button aria-label="Print Labels" className={styles.actionButton} onClick={handlePrint}>
+          <span className={controlStyles.buttonLabel}>Print Labels</span>
+          <span className={controlStyles.buttonIcon} aria-hidden="true">🖨️</span>
+        </Button>
       </div>
       {/* Print portal — renders at <body> level so print CSS can isolate it cleanly.
            Hidden off-screen on screen, shown only during print. */}

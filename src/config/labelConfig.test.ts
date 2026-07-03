@@ -45,8 +45,8 @@ describe('labelConfig', () => {
   });
 
   it('keeps generation safety limits stable', () => {
-    expect(LABEL_SOFT_LIMIT).toBe(500);
-    expect(LABEL_HARD_LIMIT).toBe(1000);
+    expect(LABEL_SOFT_LIMIT).toBe(1000);
+    expect(LABEL_HARD_LIMIT).toBe(2000);
     expect(LABEL_SOFT_LIMIT).toBeLessThan(LABEL_HARD_LIMIT);
   });
 

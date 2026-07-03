@@ -204,13 +204,28 @@ describe('SpecificLabelForm', () => {
   it('blocks generation when specific labels exceed hard limit', () => {
     render(<SpecificLabelForm />);
 
-    const labels = Array.from({ length: 1001 }, (_, index) => `01L${String((index % 99) + 1).padStart(2, '0')}A`).join(',');
+    const labels = Array.from({ length: 2001 }, (_, index) => `01L${String((index % 99) + 1).padStart(2, '0')}A`).join(',');
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
       target: { value: labels },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
+
+  it('clears generated output when mini variant changes', () => {
+    const { rerender } = render(<SpecificLabelForm miniVariantId="mini-three-row" />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01L01A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByTestId('generated-labels')).toBeInTheDocument();
+
+    rerender(<SpecificLabelForm miniVariantId="mini-shelf-emphasis" />);
+
     expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
   });
 

@@ -17,8 +17,8 @@ export const LABEL_CONSTRAINTS = {
 		prefixes: ['BAK', 'FOS', 'FNT'] as const,
 	},
 	labelGeneration: {
-		softLimit: 500,
-		hardLimit: 1000,
+		softLimit: 1000,
+		hardLimit: 2000,
 	},
 } as const;
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
+import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
     SHORT_CODE_PREFIXES,
@@ -19,13 +20,18 @@ import {
     parseNumericInput,
     validateShortLabelInput,
 } from '../domain/labelGeneration';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
+
+interface BackLabelFormProps {
+    miniVariantId?: MiniCompositionVariantId;
+}
 
 const SHORT_CODE_PREFIX_OPTIONS = SHORT_CODE_PREFIXES.map((prefix) => ({
     key: prefix,
     text: prefix,
 }));
 
-const BackLabelForm: React.FC = () => {
+const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const idPrefix = React.useId();
@@ -39,6 +45,10 @@ const BackLabelForm: React.FC = () => {
         shelves: null as string | null,
     });
     const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(SHORT_CODE_PREFIXES[0]);
+
+    React.useEffect(() => {
+        setGeneratedLabels(null);
+    }, [miniVariantId]);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'bay_start' | 'bay_end'): void => {
         const numericValue = parseNumericInput(e.target.value);
@@ -150,7 +160,10 @@ const BackLabelForm: React.FC = () => {
             </div>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
+                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
+                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
+                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
+                </Button>
             </div>
 
             {errorMessage && (
