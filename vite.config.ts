@@ -16,6 +16,17 @@ const resolveBasePath = (): string => {
   return `/${repoName}/`
 }
 
+const getVitestExecArgv = (): string[] => {
+  const majorNodeVersion = Number.parseInt(process.versions.node.split('.')[0] ?? '0', 10)
+
+  if (Number.isNaN(majorNodeVersion) || majorNodeVersion < 25) {
+    return []
+  }
+
+  // Node 25+ enables Web Storage by default, which triggers Vitest's warning path.
+  return ['--no-experimental-webstorage']
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: resolveBasePath(),
@@ -37,6 +48,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    execArgv: getVitestExecArgv(),
     setupFiles: './src/test/setup.ts',
     globals: true,
     css: true,

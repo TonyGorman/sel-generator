@@ -26,7 +26,7 @@ export const getLabelHardLimitMessage = (hardLimit: number): string => {
 };
 
 export const getLabelSoftLimitMessage = (softLimit: number): string => {
-  return `Large batch warning: more than ${softLimit} labels may slow preview, print, or PDF export.`;
+  return `Large batch warning: more than ${softLimit} labels may slow preview or print.`;
 };
 
 interface ISpecificInvalidLabelMessageArgs {

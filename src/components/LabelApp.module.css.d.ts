@@ -6,7 +6,6 @@ export type Styles = {
   'barcodeGraphicLargeSel': string;
   'encodedValue': string;
   'encodedValueLargeSel': string;
-  'exportSurface': string;
   'formStack': string;
   'generateButton': string;
   'labelAppRoot': string;
@@ -19,7 +18,6 @@ export type Styles = {
   'largeSelHeadingPrefix': string;
   'largeSelHeadingSuffix': string;
   'largeSelLabelTextArea': string;
-  'loaderBox': string;
   'miniAisleBottomCode': string;
   'miniAisleTopCode': string;
   'miniShelfFullValue': string;

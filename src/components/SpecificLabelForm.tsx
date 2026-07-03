@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './LabelApp.module.css';
 import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
+import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
     AISLE_PREFIXES,
@@ -23,8 +24,13 @@ import {
 import { Button, TextField } from './FormControls';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
+import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 
-const SpecificLabelForm: React.FC = () => {
+interface SpecificLabelFormProps {
+    miniVariantId?: MiniCompositionVariantId;
+}
+
+const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) => {
     const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const namedAisleExamples = SPECIAL_AISLE_VALUES.join(', ');
@@ -34,6 +40,10 @@ const SpecificLabelForm: React.FC = () => {
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        setGeneratedLabels(null);
+    }, [miniVariantId]);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
@@ -120,13 +130,16 @@ const SpecificLabelForm: React.FC = () => {
             </section>
 
             <div className={styles.actionsRow}>
-                <Button className={styles.generateButton} onClick={generateLabel}>Generate Labels</Button>
+                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
+                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
+                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
+                </Button>
             </div>
 
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
                     </div>
                 </div>
             )}

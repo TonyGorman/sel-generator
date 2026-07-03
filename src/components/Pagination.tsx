@@ -18,15 +18,12 @@ const Pagination = (props: IPaginationProps): React.ReactElement => {
     }
 
     const pageToRender = totalPages === 0 ? 1 : safePage;
-    const indexOfLastItem = pageToRender * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-    onPageChange(currentItems);
-  }, [currentPage, data, onPageChange, totalPages, itemsPerPage]);
+    onPageChange(pageToRender);
+  }, [currentPage, onPageChange, totalPages]);
 
   return (
     <nav className={styles.pagination} aria-label="Label pages">
-      <span>Pages:</span>
+      <span className={styles.pageLabel}>Pages:</span>
       {[...Array(totalPages)].map((_, i) => (
         <button
           key={`page-${i + 1}`}

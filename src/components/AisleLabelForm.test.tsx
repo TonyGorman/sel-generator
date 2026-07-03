@@ -202,13 +202,13 @@ describe('AisleLabelForm', () => {
   it('shows soft warning for large but allowed label totals', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '50' });
+    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '99' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Last Shelf' }), { target: { value: 'L' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Large batch warning');
-    expect(screen.getByTestId('generated-count')).toHaveTextContent('600');
+    expect(screen.getByTestId('generated-count')).toHaveTextContent('1188');
   });
 
   it('blocks generation when total labels exceed hard limit', () => {

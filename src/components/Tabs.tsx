@@ -73,14 +73,22 @@ const Tabs: React.FC<ICommonTabsProps> = ({ tabs, selectedKey, onTabClick }) => 
           );
         })}
       </div>
-      <div
-        id={`panel-${activeTab.key}`}
-        role="tabpanel"
-        aria-labelledby={`tab-${activeTab.key}`}
-        className={styles.tabPanelBox}
-      >
-        <div className={styles.tabPanelContent}>{activeTab.content}</div>
-      </div>
+      {tabs.map((tab) => {
+        const isSelected = tab.key === activeTab.key;
+
+        return (
+          <div
+            key={tab.key}
+            id={`panel-${tab.key}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${tab.key}`}
+            className={styles.tabPanelBox}
+            hidden={!isSelected}
+          >
+            <div className={styles.tabPanelContent}>{tab.content}</div>
+          </div>
+        );
+      })}
     </>
   );
 };

@@ -34,19 +34,19 @@ const LabelApp = (): React.ReactElement => {
     {
       key: 'specific',
       headerText: 'Specific Labels',
-      content: <SpecificLabelForm />,
+      content: <SpecificLabelForm miniVariantId={miniVariant} />,
     },
     {
       key: 'aisle',
       headerText: 'Aisle Labels',
-      content: <AisleLabelForm />,
+      content: <AisleLabelForm miniVariantId={miniVariant} />,
     },
     {
       key: 'bak',
       headerText: 'FOS/Bak Labels',
-      content: <BackLabelForm />,
+      content: <BackLabelForm miniVariantId={miniVariant} />,
     },
-  ], []);
+  ], [miniVariant]);
 
   return (
     <section className={styles.labelAppRoot}>

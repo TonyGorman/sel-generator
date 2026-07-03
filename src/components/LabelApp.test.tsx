@@ -28,7 +28,15 @@ storageShim.install();
 describe('LabelApp', () => {
   it('shows specific tab by default', () => {
     render(<LabelApp />);
+
+    const specificPanel = document.getElementById('panel-specific');
+    const aislePanel = document.getElementById('panel-aisle');
+    const bakPanel = document.getElementById('panel-bak');
+
     expect(screen.getByText('Specific Form Mock')).toBeInTheDocument();
+    expect(specificPanel).not.toHaveAttribute('hidden');
+    expect(aislePanel).toHaveAttribute('hidden');
+    expect(bakPanel).toHaveAttribute('hidden');
   });
 
   it('switches to aisle tab when Aisle Labels tab is clicked', () => {
@@ -36,8 +44,13 @@ describe('LabelApp', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Aisle Labels' }));
 
+    const specificPanel = document.getElementById('panel-specific');
+    const aislePanel = document.getElementById('panel-aisle');
+
     expect(screen.getByText('Aisle Mock')).toBeInTheDocument();
-    expect(screen.queryByText('Specific Form Mock')).not.toBeInTheDocument();
+    expect(screen.getByText('Specific Form Mock')).toBeInTheDocument();
+    expect(specificPanel).toHaveAttribute('hidden');
+    expect(aislePanel).not.toHaveAttribute('hidden');
   });
 
   it('switches to back/FOS tab when FOS/Bak Labels tab is clicked', () => {
@@ -45,8 +58,13 @@ describe('LabelApp', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'FOS/Bak Labels' }));
 
+    const specificPanel = document.getElementById('panel-specific');
+    const bakPanel = document.getElementById('panel-bak');
+
     expect(screen.getByText('Back Mock')).toBeInTheDocument();
-    expect(screen.queryByText('Specific Form Mock')).not.toBeInTheDocument();
+    expect(screen.getByText('Specific Form Mock')).toBeInTheDocument();
+    expect(specificPanel).toHaveAttribute('hidden');
+    expect(bakPanel).not.toHaveAttribute('hidden');
   });
 
   it('switches back to specific tab after visiting another tab', () => {

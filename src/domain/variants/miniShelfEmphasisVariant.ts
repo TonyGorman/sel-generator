@@ -3,6 +3,7 @@ import { IComposedMiniLabel, IMiniCompositionVariant, IMiniTypographyFitResult, 
 import { ILabelLayoutStrategy } from '../../models/ILabelLayoutStrategy';
 import { getMiniBarcodeTopFromTileTopMm } from '../../components/labelLayoutGeometry';
 import { fitLineByWidth, getSecondaryCenterFromBarcodeTopMm } from '../miniCompositionVariantMath';
+import { parseLabelCode } from '../labelCodeParser';
 
 const MINI_SHELF_PRIMARY_FONT_WEIGHT = 900;
 const MINI_SHELF_SECONDARY_FONT_WEIGHT = 700;
@@ -21,6 +22,18 @@ const getShelfPrimaryText = (code: string): string => {
 
 const composeMiniShelfEmphasis = (code: string): IComposedMiniLabel => {
   const fullSpacedValue = normalizeLabelCode(code);
+  const parsed = parseLabelCode(code);
+
+  if (parsed?.kind === 'special') {
+    return {
+      variantId: 'mini-three-row',
+      primaryLineText: parsed.parts.value,
+      secondaryLineText: '',
+      tertiaryLineText: '',
+      fullSpacedValue,
+      encodedBarcodeValue: getEncodedLabelCode(code),
+    };
+  }
 
   return {
     variantId: 'mini-shelf-emphasis',

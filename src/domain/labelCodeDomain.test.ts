@@ -250,4 +250,15 @@ describe('mini composition variants', () => {
     expect(composed.fullSpacedValue).toBe('BR1 L01 A');
     expect(composed.encodedBarcodeValue).toBe('BR1L01A');
   });
+
+  it('blocks special named values from shelf-emphasis composition', () => {
+    const variant = getMiniCompositionVariant('mini-shelf-emphasis');
+    const composed = variant.composeLabel('KIOSK');
+
+    expect(composed.variantId).toBe('mini-three-row');
+    expect(composed.primaryLineText).toBe('KIOSK');
+    expect(composed.secondaryLineText).toBe('');
+    expect(composed.tertiaryLineText).toBe('');
+    expect(composed.encodedBarcodeValue).toBe('KIOSK');
+  });
 });

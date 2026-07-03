@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Tabs from './Tabs';
@@ -10,6 +11,41 @@ const tabs: ITabItem[] = [
 ];
 
 describe('Tabs', () => {
+  it('preserves mounted panel state when switching tabs', () => {
+    const StatefulTabs = (): React.ReactElement => {
+      const [selectedKey, setSelectedKey] = React.useState('one');
+      const [firstValue, setFirstValue] = React.useState('');
+
+      const statefulTabItems: ITabItem[] = [
+        {
+          key: 'one',
+          headerText: 'One',
+          content: (
+            <label>
+              First Value
+              <input
+                aria-label="First Value"
+                value={firstValue}
+                onChange={(event) => setFirstValue(event.target.value)}
+              />
+            </label>
+          ),
+        },
+        { key: 'two', headerText: 'Two', content: <div>Panel Two</div> },
+      ];
+
+      return <Tabs tabs={statefulTabItems} selectedKey={selectedKey} onTabClick={setSelectedKey} />;
+    };
+
+    render(<StatefulTabs />);
+
+    fireEvent.change(screen.getByLabelText('First Value'), { target: { value: 'kept-value' } });
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'One' }));
+
+    expect(screen.getByLabelText('First Value')).toHaveValue('kept-value');
+  });
+
   it('renders first tab as active when selectedKey is not provided', () => {
     render(<Tabs tabs={tabs} onTabClick={vi.fn()} />);
 

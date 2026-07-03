@@ -1,5 +1,6 @@
 export type Styles = {
   'activePage': string;
+  'pageLabel': string;
   'pagenum': string;
   'pagination': string;
 };

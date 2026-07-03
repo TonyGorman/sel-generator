@@ -16,14 +16,9 @@ export const LABEL_CONSTRAINTS = {
 	shortCode: {
 		prefixes: ['BAK', 'FOS', 'FNT'] as const,
 	},
-	pdfExport: {
-		// Conservative raster export profile to preserve label edge fidelity.
-		scale: 3,
-		imageCompression: 'NONE' as const,
-	},
 	labelGeneration: {
-		softLimit: 500,
-		hardLimit: 1000,
+		softLimit: 1000,
+		hardLimit: 2000,
 	},
 } as const;
 
@@ -36,9 +31,6 @@ export const MAX_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.max;
 export const AISLE_PREFIXES = LABEL_CONSTRAINTS.aisle.prefixes;
 export const SHORT_CODE_PREFIXES = LABEL_CONSTRAINTS.shortCode.prefixes;
 export const SPECIAL_AISLE_VALUES = LABEL_CONSTRAINTS.aisle.specialValues;
-
-export const PDF_EXPORT_SCALE = LABEL_CONSTRAINTS.pdfExport.scale;
-export const PDF_IMAGE_COMPRESSION = LABEL_CONSTRAINTS.pdfExport.imageCompression;
 export const LABEL_SOFT_LIMIT = LABEL_CONSTRAINTS.labelGeneration.softLimit;
 export const LABEL_HARD_LIMIT = LABEL_CONSTRAINTS.labelGeneration.hardLimit;
 

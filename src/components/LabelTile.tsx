@@ -148,10 +148,16 @@ const LabelTile: React.FC<ILabelTileProps> = ({
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const isLargeHeading = layoutStrategy.tileLayout === 'large-heading';
-  const miniVariant = getMiniCompositionVariant(miniVariantId);
-  const composedMiniLabel = miniVariant.composeLabel(code);
-  const miniGeometry = miniVariant.resolveGeometry(layoutStrategy);
-  const fittedMiniTypography = miniVariant.fitTypography(
+  const selectedMiniVariant = getMiniCompositionVariant(miniVariantId);
+  const initialComposedMiniLabel = selectedMiniVariant.composeLabel(code);
+  const effectiveMiniVariant = initialComposedMiniLabel.variantId === selectedMiniVariant.id
+    ? selectedMiniVariant
+    : getMiniCompositionVariant(initialComposedMiniLabel.variantId);
+  const composedMiniLabel = effectiveMiniVariant === selectedMiniVariant
+    ? initialComposedMiniLabel
+    : effectiveMiniVariant.composeLabel(code);
+  const miniGeometry = effectiveMiniVariant.resolveGeometry(layoutStrategy);
+  const fittedMiniTypography = effectiveMiniVariant.fitTypography(
     composedMiniLabel,
     layoutStrategy,
     miniGeometry,
