@@ -9,8 +9,6 @@ import {
   MIN_SHELF_LETTER,
   MAX_SHELF_LETTER,
   SPECIAL_AISLE_VALUES,
-  PDF_EXPORT_SCALE,
-  PDF_IMAGE_COMPRESSION,
   LABEL_SOFT_LIMIT,
   LABEL_HARD_LIMIT,
   LABEL_CONSTRAINTS,
@@ -42,8 +40,6 @@ describe('labelConfig', () => {
     expect(AISLE_PREFIXES).toEqual(LABEL_CONSTRAINTS.aisle.prefixes);
     expect(SHORT_CODE_PREFIXES).toEqual(LABEL_CONSTRAINTS.shortCode.prefixes);
     expect(SPECIAL_AISLE_VALUES).toEqual(LABEL_CONSTRAINTS.aisle.specialValues);
-    expect(PDF_EXPORT_SCALE).toBe(LABEL_CONSTRAINTS.pdfExport.scale);
-    expect(PDF_IMAGE_COMPRESSION).toBe(LABEL_CONSTRAINTS.pdfExport.imageCompression);
     expect(LABEL_SOFT_LIMIT).toBe(LABEL_CONSTRAINTS.labelGeneration.softLimit);
     expect(LABEL_HARD_LIMIT).toBe(LABEL_CONSTRAINTS.labelGeneration.hardLimit);
   });
@@ -52,11 +48,6 @@ describe('labelConfig', () => {
     expect(LABEL_SOFT_LIMIT).toBe(500);
     expect(LABEL_HARD_LIMIT).toBe(1000);
     expect(LABEL_SOFT_LIMIT).toBeLessThan(LABEL_HARD_LIMIT);
-  });
-
-  it('keeps PDF export profile stable for scan reliability', () => {
-    expect(PDF_EXPORT_SCALE).toBe(3);
-    expect(PDF_IMAGE_COMPRESSION).toBe('NONE');
   });
 
   it('keeps Back prefix default stable', () => {

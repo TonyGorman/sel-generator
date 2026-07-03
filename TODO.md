@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Remove Download Labels as a full feature.
+- [x] Remove Download Labels as a full feature.
 
   - Remove the UI wiring from `src/components/LabelGenerator.tsx`.
   - Delete the `Download Labels` button.

@@ -32,13 +32,9 @@
     "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1",
-    "jsbarcode": "^3.12.3",
-    "jspdf": "^4.2.1",
     "react": "^19.2.7",
     "react-barcode": "^1.6.1",
-    "react-dom": "^19.2.7",
-    "svg2pdf.js": "^2.7.0"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

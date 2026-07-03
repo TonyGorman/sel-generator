@@ -20,9 +20,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Rendering Path Awareness
 
 - Screen preview and print portal use the same `LabelTile` render path.
-- Download uses a calibrated vector PDF path by default, with raster fallback.
-- `LabelTile` and `drawVectorPage` dispatch to layout-specific rendering based on `layoutStrategy.tileLayout` (`'mini-stacked'` or `'large-heading'`), not `layoutStrategy.mode`.
-- If print and download diverge, treat it as a rendering-path calibration issue first.
+- `LabelTile` dispatches to layout-specific rendering based on `layoutStrategy.tileLayout` (`'mini-stacked'` or `'large-heading'`), not `layoutStrategy.mode`.
 
 ## Label Safety Rules
 
@@ -39,14 +37,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 - **Barcode payload is always compact**, identical to the input after uppercasing.
 - Display text uses font size and weight for visual treatment only — this is a rendering concern, not an input format.
 - Encoding logic lives in `src/domain/labelCodeDomain.ts`; `getEncodedLabelCode()` parses compact input and emits a `CompactLabelCode` branded payload (a `string` subtype that prevents accidental use of display-formatted codes as barcode values).
-- PDF export uses the same compact encoding via `LabelPdfExport.ts`.
 - Scanner reliability depends on compact, separator-free payloads.
-
-## PDF Calibration Rules
-
-- Change vector text/barcode constants in small increments.
-- For vertical text alignment changes, tune in ~0.2-0.6mm steps and re-check print vs download.
-- Prefer explicit constants for tunable values instead of scattered literals.
 
 ## Test Workflow (Required)
 
@@ -62,7 +53,6 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 
 - Snapshot baselines live under `tests/e2e/label-regressions.spec.ts-snapshots`.
 - Keep at least one full-page (35 mini-labels) preview snapshot using default configuration.
-- Keep download regression checks in place (PDF contract snapshot) to catch export drift.
 
 ## Change Discipline
 
@@ -98,7 +88,7 @@ When tradeoffs are required, prioritize in this order:
 
 1. Scan reliability and barcode readability
 2. Physical print geometry accuracy
-3. Print/download parity
+3. Preview/print parity
 4. UX polish and visual refinements
 5. Refactoring and code style improvements
 
@@ -113,8 +103,6 @@ Before completing any change that affects label output, verify:
 
 - On-screen preview output
 - Print portal output
-- Vector PDF download output
-- Raster fallback PDF output (where applicable)
 
 ## Snapshot Discipline
 

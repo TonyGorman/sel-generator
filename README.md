@@ -48,16 +48,9 @@ Variant selection is available in-app via the Mini Variant control.
 
 Barcode payload encoding remains unchanged and always uses compact values.
 
-### Print & Export
+### Print
 
 - **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper
-- **Download**: Export labels as a PDF with vector graphics and scan-safe barcode encoding
-
-### PDF Font Compatibility
-
-- The vector PDF export path uses jsPDF built-in **Helvetica** for label text.
-- This is intentional for broad cross-platform support (Windows/macOS/Linux) without requiring system fonts.
-- **Do not** switch to non-built-in font names (for example Calibri) unless the font is explicitly embedded/registered in jsPDF.
 
 ## Architecture Overview
 
@@ -79,13 +72,11 @@ flowchart TD
 
   LG --> PL[Preview Path]
   LG --> PR[Print Portal Path]
-  LG --> EX[labelPdfExporter]
 
   PL --> LT[LabelTile]
   PR --> LT
     LT --> MR[Mini variant registry]
     LG --> MP[Mini variant preference resolver]
-   EX --> MP
     MP --> ST[Mini variant storage]
    MP --> MR
    MVU --> MP
@@ -93,13 +84,6 @@ flowchart TD
    MR --> MS[mini-shelf-emphasis compose/geometry/fit]
     LT --> DH[Display helpers: getLargeSelDisplayParts]
     LT --> D2[Parser / encoding: getEncodedLabelCode]
-
-  EX --> VP[Vector PDF: drawVectorPage]
-  EX --> RF[Raster Fallback: drawRasterPage]
-   VP --> MR
-   VP --> MP
-   VP --> DH
-  VP --> D2
 ```
 
 ## Domain Model
@@ -133,7 +117,7 @@ To add a new mini variant:
 1. Add a new `MiniCompositionVariantId` literal in `src/models/IMiniCompositionVariant.ts`.
 2. Implement `composeLabel`, `resolveGeometry`, and `fitTypography` in `src/domain/miniCompositionVariants.ts`.
 3. Register the variant in the registry map in `src/domain/miniCompositionVariants.ts`.
-4. Add/update tests for `LabelTile`, `LabelPdfExport`, and domain variant behavior.
+4. Add/update tests for `LabelTile` and domain variant behavior.
 
 All geometry values must remain in millimeters.
 
@@ -274,8 +258,6 @@ Visual snapshots are part of the Playwright suite and are validated automaticall
 The label regression spec now validates visual outputs for both label sizes:
 
 - On-screen preview image snapshots for Mini SEL (35-label full page) and Large SEL (8-label full page)
-- Downloaded PDF first-page visual snapshots for both Mini SEL and Large SEL
-- PDF contract snapshots (page count, page dimensions, and orientation) for both label sizes
 
 If UI changes are intentional, update the snapshot baselines with:
 
@@ -336,14 +318,13 @@ The app supports two label sizes, selectable per print run.
 
 ## Print and Scan Validation Protocol
 
-Use this protocol whenever PDF/export logic, barcode sizing, typography, or print styles are changed.
+Use this protocol whenever barcode sizing, typography, or print styles are changed.
 
 ### Goal
 
 Confirm generated labels remain machine-readable after:
 
 - Browser preview
-- PDF download
 - Physical print
 
 ### Validation Inputs
@@ -388,10 +369,8 @@ For every printed sample:
 If scan quality drops:
 
 - Confirm print dialog used 100 percent scale
-- Compare on-screen preview vs downloaded PDF vs printed output
-- Re-test PDF export and print path independently
+- Compare on-screen preview vs printed output
 - Verify barcode module width and quiet-zone spacing were not reduced
-- Verify no additional PDF/image compression was introduced
 
 ### Regression Gate
 

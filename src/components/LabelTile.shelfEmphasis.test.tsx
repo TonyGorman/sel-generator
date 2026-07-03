@@ -20,4 +20,20 @@ describe('LabelTile shelf-emphasis selection', () => {
     const secondaryLine = document.querySelector('[class*="miniShelfFullValue"]');
     expect(secondaryLine?.getAttribute('style')).toContain('--current-mini-secondary-center-from-content-top-mm');
   });
+
+  it('blocks shelf-emphasis rendering for special named values', () => {
+    render(<LabelTile code="KIOSK" miniVariantId="mini-shelf-emphasis" />);
+
+    const allKioskTexts = screen.getAllByText('KIOSK', { exact: true });
+    expect(allKioskTexts.length).toBeGreaterThanOrEqual(2);
+
+    const shelfEmphasisSecondary = document.querySelector('[class*="miniShelfFullValue"]');
+    expect(shelfEmphasisSecondary).toBeNull();
+
+    const primaryLine = document.querySelector('[class*="primaryCode"]');
+    const primaryStyle = primaryLine?.getAttribute('style') ?? '';
+    expect(primaryStyle).not.toContain('--current-mini-primary-text-size-mm: 13mm');
+
+    expect(screen.getByTestId('label-value')).toHaveTextContent('KIOSK');
+  });
 });
