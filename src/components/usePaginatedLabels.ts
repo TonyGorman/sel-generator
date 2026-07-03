@@ -11,15 +11,31 @@ export const usePaginatedLabels = (labelCodes: string[], itemsPerPage: number) =
     return pages;
   }, [labelCodes, itemsPerPage]);
 
-  const [previewItems, setPreviewItems] = React.useState<string[]>([]);
+  const [previewPageIndex, setPreviewPageIndex] = React.useState(0);
 
-  React.useEffect(() => {
-    setPreviewItems(labelCodes.slice(0, itemsPerPage));
-  }, [labelCodes, itemsPerPage]);
+  const safePreviewPageIndex = React.useMemo(() => {
+    if (pagedItems.length === 0) {
+      return 0;
+    }
+
+    return Math.min(previewPageIndex, pagedItems.length - 1);
+  }, [pagedItems, previewPageIndex]);
+
+  const previewItems = React.useMemo(() => {
+    return pagedItems[safePreviewPageIndex] ?? [];
+  }, [pagedItems, safePreviewPageIndex]);
 
   const handlePageChange = React.useCallback((currentItems: string[]): void => {
-    setPreviewItems(currentItems);
-  }, []);
+    const matchingPageIndex = pagedItems.findIndex((pageItems) => {
+      if (pageItems.length !== currentItems.length) {
+        return false;
+      }
+
+      return pageItems.every((item, index) => item === currentItems[index]);
+    });
+
+    setPreviewPageIndex(matchingPageIndex >= 0 ? matchingPageIndex : 0);
+  }, [pagedItems]);
 
   return {
     pagedItems,

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import LabelGenerator from './LabelGenerator';
 import { getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
@@ -13,8 +13,8 @@ vi.mock('./LabelTile', () => ({
 }));
 
 vi.mock('./Pagination', () => ({
-  default: ({ onPageChange }: { onPageChange: (items: string[]) => void }) => (
-    <button data-testid="pagination-trigger" onClick={() => onPageChange(['MANUAL'])}>Paginate</button>
+  default: ({ data, itemsPerPage = 35, onPageChange }: { data: string[]; itemsPerPage?: number; onPageChange: (items: string[]) => void }) => (
+    <button data-testid="pagination-trigger" onClick={() => onPageChange(data.slice(itemsPerPage, itemsPerPage * 2))}>Paginate</button>
   ),
 }));
 
@@ -42,11 +42,16 @@ describe('LabelGenerator', () => {
 
   it('updates preview items through pagination callback', () => {
     const labelCodes = Array.from({ length: 36 }, (_, index) => `01L${String(index + 1).padStart(2, '0')}A`);
-    render(<LabelGenerator labelCodes={labelCodes} />);
+    const { container } = render(<LabelGenerator labelCodes={labelCodes} />);
+    const previewPage = container.querySelector('[class*="previewPage"]');
+
+    expect(previewPage).not.toBeNull();
+    expect(within(previewPage as HTMLElement).getByText('01L01A')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('pagination-trigger'));
 
-    expect(screen.getByText('MANUAL')).toBeInTheDocument();
+    expect(within(previewPage as HTMLElement).getByText('01L36A')).toBeInTheDocument();
+    expect(within(previewPage as HTMLElement).queryByText('01L01A')).not.toBeInTheDocument();
   });
 
   it('invokes window.print when print button is clicked', () => {

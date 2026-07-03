@@ -266,7 +266,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} miniVariantId={miniVariantId} />
                     </div>
                 </div>
             )}

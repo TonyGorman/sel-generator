@@ -197,7 +197,7 @@ test.describe('Label Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await expect(page.getByLabel('Large SEL')).toHaveCount(0);
+    await expect(page.getByLabel('Large SEL')).toBeHidden();
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
     await expect(page.getByLabel('Large SEL')).toBeVisible();

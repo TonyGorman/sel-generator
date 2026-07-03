@@ -139,7 +139,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
             {generatedLabels && (
                 <div className="App">
                     <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" />
+                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
                     </div>
                 </div>
             )}

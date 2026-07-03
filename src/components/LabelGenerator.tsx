@@ -12,15 +12,18 @@ import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { buildLayoutCssVars } from './labelLayoutCssVars';
 import { usePaginatedLabels } from './usePaginatedLabels';
 import { usePrintPortal } from './usePrintPortal';
-import { resolveConfiguredMiniVariantId } from '../domain/miniVariantPreference';
-import { resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
+import { DEFAULT_MINI_COMPOSITION_VARIANT_ID, resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
 
 const getItemsPerPage = (layoutStrategy: ILabelLayoutStrategy): number => {
   return layoutStrategy.page.columns * layoutStrategy.page.rows;
 };
 
 const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
-  const { labelCodes, layoutMode = DEFAULT_LABEL_PRINT_MODE } = props;
+  const {
+    labelCodes,
+    layoutMode = DEFAULT_LABEL_PRINT_MODE,
+    miniVariantId: configuredMiniVariantId = DEFAULT_MINI_COMPOSITION_VARIANT_ID,
+  } = props;
   const layoutStrategy = React.useMemo(() => getLabelLayoutStrategy(layoutMode), [layoutMode]);
   const itemsPerPage = React.useMemo(() => getItemsPerPage(layoutStrategy), [layoutStrategy]);
   const printContainer = usePrintPortal();
@@ -34,7 +37,10 @@ const LabelGenerator = (props: ILabelGenerator): React.ReactElement => {
     () => buildLayoutCssVars(layoutStrategy),
     [layoutStrategy],
   );
-  const miniVariantId = resolveMiniCompositionVariantId(layoutStrategy.mode, resolveConfiguredMiniVariantId());
+  const miniVariantId = React.useMemo(
+    () => resolveMiniCompositionVariantId(layoutStrategy.mode, configuredMiniVariantId),
+    [layoutStrategy.mode, configuredMiniVariantId],
+  );
 
   const renderLabelGrid = React.useCallback(
     (labels: string[], className?: string): React.ReactElement => (
