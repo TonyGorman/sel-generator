@@ -147,7 +147,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
   miniVariantId = DEFAULT_MINI_VARIANT_ID,
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
-  const isLargeHeading = layoutStrategy.tileLayout === 'large-heading';
+  const isLargeVariant = layoutStrategy.renderVariant === 'large';
   const selectedMiniVariant = getMiniCompositionVariant(miniVariantId);
   const initialComposedMiniLabel = selectedMiniVariant.composeLabel(code);
   const effectiveMiniVariant = initialComposedMiniLabel.variantId === selectedMiniVariant.id
@@ -169,9 +169,9 @@ const LabelTile: React.FC<ILabelTileProps> = ({
   const isThreeRowMini = composedMiniLabel.variantId === 'mini-three-row';
 
   return (
-    <div className={isLargeHeading ? styles.labelBoxLargeSel : styles.labelBox}>
-      <div className={isLargeHeading ? styles.largeSelLabelTextArea : styles.labelText}>
-        {isLargeHeading ? (
+    <div className={isLargeVariant ? styles.labelBoxLargeSel : styles.labelBox}>
+      <div className={isLargeVariant ? styles.largeSelLabelTextArea : styles.labelText}>
+        {isLargeVariant ? (
           <LargeSelTileContent
             code={code}
           />
@@ -217,7 +217,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           </>
         )}
       </div>
-      <div className={isLargeHeading ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
+      <div className={isLargeVariant ? styles.barcodeGraphicLargeSel : styles.barcodeGraphic}>
         <Barcode
           value={labelValue}
           format="CODE128B"
@@ -226,7 +226,7 @@ const LabelTile: React.FC<ILabelTileProps> = ({
           height={mmToPx(layoutStrategy.typography.barcodeHeightMm)}
           margin={0}
         />
-        <div className={isLargeHeading ? styles.encodedValueLargeSel : styles.encodedValue}>{labelValue}</div>
+        <div className={isLargeVariant ? styles.encodedValueLargeSel : styles.encodedValue}>{labelValue}</div>
       </div>
     </div>
   );

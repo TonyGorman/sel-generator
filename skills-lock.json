@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "code-review-quality": {
+      "source": "proffesor-for-testing/agentic-qe",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/code-review-quality/SKILL.md",
+      "computedHash": "2b1c2c4ba6cfa06d17e4dd4d67f2133736e2d3a5612d79514287bbe252370e3b"
+    },
     "react-best-practices": {
       "source": "vercel-labs/vercel-plugin",
       "sourceType": "github",

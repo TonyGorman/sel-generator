@@ -20,7 +20,7 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Rendering Path Awareness
 
 - Screen preview and print portal use the same `LabelTile` render path.
-- `LabelTile` dispatches to layout-specific rendering based on `layoutStrategy.tileLayout` (`'mini-stacked'` or `'large-heading'`), not `layoutStrategy.mode`.
+- `LabelTile` dispatches to layout-specific rendering based on `layoutStrategy.renderVariant` (`'small'` or `'large'`), not `layoutStrategy.mode`.
 
 ## Label Safety Rules
 
@@ -53,12 +53,15 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Skills Check Invocation
 
 - For Copilot code reviews, explicitly request the `react-best-practices` skill.
+- For testability/maintainability reviews, explicitly request the `code-review-quality` skill.
 - Include all four parts in the prompt:
   - Skill: `react-best-practices`
   - Scope: files/folders to review
   - Evidence: `npm run validate:ci` or `npm run validate:release`
   - Output: findings first, ordered by severity, with file references
+- For `code-review-quality`, keep the same structure but set Skill to `code-review-quality` and focus scope on test files and impacted source files.
 - Preferred shortcut prompt: `Do a react-best-practices skills check, full repo, include validate:release, findings first.`
+- Preferred test-review shortcut prompt: `Use code-review-quality to review tests in src/components and tests/e2e, include npm run validate:release, findings first with actionable fixes.`
 
 ## Visual Regression Scope
 

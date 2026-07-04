@@ -1,8 +1,8 @@
-import { ILabelLayoutStrategy, LabelPrintMode, TileLayout } from '../models/ILabelLayoutStrategy';
+import { ILabelLayoutStrategy, LabelPrintMode, RenderVariant } from '../models/ILabelLayoutStrategy';
 
 class MiniSelLayoutStrategy implements ILabelLayoutStrategy {
   mode: LabelPrintMode = 'mini-sel';
-  tileLayout: TileLayout = 'mini-stacked';
+  renderVariant: RenderVariant = 'small';
 
   displayName = 'Mini SEL';
 
@@ -51,7 +51,7 @@ class MiniSelLayoutStrategy implements ILabelLayoutStrategy {
 
 class LargeSelLayoutStrategy implements ILabelLayoutStrategy {
   mode: LabelPrintMode = 'large-sel';
-  tileLayout: TileLayout = 'large-heading';
+  renderVariant: RenderVariant = 'large';
 
   displayName = 'Large SEL';
 

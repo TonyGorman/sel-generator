@@ -26,15 +26,16 @@ These are centrally configured in `src/config/labelConfig.ts` under:
 
 All labels display:
 
-- Aisle, side, bay, shelf values in several different variations as disccused next.
+- Aisle, side, bay, shelf values in several different variations as discussed next.
 - A CODE128B barcode (always encoded compactly, without spaces or dashes, for reliable scanning)
 - Encoded barcode value as readable text below the barcode for visual verification
 
-Shelf values are always alphabetical (`A`-`Z`) across generated aisle and short code labels. Special aisle values are defined in code.
+Shelf values are always alphabetical (`A`-`Z`) across generated aisle and short code labels. 
+`Special aisle` values are defined in code via a config entry for values such as `KIOSK` or `FLORAL`. These only display that special aisle value, without side, bay or shelf.
 
 ### Mini SEL Composition Variants
 
-Mini SEL supports two composition variants that share the same 39mm x 39mm geometry and barcode placement:
+Mini SEL supports two variations that share the same 39mm x 39mm geometry and barcode placement:
 
 - `mini-three-row` (default):
   - Row 1: aisle token or shortcode prefix
@@ -46,11 +47,12 @@ Mini SEL supports two composition variants that share the same 39mm x 39mm geome
 
 Variant selection is available in-app via the Mini Variant control.
 
-Barcode payload encoding remains unchanged and always uses compact values.
+In all SEL types and sizes the barcode is at the bottom.
+Barcode payload encoding always uses compact values.
 
 ### Print
 
-- **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper
+- **Print**: Render labels directly to your printer using browser print functionality, optimized for A4 SEL paper. You can 'print to PDF' if you want to download first.
 
 ## Architecture Overview
 
@@ -88,24 +90,20 @@ flowchart TD
 
 ## Domain Model
 
-The domain layer is split across three files:
+The domain layer for sel codes is split across three files:
 
-- **`labelCodeParser.ts`**: Parses compact input into a `ParsedLabelCode` discriminated union with three branches: `{ kind: 'special'; parts: ISpecialCodeParts }`, `{ kind: 'aisle'; parts: IAisleCodeParts }`, and `{ kind: 'short'; parts: IShortCodeParts }`.
-- **`labelCodeDisplay.ts`**: Converts parsed codes to display and encoding formats. `getEncodedLabelCode()` returns a `CompactLabelCode` branded type guaranteeing separator-free barcode payloads.
-- **`labelCodeValidator.ts`**: Validates specific label codes against configured bounds.
-
-Both `IAisleCodeParts` and `IShortCodeParts` extend a common `IBaseCodeParts` base (`bay`, `shelf`).
+- **`labelCodeParser.ts`**: Parses compact input into a `ParsedLabelCode` domain object.
+- **`labelCodeDisplay.ts`**: Converts parsed codes to display and encoding formats.
+- **`labelCodeValidator.ts`**: Validates label codes.
 
 ## Layout Strategies
 
 Label layout is controlled by objects implementing `ILabelLayoutStrategy`. Each strategy declares two discriminants:
 
-- **`mode`** (`LabelPrintMode`): `'mini-sel'` or `'large-sel'` - maps to the physical paper format.
-- **`tileLayout`** (`TileLayout`): `'mini-stacked'` or `'large-heading'` - controls large-vs-mini render path dispatch.
+- **`mode`** (`LabelPrintMode`): `'mini-sel'` or `'large-sel'` - the physical paper format.
+- **`renderVariant`** (`RenderVariant`): `'small'` or `'large'` - controls large-vs-mini render.
 
-Strategies remain registered in a `Map<LabelPrintMode, ILabelLayoutStrategy>` inside `labelLayoutStrategies.ts`.
-
-Mini text arrangement is now handled by mini composition variants in `src/domain/miniCompositionVariants.ts`, not by adding new `TileLayout` values.
+Mini text arrangement is handled in `src/domain/miniCompositionVariants.ts`.
 
 Mini variant selection order:
 
@@ -119,7 +117,7 @@ To add a new mini variant:
 3. Register the variant in the registry map in `src/domain/miniCompositionVariants.ts`.
 4. Add/update tests for `LabelTile` and domain variant behavior.
 
-All geometry values must remain in millimeters.
+All geometry values *must* remain in millimeters.
 
 ## Build and Publish
 
@@ -200,9 +198,16 @@ The site will be available at [https://tonygorman.github.io/sel-generator/](http
 
 ## Testing
 
+Skill selection quick guide:
+
+- Use `react-best-practices` for React/render-path and print-geometry review.
+- Use `code-review-quality` for testability, maintainability, and test-quality critique.
+
 ## Skills Check Invocation
 
 For code reviews in Copilot Chat, explicitly request the `react-best-practices` skill and include scope, validation commands, and expected output format.
+
+For test-quality and maintainability reviews, explicitly request the `code-review-quality` skill with the same structure.
 
 Use this template:
 
@@ -220,6 +225,7 @@ Example prompts:
 Shortcut prompt:
 
 - `Do a react-best-practices skills check, full repo, include validate:release, findings first.`
+- `Use code-review-quality to review tests in src/components and tests/e2e, include npm run validate:release, findings first with actionable fixes.`
 
 ### Style Safety
 

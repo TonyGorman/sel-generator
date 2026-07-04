@@ -87,7 +87,7 @@ describe('Pagination', () => {
     expect(page1Button).not.toHaveAttribute('aria-current');
   });
 
-  it('handles single page of data without rendering page buttons', async () => {
+  it('renders only the page 1 button for a single page of data', async () => {
     const onPageChange = vi.fn();
     const data = Array.from({ length: 10 }, (_, i) => `item-${i + 1}`);
 
@@ -100,7 +100,7 @@ describe('Pagination', () => {
     expect(screen.queryAllByRole('button')).toHaveLength(1);
   });
 
-  it('handles data length exactly equal to itemsPerPage', async () => {
+  it('renders only the page 1 button when data length equals itemsPerPage', async () => {
     const onPageChange = vi.fn();
     const data = Array.from({ length: 35 }, (_, i) => `item-${i + 1}`);
 

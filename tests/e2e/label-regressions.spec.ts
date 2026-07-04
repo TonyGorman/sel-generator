@@ -268,6 +268,8 @@ test.describe('Label Generator regressions', () => {
     const previewPage = page.locator('[class*="previewPage"]').first();
     await expect(previewPage).toHaveScreenshot('mini-sel-shelf-emphasis-aisle-preview.png', {
       animations: 'disabled',
+      // Allow minor cross-platform anti-aliasing/font rasterization drift (macOS vs Linux).
+      maxDiffPixelRatio: 0.05,
     });
   });
 
@@ -292,6 +294,8 @@ test.describe('Label Generator regressions', () => {
     const previewPage = page.locator('[class*="previewPage"]').first();
     await expect(previewPage).toHaveScreenshot('default-mini-shelf-emphasis-35-labels.png', {
       animations: 'disabled',
+      // Allow minor cross-platform anti-aliasing/font rasterization drift (macOS vs Linux).
+      maxDiffPixelRatio: 0.05,
     });
   });
 });

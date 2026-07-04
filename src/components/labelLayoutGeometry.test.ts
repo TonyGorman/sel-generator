@@ -10,7 +10,7 @@ import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 
 const createMiniStrategy = (): ILabelLayoutStrategy => ({
   mode: 'mini-sel',
-  tileLayout: 'mini-stacked',
+  renderVariant: 'small',
   displayName: 'Mini',
   page: {
     sheetWidthMm: 297,
@@ -63,7 +63,7 @@ describe('labelLayoutGeometry', () => {
 
   it('returns max font size when mode is not mini-sel or auto-fit is disabled', () => {
     const mini = createMiniStrategy();
-    const largeMode = { ...mini, mode: 'large-sel' as const, tileLayout: 'large-heading' as const };
+    const largeMode = { ...mini, mode: 'large-sel' as const, renderVariant: 'large' as const };
     expect(fitMiniPrimaryFontSizeMm('LONGTEXT', largeMode)).toBe(mini.typography.primaryTextMaxSizeMm);
 
     const noAutoFit = {
@@ -73,12 +73,12 @@ describe('labelLayoutGeometry', () => {
     expect(fitMiniPrimaryFontSizeMm('LONGTEXT', noAutoFit)).toBe(mini.typography.primaryTextMaxSizeMm);
   });
 
-  it('returns max size when tileLayout is large-heading regardless of primaryAutoFitEnabled', () => {
+  it('returns max size when renderVariant is large regardless of primaryAutoFitEnabled', () => {
     const mini = createMiniStrategy();
     const largeHeading = {
       ...mini,
       mode: 'large-sel' as const,
-      tileLayout: 'large-heading' as const,
+      renderVariant: 'large' as const,
       typography: { ...mini.typography, primaryAutoFitEnabled: true },
     };
     expect(fitMiniPrimaryFontSizeMm('LONGTEXT', largeHeading)).toBe(mini.typography.primaryTextMaxSizeMm);
