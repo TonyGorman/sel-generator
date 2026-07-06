@@ -25,6 +25,7 @@ import { Button, TextField } from './FormControls';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
+import { useResetOnVariantChange } from './useResetOnVariantChange';
 
 interface SpecificLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -36,14 +37,13 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
     const namedAisleExamples = SPECIAL_AISLE_VALUES.join(', ');
     const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
 
-    const [initLabelText, setLabelText] = React.useState("");
+    const [labelText, setLabelText] = React.useState("");
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
 
-    React.useEffect(() => {
-        setGeneratedLabels(null);
-    }, [miniVariantId]);
+    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
+    useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
@@ -63,7 +63,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
     };
 
     const generateLabel = ():void => {
-        const labelTexts = normalizeSpecificInputCodes(initLabelText);
+        const labelTexts = normalizeSpecificInputCodes(labelText);
 
         if (labelTexts.length === 0) {
             setErrorMessage(VALIDATION_MESSAGES.specificEmpty);
@@ -121,7 +121,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                 <h2 className={shellStyles.sectionTitle}>Label Input</h2>
                 <div className={styles.formStack}>
                     <TextField
-                        value={initLabelText}
+                        value={labelText}
                         placeholder="Enter labels"
                         onChange={onInputChange}
                     />
@@ -137,11 +137,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
             </div>
 
             {generatedLabels && (
-                <div className="App">
-                    <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
-                    </div>
-                </div>
+                <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
             )}
         </div>
     );

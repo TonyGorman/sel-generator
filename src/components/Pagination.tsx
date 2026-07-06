@@ -7,19 +7,24 @@ const Pagination = (props: IPaginationProps): React.ReactElement => {
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
+  const activePage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
 
-  const handleClick = (number: number): void => setCurrentPage(number);
+  if (activePage !== currentPage && totalPages > 0) {
+    setCurrentPage(activePage);
+  }
+
+  const lastReportedPage = React.useRef<number>(0);
 
   React.useEffect(() => {
-    const safePage = totalPages > 0 && currentPage > totalPages ? totalPages : currentPage;
-    if (safePage !== currentPage) {
-      setCurrentPage(safePage);
-      return;
+    if (lastReportedPage.current !== activePage) {
+      lastReportedPage.current = activePage;
+      onPageChange(activePage);
     }
+  }, [activePage, onPageChange]);
 
-    const pageToRender = totalPages === 0 ? 1 : safePage;
-    onPageChange(pageToRender);
-  }, [currentPage, onPageChange, totalPages]);
+  const handleClick = (page: number): void => {
+    setCurrentPage(page);
+  };
 
   return (
     <nav className={styles.pagination} aria-label="Label pages">
@@ -28,9 +33,9 @@ const Pagination = (props: IPaginationProps): React.ReactElement => {
         <button
           key={`page-${i + 1}`}
           onClick={() => handleClick(i + 1)}
-          className={currentPage === i + 1 ? styles.activePage : styles.pagenum}
+          className={activePage === i + 1 ? styles.activePage : styles.pagenum}
           aria-label={`Go to page ${i + 1}`}
-          aria-current={currentPage === i + 1 ? 'page' : undefined}
+          aria-current={activePage === i + 1 ? 'page' : undefined}
         >
           {i + 1}
         </button>

@@ -21,6 +21,7 @@ import {
     validateShortLabelInput,
 } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
+import { useResetOnVariantChange } from './useResetOnVariantChange';
 
 interface BackLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -46,21 +47,12 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     });
     const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(SHORT_CODE_PREFIXES[0]);
 
-    React.useEffect(() => {
-        setGeneratedLabels(null);
-    }, [miniVariantId]);
+    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
+    useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'bay_start' | 'bay_end'): void => {
         const numericValue = parseNumericInput(e.target.value);
-
-        switch (type) {
-            case 'bay_start':
-                setLabelStruct((prevState) => ({ ...prevState, bay_start: numericValue }))
-                break;
-            case 'bay_end':
-                setLabelStruct((prevState) => ({ ...prevState, bay_end: numericValue }))
-                break;
-        }
+        setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
     }
 
     const onShelfChange = (letter: string): void => {
@@ -178,11 +170,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
             )}
 
             {generatedLabels && (
-                <div className="App">
-                    <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
-                    </div>
-                </div>
+                <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
             )}
         </div>
     );
