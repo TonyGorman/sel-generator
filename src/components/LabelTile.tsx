@@ -18,23 +18,25 @@ const MM_TO_PX = 96 / 25.4;
 const PRIMARY_TEXT_FONT_WEIGHT = 800;
 const PRIMARY_TEXT_FONT_FAMILY = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-let primaryTextMeasureContext: CanvasRenderingContext2D | null | undefined;
-
 const mmToPx = (mm: number): number => mm * MM_TO_PX;
 
-const getPrimaryTextMeasureContext = (): CanvasRenderingContext2D | null => {
-  if (primaryTextMeasureContext !== undefined) {
-    return primaryTextMeasureContext;
-  }
-
+const createPrimaryTextMeasureContext = (): CanvasRenderingContext2D | null => {
   if (typeof document === 'undefined') {
-    primaryTextMeasureContext = null;
-    return primaryTextMeasureContext;
+    return null;
   }
 
   const canvas = document.createElement('canvas');
-  primaryTextMeasureContext = canvas.getContext('2d');
-  return primaryTextMeasureContext;
+  return canvas.getContext('2d');
+};
+
+let cachedMeasureContext: CanvasRenderingContext2D | null | undefined;
+
+const getPrimaryTextMeasureContext = (): CanvasRenderingContext2D | null => {
+  if (cachedMeasureContext === undefined) {
+    cachedMeasureContext = createPrimaryTextMeasureContext();
+  }
+
+  return cachedMeasureContext;
 };
 
 const measurePrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {

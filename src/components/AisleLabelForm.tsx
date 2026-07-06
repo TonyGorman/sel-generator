@@ -23,6 +23,7 @@ import {
     parseNumericInput,
     validateAisleLabelInput,
 } from '../domain/labelGeneration';
+import { useResetOnVariantChange } from './useResetOnVariantChange';
 
 type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelves'>;
 
@@ -54,19 +55,18 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         shelves: null as string | null
     });
 
-    React.useEffect(() => {
-        setGeneratedLabels(null);
-    }, [miniVariantId]);
+    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
+    useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
 
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
+    const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
         const numericValue = parseNumericInput(e.target.value);
         setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
-    };
+    }, []);
 
-    const onShelfChange = (letter: string): void => {
+    const onShelfChange = React.useCallback((letter: string): void => {
         setLabelStruct((prevState) => ({ ...prevState, shelves: letter || null }));
-    };
+    }, []);
 
     const hasValue = (value: number | null): value is number => value !== null && !Number.isNaN(value);
 
@@ -92,7 +92,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         { label: 'End', startKey: 'ef_start', endKey: 'ef_end' },
         { label: 'Front', startKey: 'ft_start', endKey: 'ft_end' },
     ] as const;
-    const printModeOptions: RadioOption[] = [
+    const printModeOptions: RadioOption<LabelPrintMode>[] = [
         { key: 'mini-sel', text: 'Mini SEL' },
         { key: 'large-sel', text: 'Large SEL' },
     ];
@@ -221,7 +221,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                         name={`${idPrefix}-label-print-mode`}
                         options={printModeOptions}
                         selectedKey={labelPrintMode}
-                        onChange={(key) => setLabelPrintMode(key as LabelPrintMode)}
+                        onChange={(key) => setLabelPrintMode(key)}
                     />
                 </section>
 
@@ -264,11 +264,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
             </div>
 
             {generatedLabels && (
-                <div className="App">
-                    <div>
-                        <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} miniVariantId={miniVariantId} />
-                    </div>
-                </div>
+                <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} miniVariantId={miniVariantId} />
             )}
         </div>
     );

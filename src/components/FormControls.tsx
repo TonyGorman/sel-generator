@@ -88,19 +88,19 @@ export const TextField = React.forwardRef<HTMLInputElement | HTMLTextAreaElement
   );
 });
 
-export interface RadioOption {
-  key: string;
+export interface RadioOption<K extends string = string> {
+  key: K;
   text: string;
 }
 
-interface RadioGroupProps {
+interface RadioGroupProps<K extends string = string> {
   name: string;
-  options: RadioOption[];
-  selectedKey: string;
-  onChange: (key: string) => void;
+  options: RadioOption<K>[];
+  selectedKey: K;
+  onChange: (key: K) => void;
 }
 
-export const RadioGroup: React.FC<RadioGroupProps> = ({ name, options, selectedKey, onChange }) => {
+export const RadioGroup = <K extends string = string>({ name, options, selectedKey, onChange }: RadioGroupProps<K>): React.ReactElement => {
   return (
     <div className={styles.radioGroup} role="radiogroup">
       {options.map((option) => {
