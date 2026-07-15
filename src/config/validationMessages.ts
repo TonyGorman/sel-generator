@@ -7,6 +7,8 @@ export const VALIDATION_MESSAGES = {
   sideRangeOrder: 'Side range start cannot be greater than side range end.',
   shortRequired: 'Please enter start bay, end bay, and select a last shelf.',
   shortOrder: 'Start bay cannot be greater than end bay.',
+  shelfOrder: 'Start shelf must come before or equal to end shelf.',
+  specificLargeSelSpecialCode: 'Special label values (such as KIOSK) are not supported on large labels. Switch to mini labels or remove the special values.',
 } as const;
 
 export const getAisleRangeValidationMessage = (minAisleValue: number, maxAisleValue: number): string => {

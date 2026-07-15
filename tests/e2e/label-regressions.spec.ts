@@ -114,7 +114,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(1).fill('1');
     await visibleInputs.nth(2).fill('1');
     await visibleInputs.nth(3).fill('1');
-    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+    await page.getByRole('combobox', { name: 'End Shelf' }).selectOption('A');
 
     await expect(page.getByText('Total labels: 1')).toBeVisible();
 
@@ -135,7 +135,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(1).fill('1');
     await visibleInputs.nth(2).fill('1');
     await visibleInputs.nth(3).fill('1');
-    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+    await page.getByRole('combobox', { name: 'End Shelf' }).selectOption('A');
 
     await page.getByRole('button', { name: 'Generate Labels' }).click();
     await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
@@ -158,7 +158,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(1).fill('1');
     await visibleInputs.nth(2).fill('1');
     await visibleInputs.nth(3).fill('1');
-    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('A');
+    await page.getByRole('combobox', { name: 'End Shelf' }).selectOption('A');
 
     await page.getByRole('button', { name: 'Generate Labels' }).click();
     await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();
@@ -193,15 +193,16 @@ test.describe('Label Generator regressions', () => {
   });
 
 
-  test('Large SEL mode is only available from Aisle tab', async ({ page }) => {
+  test('Large SEL mode is available from both Aisle and Specific Labels tabs', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'Specific Labels' }).click();
-    await expect(page.getByLabel('Large SEL')).toBeHidden();
-
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
-    await expect(page.getByLabel('Large SEL')).toBeVisible();
-    await expect(page.getByLabel('Mini SEL')).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Large SEL' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Mini SEL' })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Specific Labels' }).click();
+    await expect(page.getByRole('radio', { name: 'Large SEL' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Mini SEL' })).toBeVisible();
   });
 
   test('Aisle Large SEL preview remains visually stable for one full 8-label page', async ({ page }) => {
@@ -209,7 +210,7 @@ test.describe('Label Generator regressions', () => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: 'Aisle Labels' }).click();
-    await page.getByLabel('Large SEL').click();
+    await page.getByRole('radio', { name: 'Large SEL' }).click();
 
     const visibleInputs = page.getByRole('textbox');
     await visibleInputs.nth(0).fill('1');
@@ -218,7 +219,7 @@ test.describe('Label Generator regressions', () => {
     await visibleInputs.nth(3).fill('2');
     await visibleInputs.nth(4).fill('1');
     await visibleInputs.nth(5).fill('2');
-    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('B');
+    await page.getByRole('combobox', { name: 'End Shelf' }).selectOption('B');
 
     await page.getByRole('button', { name: 'Generate Labels' }).click();
     await expect(page.getByRole('button', { name: 'Print Labels' })).toBeVisible();

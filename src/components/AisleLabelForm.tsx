@@ -25,7 +25,7 @@ import {
 } from '../domain/labelGeneration';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 
-type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelves'>;
+type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelf_start' | 'shelf_end'>;
 
 interface AisleLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -52,7 +52,8 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         rf_end: null as number | null,
         ft_start: null as number | null,
         ft_end: null as number | null,
-        shelves: null as string | null
+        shelf_start: null as string | null,
+        shelf_end: null as string | null,
     });
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
@@ -64,8 +65,12 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
     }, []);
 
+    const onShelfStartChange = React.useCallback((letter: string): void => {
+        setLabelStruct((prevState) => ({ ...prevState, shelf_start: letter || null }));
+    }, []);
+
     const onShelfChange = React.useCallback((letter: string): void => {
-        setLabelStruct((prevState) => ({ ...prevState, shelves: letter || null }));
+        setLabelStruct((prevState) => ({ ...prevState, shelf_end: letter || null }));
     }, []);
 
     const hasValue = (value: number | null): value is number => value !== null && !Number.isNaN(value);
@@ -79,11 +84,14 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     };
 
     const formatShelfSummary = (): string => {
-        if (!labelStruct.shelves) {
+        if (!labelStruct.shelf_end) {
             return '--';
         }
-
-        return `A – ${labelStruct.shelves}`;
+        const start = labelStruct.shelf_start ?? 'A';
+        if (start === labelStruct.shelf_end) {
+            return labelStruct.shelf_end;
+        }
+        return `${start} – ${labelStruct.shelf_end}`;
     };
 
     const sideRows = [
@@ -114,7 +122,9 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         return total + (end - start + 1);
     }, 0);
 
-    const shelfCount = labelStruct.shelves ? labelStruct.shelves.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : 0;
+    const shelfCount = labelStruct.shelf_end
+        ? labelStruct.shelf_end.charCodeAt(0) - (labelStruct.shelf_start ?? 'A').charCodeAt(0) + 1
+        : 0;
     const totalLabels = totalAisles > 0 && shelfCount > 0
         ? totalAisles * totalBayValues * shelfCount
         : 0;
@@ -204,14 +214,24 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                 </section>
 
                 <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
-                    <div className={styles.singleField}>
-                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Last Shelf</label>
-                        <ShelfSelect
-                            id={`${idPrefix}-shelves`}
-                            value={labelStruct.shelves ?? ''}
-                            onChange={onShelfChange}
-                        />
+                    <h2 className={shellStyles.sectionTitle}>Shelf Range ({shelfRangeText})</h2>
+                    <div className={styles.twoFieldGrid}>
+                        <div className={styles.fieldGroup}>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
+                            <ShelfSelect
+                                id={`${idPrefix}-shelf-start`}
+                                value={labelStruct.shelf_start ?? ''}
+                                onChange={onShelfStartChange}
+                            />
+                        </div>
+                        <div className={styles.fieldGroup}>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>End Shelf</label>
+                            <ShelfSelect
+                                id={`${idPrefix}-shelves`}
+                                value={labelStruct.shelf_end ?? ''}
+                                onChange={onShelfChange}
+                            />
+                        </div>
                     </div>
                 </section>
 

@@ -23,7 +23,8 @@ const baseAisleInput: IAisleLabelInput = {
   rf_end: null,
   ft_start: null,
   ft_end: null,
-  shelves: 'B',
+  shelf_start: null,
+  shelf_end: 'B',
 };
 
 describe('labelGeneration', () => {
@@ -83,7 +84,8 @@ describe('labelGeneration', () => {
         rf_end: 1,
         ft_start: 1,
         ft_end: 1,
-        shelves: 'A',
+        shelf_start: null,
+        shelf_end: 'A',
       },
       formatTwoDigitValue,
     );

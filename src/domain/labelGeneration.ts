@@ -17,7 +17,8 @@ export interface IAisleLabelInput {
   rf_end: number | null;
   ft_start: number | null;
   ft_end: number | null;
-  shelves: string | null;
+  shelf_start: string | null;
+  shelf_end: string | null;
 }
 
 export interface IShortLabelInput {
@@ -35,9 +36,10 @@ interface IAisleValidationLimits {
 
 const hasValue = (value: number | null): value is number => value !== null && Number.isInteger(value);
 
-const getShelfTokens = (lastShelf: string): string[] => {
-  const shelfCount = lastShelf.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
-  return Array.from({ length: shelfCount }, (_, index) => String.fromCharCode('A'.charCodeAt(0) + index));
+const getShelfTokens = (startShelf: string, endShelf: string): string[] => {
+  const startCode = startShelf.charCodeAt(0);
+  const endCode = endShelf.charCodeAt(0);
+  return Array.from({ length: endCode - startCode + 1 }, (_, index) => String.fromCharCode(startCode + index));
 };
 
 const buildAisleSideCodes = (
@@ -76,7 +78,7 @@ export const validateAisleLabelInput = (
 ): string | null => {
   const { minAisleValue, maxAisleValue, maxBayValue } = limits;
 
-  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelves) {
+  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelf_end) {
     return VALIDATION_MESSAGES.aisleRequired;
   }
 
@@ -90,6 +92,10 @@ export const validateAisleLabelInput = (
 
   if (input.aisle_start > input.aisle_end) {
     return VALIDATION_MESSAGES.aisleOrder;
+  }
+
+  if (input.shelf_start && input.shelf_start > input.shelf_end) {
+    return VALIDATION_MESSAGES.shelfOrder;
   }
 
   const sideRanges = [
@@ -125,11 +131,11 @@ export const generateAisleLabelCodes = (
   input: IAisleLabelInput,
   formatTwoDigitValue: (value: number) => string,
 ): string[] => {
-  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelves) {
+  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelf_end) {
     return [];
   }
 
-  const shelfTokens = getShelfTokens(input.shelves);
+  const shelfTokens = getShelfTokens(input.shelf_start ?? 'A', input.shelf_end);
   const labelsBySide: Record<AisleSide, string[]> = {
     L: [],
     R: [],
@@ -198,7 +204,7 @@ export const generateShortLabelCodes = (
     return [];
   }
 
-  const shelfTokens = getShelfTokens(input.shelves);
+  const shelfTokens = getShelfTokens('A', input.shelves);
   const labels: string[] = [];
 
   for (let bay = input.bay_start; bay <= input.bay_end; bay += 1) {

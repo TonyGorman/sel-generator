@@ -21,7 +21,8 @@ import {
     getLabelSoftLimitMessage,
     getSpecificInvalidLabelMessage,
 } from '../config/validationMessages';
-import { Button, TextField } from './FormControls';
+import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
+import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
@@ -38,12 +39,18 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
     const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
 
     const [labelText, setLabelText] = React.useState("");
+    const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
+
+    const printModeOptions: RadioOption<LabelPrintMode>[] = [
+        { key: 'mini-sel', text: 'Mini SEL' },
+        { key: 'large-sel', text: 'Large SEL' },
+    ];
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
@@ -94,6 +101,13 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
             return;
         }
 
+        if (labelPrintMode === 'large-sel' && labelTexts.some((code) => (SPECIAL_AISLE_VALUES as ReadonlyArray<string>).includes(code))) {
+            setErrorMessage(VALIDATION_MESSAGES.specificLargeSelSpecialCode);
+            setWarningMessage(null);
+            setGeneratedLabels(null);
+            return;
+        }
+
         setErrorMessage(null);
         setWarningMessage(labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
         setGeneratedLabels(labelTexts);
@@ -129,6 +143,16 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                 </div>
             </section>
 
+            <section className={shellStyles.sectionBox}>
+                <h2 className={shellStyles.sectionTitle}>Label Size</h2>
+                <RadioGroup
+                    name="specific-label-print-mode"
+                    options={printModeOptions}
+                    selectedKey={labelPrintMode}
+                    onChange={(key) => { setLabelPrintMode(key); setGeneratedLabels(null); }}
+                />
+            </section>
+
             <div className={styles.actionsRow}>
                 <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
                     <span className={controlStyles.buttonLabel}>Generate Labels</span>
@@ -137,7 +161,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
             </div>
 
             {generatedLabels && (
-                <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />
+                <LabelGenerator labelCodes={generatedLabels} layoutMode={labelPrintMode} miniVariantId={miniVariantId} />
             )}
         </div>
     );

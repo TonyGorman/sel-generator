@@ -190,7 +190,14 @@ describe('SpecificLabelForm', () => {
     expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${SHORT_CODE_PREFIXES[0]}01A|${SHORT_CODE_PREFIXES[1]}01A`);
   });
 
-  it('always renders specific labels using mini-sel mode', () => {
+  it('defaults to mini-sel mode', () => {
+    render(<SpecificLabelForm />);
+
+    expect(screen.getByRole('radio', { name: 'Mini SEL' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Large SEL' })).not.toBeChecked();
+  });
+
+  it('renders specific labels using mini-sel mode by default', () => {
     render(<SpecificLabelForm />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
@@ -199,6 +206,58 @@ describe('SpecificLabelForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'mini-sel');
+  });
+
+  it('renders large-sel labels when Large SEL mode is selected', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01L01A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'large-sel');
+  });
+
+  it('allows shortcode values (e.g. BAK01A) on large-sel mode', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: `${SHORT_CODE_PREFIXES[0]}01A` },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByTestId('generated-labels')).toHaveAttribute('data-layout-mode', 'large-sel');
+  });
+
+  it('blocks special codes (e.g. KIOSK) when large-sel mode is selected', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: 'KIOSK' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Special label values');
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
+
+  it('blocks a mix of valid and special codes on large-sel mode', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01L01A,FLORAL' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Special label values');
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
   });
 
   it('blocks generation when specific labels exceed hard limit', () => {
@@ -226,6 +285,36 @@ describe('SpecificLabelForm', () => {
 
     rerender(<SpecificLabelForm miniVariantId="mini-shelf-emphasis" />);
 
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
+
+  it('clears generated output when label size mode changes', () => {
+    render(<SpecificLabelForm />);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: '01L01A' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByTestId('generated-labels')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+
+    expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
+  });
+
+  it('does not show stale mini output for special values after switching to large mode', () => {
+    render(<SpecificLabelForm />);
+
+    // Generate KIOSK in mini mode (valid)
+    fireEvent.change(screen.getByPlaceholderText('Enter labels'), {
+      target: { value: 'KIOSK' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    expect(screen.getByTestId('generated-labels')).toBeInTheDocument();
+
+    // Switch to large mode — output must be cleared immediately
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
     expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
   });
 
