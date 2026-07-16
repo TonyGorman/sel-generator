@@ -21,12 +21,13 @@ import {
     getLabelSoftLimitMessage,
     getSpecificInvalidLabelMessage,
 } from '../config/validationMessages';
-import { Button, RadioGroup, RadioOption, TextField } from './FormControls';
+import { Button, RadioGroup, TextField } from './FormControls';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
+import { useLabelPrintMode } from './useLabelPrintMode';
 
 interface SpecificLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -39,18 +40,15 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
     const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
 
     const [labelText, setLabelText] = React.useState("");
-    const [labelPrintMode, setLabelPrintMode] = React.useState<LabelPrintMode>('mini-sel');
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
-
-    const printModeOptions: RadioOption<LabelPrintMode>[] = [
-        { key: 'mini-sel', text: 'Mini SEL' },
-        { key: 'large-sel', text: 'Large SEL' },
-    ];
+    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode({
+        onModeChange: () => setGeneratedLabels(null),
+    });
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
@@ -149,7 +147,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                     name="specific-label-print-mode"
                     options={printModeOptions}
                     selectedKey={labelPrintMode}
-                    onChange={(key) => { setLabelPrintMode(key); setGeneratedLabels(null); }}
+                    onChange={handleModeChange}
                 />
             </section>
 

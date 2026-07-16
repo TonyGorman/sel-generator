@@ -89,6 +89,31 @@ This blocking is intentional to avoid complexity in large labels, in the absence
 - Do not remove defensive branches just to improve coverage; add tests to cover them.
 - If removing platform-specific references, remove only first-party references in repo files.
 
+## Post-Feature Review Checklist
+
+After feature implementation passes all validation gates (`npm run validate:ci` and `npm run validate:release`), conduct a proactive code review pass for maintainability:
+
+**Duplication Detection**
+- Identical constants, state patterns, or JSX blocks appearing in multiple files (e.g., `printModeOptions` in AisleLabelForm and SpecificLabelForm).
+- Extract to reusable hooks (e.g., `useLabelPrintMode`), components, or config constants.
+- Repeated state initialization patterns (e.g., `useState`, `useCallback`) that could be encapsulated in a custom hook.
+
+**Pattern Recognition**
+- Common form patterns (RadioGroup, validation error display) that could be consolidated.
+- Identical validation logic across multiple input components.
+- Repeated JSX blocks that differ only in prop values.
+
+**Cognitive Load & Clarity**
+- Are files doing too much? Can concerns be better separated?
+- Would extracting a custom hook reduce boilerplate in a component?
+- Are variable/function names clear and consistent across similar code?
+
+**When to Flag as Refactoring Opportunity**: If duplication affects three or more instances, or if consolidation significantly improves maintainability without creating harmful coupling, propose extraction.
+
+**When to Skip**: If duplication is intentionally defensive (decoupled implementations prevent unexpected interaction), document the decision in a comment.
+
+**Action**: Before handing off completed features, proactively identify DRY/maintainability wins and propose extraction or consolidation — do not wait for user feedback to surface duplication.
+
 ## React / TypeScript Approach
 
 - Prefer function components with typed props interfaces; keep public prop contracts explicit and stable.
