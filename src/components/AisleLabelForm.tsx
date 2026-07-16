@@ -15,7 +15,6 @@ import {
 } from '../config/labelConfig';
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
-import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
     generateAisleLabelCodes,

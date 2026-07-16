@@ -22,7 +22,6 @@ import {
     getSpecificInvalidLabelMessage,
 } from '../config/validationMessages';
 import { Button, RadioGroup, TextField } from './FormControls';
-import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
@@ -46,9 +45,7 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
-    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode({
-        onModeChange: () => setGeneratedLabels(null),
-    });
+    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode(() => setGeneratedLabels(null));
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
         setLabelText(e.target.value)
