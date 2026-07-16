@@ -16,6 +16,20 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
   - Large-label: 73mm x 105mm
   - A4 margins: left 0mm, right 0mm, top 0mm, bottom 5mm
 
+## Feature-Specific Constraints
+
+### Shelf Range Selection (AisleLabelForm)
+- Shelf ranges are defined by start and end letters (`A`–`Z`).
+- Start shelf defaults to `A` when omitted; end shelf is required.
+- Validation enforces start ≤ end; invalid ranges are rejected with `VALIDATION_MESSAGES.shelfOrder`.
+- The shelf count in summary display shows `"A – C"` format for ranges and single letters for `start === end`.
+
+### Large Label Support (SpecificLabelForm)
+- Aisle and shortcode values render correctly with the three-part display (prefix / main / suffix).
+- Special aisle values (`KIOSK`, `FLORAL`, `SEASONAL`) are **blocked** on large-sel mode with `VALIDATION_MESSAGES.specificLargeSelSpecialCode`.
+- Reason: `getLargeSelDisplayParts()` returns `null` for special codes, resulting in empty heading text on a 105mm label.
+- Validation blocks generation immediately; mode switches clear stale output to prevent visual bypass.
+This blocking is intentional to avoid complexity in large labels, in the absence of any actual user requirement.
 
 ## Rendering Path Awareness
 

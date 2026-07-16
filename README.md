@@ -8,8 +8,8 @@ Generate Shelf Edge Labels for printing.
 
 The app provides three workflows for generating shelf edge labels:
 
-- **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (for example `01L01A`, `BR10L01A`, `BAK01A`). Spaces and dashes are not accepted.
-- **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format).
+- **Specific Labels**: Enter custom barcode values (one per line, comma-separated) in compact format (for example `01L01A`, `BR10L01A`, `BAK01A`). Spaces and dashes are not accepted. Supports both mini (39mm × 39mm) and large (105mm × 73mm) label sizes.
+- **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format) and optional shelf range selection (e.g., shelves B through D instead of always A through chosen value).
 - **Short Code  Labels**: Generate labels for back wall or front of store items, with custom prefix support.
 
 ### Generation Safety Limits
@@ -357,9 +357,10 @@ The app supports two label sizes, selectable per print run.
 
 - Paper: A4 portrait, 105mm × 73mm labels
 - Layout: 2 columns × 4 rows (8 labels per page)
-- Available on: Aisle Labels tab only
-- Select using the **Mini SEL / Large SEL** radio buttons on the Aisle tab
+- Available on: Aisle Labels and Specific Labels tabs
+- Select using the **Mini SEL / Large SEL** radio buttons
 - Label content: mixed-size heading (aisle-side+bay-shelf) above a centred barcode
+- **Limitation**: Special aisle values (e.g. `KIOSK`, `FLORAL`) are not supported on large labels; use mini labels for special values. This is intentional to avoid complexity in large labels, in the absence of any actual user requirement.
 
 ## Print and Scan Validation Protocol
 
