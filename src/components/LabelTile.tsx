@@ -39,6 +39,8 @@ const getPrimaryTextMeasureContext = (): CanvasRenderingContext2D | null => {
   return cachedMeasureContext;
 };
 
+let lastAssignedFont: string | null = null;
+
 const measurePrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
   if (!text) {
     return 0;
@@ -49,7 +51,11 @@ const measurePrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpaci
     return estimatePrimaryTextWidthMm(text, fontSizeMm, letterSpacingMm);
   }
 
-  context.font = `${PRIMARY_TEXT_FONT_WEIGHT} ${mmToPx(fontSizeMm)}px ${PRIMARY_TEXT_FONT_FAMILY}`;
+  const font = `${PRIMARY_TEXT_FONT_WEIGHT} ${mmToPx(fontSizeMm)}px ${PRIMARY_TEXT_FONT_FAMILY}`;
+  if (lastAssignedFont !== font) {
+    context.font = font;
+    lastAssignedFont = font;
+  }
   const glyphWidthMm = context.measureText(text).width / MM_TO_PX;
   const spacingWidthMm = Math.max(text.length - 1, 0) * letterSpacingMm;
 
