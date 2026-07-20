@@ -24,6 +24,7 @@ import {
 } from '../domain/labelGeneration';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useLabelPrintMode } from './useLabelPrintMode';
+import { hasValue } from '../domain/numericGuard';
 
 type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelf_start' | 'shelf_end'>;
 
@@ -72,8 +73,6 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     const onShelfChange = React.useCallback((letter: string): void => {
         setLabelStruct((prevState) => ({ ...prevState, shelf_end: letter || null }));
     }, []);
-
-    const hasValue = (value: number | null): value is number => value !== null && !Number.isNaN(value);
 
     const formatTwoDigits = (value: number | null): string => {
         if (!hasValue(value)) {

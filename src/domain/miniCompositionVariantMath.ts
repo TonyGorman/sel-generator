@@ -1,8 +1,7 @@
 import { MiniTextMeasureFn } from '../models/IMiniCompositionVariant';
+import { clampMm } from './mathUtils';
 
-export const clampMm = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
+export { clampMm };
 
 export const fitLineByWidth = (
   text: string,

@@ -1,4 +1,5 @@
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
+import { clampMm } from '../domain/mathUtils';
 
 const PRIMARY_TEXT_AVERAGE_GLYPH_WIDTH_FACTOR = 0.62;
 const PRIMARY_TEXT_FIT_SAFETY_RATIO = 0.95;
@@ -7,10 +8,6 @@ const MINI_AISLE_MAIN_MAX_TEXT_SIZE_MM = 9.2;
 const MINI_AISLE_TOP_SAFE_GUTTER_MM = 1.2;
 const MINI_AISLE_BOTTOM_SAFE_GUTTER_MM = 1.8;
 const MINI_AISLE_MIN_ROW_GAP_MM = 2;
-
-const clampMm = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
 
 export const estimatePrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpacingMm: number): number => {
   if (!text) {

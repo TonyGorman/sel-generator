@@ -5,6 +5,7 @@ import {
   getSideBayRangeValidationMessage,
 } from '../config/validationMessages';
 import { AisleSide } from '../models/IAisleCodeParts';
+import { hasValue } from './numericGuard';
 
 export interface IAisleLabelInput {
   aisle_start: number | null;
@@ -33,8 +34,6 @@ interface IAisleValidationLimits {
   maxAisleValue: number;
   maxBayValue: number;
 }
-
-const hasValue = (value: number | null): value is number => value !== null && Number.isInteger(value);
 
 const getShelfTokens = (startShelf: string, endShelf: string): string[] => {
   const startCode = startShelf.charCodeAt(0);
