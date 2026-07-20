@@ -66,19 +66,23 @@ export const normalizeAllowedValue = (value: string, allowedValues: readonly str
 	return normalized;
 };
 
-const isAllowedValue = (value: string, allowedValues: readonly string[]): boolean => {
-	return normalizeAllowedValue(value, allowedValues) !== null;
+
+const AISLE_PREFIX_SET: ReadonlySet<string> = new Set(normalizePrefix(AISLE_PREFIXES));
+const SHORT_CODE_PREFIX_SET: ReadonlySet<string> = new Set(normalizePrefix(SHORT_CODE_PREFIXES));
+const SPECIAL_AISLE_VALUE_SET: ReadonlySet<string> = new Set(normalizePrefix(SPECIAL_AISLE_VALUES));
+
+const isValueInSet = (value: string, set: ReadonlySet<string>): boolean => {
+	return set.has(value.trim().toUpperCase());
 };
 
-
 export const isShortCodePrefix = (value: string): boolean => {
-	return isAllowedValue(value, SHORT_CODE_PREFIXES);
+	return isValueInSet(value, SHORT_CODE_PREFIX_SET);
 };
 
 export const isAislePrefix = (value: string): boolean => {
-	return isAllowedValue(value, AISLE_PREFIXES);
+	return isValueInSet(value, AISLE_PREFIX_SET);
 };
 
 export const isSpecialAisleValue = (value: string): boolean => {
-	return isAllowedValue(value, SPECIAL_AISLE_VALUES);
+	return isValueInSet(value, SPECIAL_AISLE_VALUE_SET);
 };
