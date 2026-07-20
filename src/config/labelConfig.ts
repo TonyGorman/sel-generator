@@ -46,10 +46,20 @@ export const normalizePrefix = (values: readonly string[]): string[] => {
 	return Array.from(new Set(normalized));
 };
 
+const normalizedSetCache = new WeakMap<readonly string[], Set<string>>();
+
+const getNormalizedValueSet = (values: readonly string[]): Set<string> => {
+	let set = normalizedSetCache.get(values);
+	if (set === undefined) {
+		set = new Set(normalizePrefix(values));
+		normalizedSetCache.set(values, set);
+	}
+	return set;
+};
+
 export const normalizeAllowedValue = (value: string, allowedValues: readonly string[]): string | null => {
 	const normalized = value.trim().toUpperCase();
-	const normalizedAllowedValues = new Set<string>(normalizePrefix(allowedValues));
-	if (!normalizedAllowedValues.has(normalized)) {
+	if (!getNormalizedValueSet(allowedValues).has(normalized)) {
 		return null;
 	}
 

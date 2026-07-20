@@ -39,16 +39,30 @@ const normalizeConfiguredAislePrefixes = (prefixes: readonly string[]): string[]
   return Array.from(new Set(normalizedConfiguredPrefixes)).sort((left, right) => right.length - left.length);
 };
 
-const parseCompactConfiguredAisleCode = (
-  code: string,
-  configuredAislePrefixes: readonly string[],
-): IAisleCodeParts | null => {
-  const pattern = buildCompactConfiguredAisleCodePattern(configuredAislePrefixes);
-  if (!pattern) {
+// AISLE_PREFIXES is a static `as const` constant, so this pattern is identical
+// for every parse call. Build once at module load instead of per label.
+const configuredAisleCodePattern = buildCompactConfiguredAisleCodePattern(
+  normalizeConfiguredAislePrefixes(AISLE_PREFIXES),
+);
+
+// Short-code patterns are a pure function of the prefix string; cache them
+// so repeated parses reuse the same RegExp instance.
+const shortCodePatternCache = new Map<string, RegExp>();
+const getShortCodePattern = (prefix: string): RegExp => {
+  let pattern = shortCodePatternCache.get(prefix);
+  if (pattern === undefined) {
+    pattern = buildCompactShortCodePattern(prefix);
+    shortCodePatternCache.set(prefix, pattern);
+  }
+  return pattern;
+};
+
+const parseCompactConfiguredAisleCode = (code: string): IAisleCodeParts | null => {
+  if (!configuredAisleCodePattern) {
     return null;
   }
 
-  const match = code.match(pattern);
+  const match = code.match(configuredAisleCodePattern);
   if (!match) {
     return null;
   }
@@ -63,7 +77,7 @@ const parseCompactConfiguredAisleCode = (
 };
 
 const parseCompactShortCode = (code: string, normalizedShortCodePrefix: string): IShortCodeParts | null => {
-  const match = code.match(buildCompactShortCodePattern(normalizedShortCodePrefix));
+  const match = code.match(getShortCodePattern(normalizedShortCodePrefix));
   if (!match) {
     return null;
   }
@@ -94,12 +108,6 @@ const parseCompactShortCodeByAnySupportedPrefix = (code: string, preferredPrefix
   return null;
 };
 
-const parseCompactAisleCodeByConfiguredPrefix = (code: string): IAisleCodeParts | null => {
-  const configuredAislePrefixes = normalizeConfiguredAislePrefixes(AISLE_PREFIXES);
-
-  return parseCompactConfiguredAisleCode(code, configuredAislePrefixes);
-};
-
 export const parseLabelCode = (
   code: string,
   shortCodePrefixes: string | readonly string[] = SHORT_CODE_PREFIXES,
@@ -114,7 +122,7 @@ export const parseLabelCode = (
     return { kind: 'special', parts: { value: specialAisle } };
   }
 
-  const configuredAisleCode = parseCompactAisleCodeByConfiguredPrefix(normalizedCode);
+  const configuredAisleCode = parseCompactConfiguredAisleCode(normalizedCode);
   if (configuredAisleCode) {
     return { kind: 'aisle', parts: configuredAisleCode };
   }
