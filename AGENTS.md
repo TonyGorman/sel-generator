@@ -19,12 +19,14 @@ Protect physical label accuracy and scan reliability before making UI/UX changes
 ## Feature-Specific Constraints
 
 ### Shelf Range Selection (AisleLabelForm)
+
 - Shelf ranges are defined by start and end letters (`A`–`Z`).
 - Start shelf defaults to `A` when omitted; end shelf is required.
 - Validation enforces start ≤ end; invalid ranges are rejected with `VALIDATION_MESSAGES.shelfOrder`.
 - The shelf count in summary display shows `"A – C"` format for ranges and single letters for `start === end`.
 
 ### Large Label Support (SpecificLabelForm)
+
 - Aisle and shortcode values render correctly with the three-part display (prefix / main / suffix).
 - Special aisle values (`KIOSK`, `FLORAL`, `SEASONAL`) are **blocked** on large-sel mode with `VALIDATION_MESSAGES.specificLargeSelSpecialCode`.
 - Reason: `getLargeSelDisplayParts()` returns `null` for special codes, resulting in empty heading text on a 105mm label.
@@ -93,17 +95,20 @@ This blocking is intentional to avoid complexity in large labels, in the absence
 
 After feature implementation passes all validation gates (`npm run validate:ci` and `npm run validate:release`), conduct a proactive code review pass for maintainability:
 
-**Duplication Detection**
+### Duplication Detection**
+
 - Identical constants, state patterns, or JSX blocks appearing in multiple files (e.g., `printModeOptions` in AisleLabelForm and SpecificLabelForm).
 - Extract to reusable hooks (e.g., `useLabelPrintMode`), components, or config constants.
 - Repeated state initialization patterns (e.g., `useState`, `useCallback`) that could be encapsulated in a custom hook.
 
-**Pattern Recognition**
+### Pattern Recognition**
+
 - Common form patterns (RadioGroup, validation error display) that could be consolidated.
 - Identical validation logic across multiple input components.
 - Repeated JSX blocks that differ only in prop values.
 
-**Cognitive Load & Clarity**
+### Cognitive Load & Clarity**
+
 - Are files doing too much? Can concerns be better separated?
 - Would extracting a custom hook reduce boilerplate in a component?
 - Are variable/function names clear and consistent across similar code?
@@ -131,16 +136,20 @@ After feature implementation passes all validation gates (`npm run validate:ci` 
 ## Component-Specific Guidance
 
 ### Pagination (`src/components/Pagination.tsx`)
+
 - **Do not include `currentPage` in the `useEffect` dependency array** when syncing to `totalPages`. Use functional `setState` to depend only on `totalPages`:
+
   ```typescript
   React.useEffect(() => {
     setCurrentPage((prev) => (totalPages > 0 ? Math.min(prev, totalPages) : 1));
   }, [totalPages]);
   ```
+  
 - **Rationale**: When `currentPage` is in the deps, the effect runs on every page click (inefficient and redundant). It should only run when data length changes and `totalPages` shrinks, requiring a clamp. Functional setState avoids the need to include `currentPage` as a dependency.
 - **History**: This pattern was corrected to fix redundant effect runs caused by previous iterations that included both `currentPage` and `totalPages` in deps.
 
 ### Domain Barrel: `labelCodeDomain.ts`
+
 - **Purpose**: Public API barrel aggregating exports from `labelCodeParser.ts`, `labelCodeValidator.ts`, `labelCodeDisplay.ts`, and composition variant models.
 - **Pattern**: Centralizes domain imports; allows components to `import { parseLabelCode, getMiniThreeRowDisplayParts, ... } from '../domain/labelCodeDomain'`.
 - **Non-refactorable**: Renaming to `index.ts` requires updating 5 import statements. Kept as-is due to low churn benefit.
