@@ -59,11 +59,6 @@ const measurePrimaryTextWidthMm = (text: string, fontSizeMm: number, letterSpaci
 export const getMiniPrimaryFontSizeMm = (primaryText: string, layoutStrategy: ILabelLayoutStrategy): number => {
   return fitMiniPrimaryFontSizeMm(primaryText, layoutStrategy, measurePrimaryTextWidthMm);
 };
-export {
-  normalizeLabelCode,
-  getEncodedLabelCode,
-  getLargeSelDisplayParts,
-} from '../domain/labelCodeDomain';
 
 interface ILabelTileProps {
   code: string;
@@ -150,21 +145,33 @@ const LabelTile: React.FC<ILabelTileProps> = ({
 }) => {
   const layoutStrategy = getLabelLayoutStrategy(layoutMode);
   const isLargeVariant = layoutStrategy.renderVariant === 'large';
-  const selectedMiniVariant = getMiniCompositionVariant(miniVariantId);
-  const initialComposedMiniLabel = selectedMiniVariant.composeLabel(code);
-  const effectiveMiniVariant = initialComposedMiniLabel.variantId === selectedMiniVariant.id
-    ? selectedMiniVariant
-    : getMiniCompositionVariant(initialComposedMiniLabel.variantId);
-  const composedMiniLabel = effectiveMiniVariant === selectedMiniVariant
-    ? initialComposedMiniLabel
-    : effectiveMiniVariant.composeLabel(code);
-  const miniGeometry = effectiveMiniVariant.resolveGeometry(layoutStrategy);
-  const fittedMiniTypography = effectiveMiniVariant.fitTypography(
-    composedMiniLabel,
-    layoutStrategy,
-    miniGeometry,
-    measurePrimaryTextWidthMm,
-  );
+
+  // Memoize expensive composition work (35 tiles per page, full render is bottleneck)
+  const miniCompositionData = React.useMemo(() => {
+    const selectedMiniVariant = getMiniCompositionVariant(miniVariantId);
+    const initialComposedMiniLabel = selectedMiniVariant.composeLabel(code);
+    const effectiveMiniVariant = initialComposedMiniLabel.variantId === selectedMiniVariant.id
+      ? selectedMiniVariant
+      : getMiniCompositionVariant(initialComposedMiniLabel.variantId);
+    const composedMiniLabel = effectiveMiniVariant === selectedMiniVariant
+      ? initialComposedMiniLabel
+      : effectiveMiniVariant.composeLabel(code);
+    const miniGeometry = effectiveMiniVariant.resolveGeometry(layoutStrategy);
+    const fittedMiniTypography = effectiveMiniVariant.fitTypography(
+      composedMiniLabel,
+      layoutStrategy,
+      miniGeometry,
+      measurePrimaryTextWidthMm,
+    );
+
+    return {
+      composedMiniLabel,
+      miniGeometry,
+      fittedMiniTypography,
+    };
+  }, [code, miniVariantId, layoutStrategy]);
+
+  const { composedMiniLabel, miniGeometry, fittedMiniTypography } = miniCompositionData;
   const primaryFontSizeMm = Math.min(fittedMiniTypography.primaryTextSizeMm, miniGeometry.primaryMaxTextSizeMm);
   const primaryCenterFromContentTopMm = miniGeometry.primaryCenterFromContentTopMm;
   const labelValue = composedMiniLabel.encodedBarcodeValue;

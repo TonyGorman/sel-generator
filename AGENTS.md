@@ -128,6 +128,24 @@ After feature implementation passes all validation gates (`npm run validate:ci` 
 - Prefer small, targeted constants for tunable rendering values (text size, offsets, label dimensions) instead of magic literals in loops.
 - Keep TypeScript changes strict enough to catch regressions, but avoid broad refactors unless explicitly requested.
 
+## Component-Specific Guidance
+
+### Pagination (`src/components/Pagination.tsx`)
+- **Do not include `currentPage` in the `useEffect` dependency array** when syncing to `totalPages`. Use functional `setState` to depend only on `totalPages`:
+  ```typescript
+  React.useEffect(() => {
+    setCurrentPage((prev) => (totalPages > 0 ? Math.min(prev, totalPages) : 1));
+  }, [totalPages]);
+  ```
+- **Rationale**: When `currentPage` is in the deps, the effect runs on every page click (inefficient and redundant). It should only run when data length changes and `totalPages` shrinks, requiring a clamp. Functional setState avoids the need to include `currentPage` as a dependency.
+- **History**: This pattern was corrected to fix redundant effect runs caused by previous iterations that included both `currentPage` and `totalPages` in deps.
+
+### Domain Barrel: `labelCodeDomain.ts`
+- **Purpose**: Public API barrel aggregating exports from `labelCodeParser.ts`, `labelCodeValidator.ts`, `labelCodeDisplay.ts`, and composition variant models.
+- **Pattern**: Centralizes domain imports; allows components to `import { parseLabelCode, getMiniThreeRowDisplayParts, ... } from '../domain/labelCodeDomain'`.
+- **Non-refactorable**: Renaming to `index.ts` requires updating 5 import statements. Kept as-is due to low churn benefit.
+- **Consistency note**: `LabelTile.tsx` also re-exports a subset for convenience (`normalizeLabelCode`, `getEncodedLabelCode`, `getLargeSelDisplayParts`). This is acceptable to avoid bloating test imports in `LabelTile.test.tsx`.
+
 ## Testing Expectations For React Changes
 
 - For logic changes, add or update Vitest tests near the affected component/helper.

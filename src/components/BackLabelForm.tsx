@@ -33,7 +33,7 @@ const SHORT_CODE_PREFIX_OPTIONS = SHORT_CODE_PREFIXES.map((prefix) => ({
 }));
 
 const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
-    const bayRangeText = `1-${MAX_BAY_VALUE}`;
+    const bayRangeText = `${MIN_BAY_VALUE}-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const idPrefix = React.useId();
 

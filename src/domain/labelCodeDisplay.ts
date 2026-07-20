@@ -110,7 +110,7 @@ export const getMiniThreeRowDisplayParts = (
   shortCodePrefix: string = SHORT_CODE_PREFIXES[0],
 ): IMiniThreeRowDisplayParts => {
   const normalizedCode = code.toUpperCase();
-  const parsed = parseLabelCode(code, shortCodePrefix);
+  const parsed = parseLabelCode(normalizedCode, shortCodePrefix);
   if (!parsed) {
     return {
       top: '',

@@ -9,9 +9,11 @@ const Pagination = (props: IPaginationProps): React.ReactElement => {
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const activePage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
 
-  if (activePage !== currentPage && totalPages > 0) {
-    setCurrentPage(activePage);
-  }
+  // Sync currentPage when totalPages changes (e.g., data shrinks, page count decreases).
+  // Use functional setState to depend only on totalPages, avoiding redundant effect runs on every page click.
+  React.useEffect(() => {
+    setCurrentPage((prev) => (totalPages > 0 ? Math.min(prev, totalPages) : 1));
+  }, [totalPages]);
 
   const lastReportedPage = React.useRef<number>(0);
 
