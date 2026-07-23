@@ -77,7 +77,7 @@ test.describe('Label Generator regressions', () => {
     await page.getByRole('tab', { name: 'FOS/Bak Labels' }).click();
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
-    await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and select a last shelf.');
+    await expect(page.getByRole('alert')).toContainText('Please enter start bay, end bay, and select an end shelf.');
   });
 
   test('Back/FOS tab short code type selector generates Front Of Store compact codes', async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe('Label Generator regressions', () => {
     const visibleInputs = page.getByRole('textbox');
     await visibleInputs.nth(0).fill('1');
     await visibleInputs.nth(1).fill('1');
-    await page.getByRole('combobox', { name: 'Last Shelf' }).selectOption('B');
+    await page.getByRole('combobox', { name: 'End Shelf' }).selectOption('B');
     await page.getByRole('button', { name: 'Generate Labels' }).click();
 
     await expect(page.getByRole('alert')).toHaveCount(0);

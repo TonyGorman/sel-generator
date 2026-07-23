@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   generateAisleLabelCodes,
+  getShelfRangeCount,
   generateShortLabelCodes,
   normalizeSpecificInputCodes,
   parseNumericInput,
@@ -97,7 +98,8 @@ describe('labelGeneration', () => {
     const shortInput: IShortLabelInput = {
       bay_start: 1,
       bay_end: 2,
-      shelves: 'B',
+      shelf_start: null,
+      shelf_end: 'B',
       prefix: 'BAK',
     };
 
@@ -110,11 +112,44 @@ describe('labelGeneration', () => {
     ]);
   });
 
+  it('validates short shelf ordering and supports shelf ranges from custom starts', () => {
+    const invalidShelfOrderInput: IShortLabelInput = {
+      bay_start: 1,
+      bay_end: 1,
+      shelf_start: 'C',
+      shelf_end: 'A',
+      prefix: 'BAK',
+    };
+
+    expect(validateShortLabelInput(invalidShelfOrderInput, 1, 99)).toBe(
+      'Start shelf must come before or equal to end shelf.',
+    );
+
+    const validRangeInput: IShortLabelInput = {
+      bay_start: 1,
+      bay_end: 1,
+      shelf_start: 'B',
+      shelf_end: 'C',
+      prefix: 'BAK',
+    };
+
+    expect(generateShortLabelCodes(validRangeInput, formatTwoDigitValue)).toEqual([
+      'BAK01B',
+      'BAK01C',
+    ]);
+  });
+
   it('normalizes specific input tokens to compact uppercase values', () => {
     expect(normalizeSpecificInputCodes(' 01l01a, bak01a , , kiosk ')).toEqual([
       '01L01A',
       'BAK01A',
       'KIOSK',
     ]);
+  });
+
+  it('computes shelf range counts with default and custom starts', () => {
+    expect(getShelfRangeCount(null, null)).toBe(0);
+    expect(getShelfRangeCount(null, 'C')).toBe(3);
+    expect(getShelfRangeCount('B', 'C')).toBe(2);
   });
 });

@@ -18,6 +18,7 @@ import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
     generateAisleLabelCodes,
+    getShelfRangeCount,
     IAisleLabelInput,
     parseNumericInput,
     validateAisleLabelInput,
@@ -58,7 +59,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
-    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode();
+    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode(resetGeneratedLabels);
 
 
     const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
@@ -70,7 +71,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         setLabelStruct((prevState) => ({ ...prevState, shelf_start: letter || null }));
     }, []);
 
-    const onShelfChange = React.useCallback((letter: string): void => {
+    const onShelfEndChange = React.useCallback((letter: string): void => {
         setLabelStruct((prevState) => ({ ...prevState, shelf_end: letter || null }));
     }, []);
 
@@ -117,9 +118,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         return total + (end - start + 1);
     }, 0);
 
-    const shelfCount = labelStruct.shelf_end
-        ? labelStruct.shelf_end.charCodeAt(0) - (labelStruct.shelf_start ?? 'A').charCodeAt(0) + 1
-        : 0;
+    const shelfCount = getShelfRangeCount(labelStruct.shelf_start, labelStruct.shelf_end);
     const totalLabels = totalAisles > 0 && shelfCount > 0
         ? totalAisles * totalBayValues * shelfCount
         : 0;
@@ -224,7 +223,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             <ShelfSelect
                                 id={`${idPrefix}-shelves`}
                                 value={labelStruct.shelf_end ?? ''}
-                                onChange={onShelfChange}
+                                onChange={onShelfEndChange}
                             />
                         </div>
                     </div>

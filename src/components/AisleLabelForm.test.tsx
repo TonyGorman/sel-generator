@@ -201,6 +201,25 @@ describe('AisleLabelForm', () => {
     expect(screen.getByTestId('generated-count')).toHaveAttribute('data-layout-mode', 'large-sel');
   });
 
+  it('clears generated output when label size mode changes', () => {
+    render(<AisleLabelForm />);
+
+    fillInputs({
+      0: '1',
+      1: '1',
+      2: '1',
+      3: '1',
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+
+    expect(screen.getByTestId('generated-count')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Large SEL' }));
+
+    expect(screen.queryByTestId('generated-count')).not.toBeInTheDocument();
+  });
+
   it('shows soft warning for large but allowed label totals', () => {
     render(<AisleLabelForm />);
 

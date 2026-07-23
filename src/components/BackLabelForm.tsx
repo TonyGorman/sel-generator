@@ -14,14 +14,9 @@ import {
     formatTwoDigitValue,
 } from '../config/labelConfig';
 import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
-import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
-import {
-    generateShortLabelCodes,
-    parseNumericInput,
-    validateShortLabelInput,
-} from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
+import { useShortLabelForm } from './useShortLabelForm';
 
 interface BackLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -37,72 +32,38 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const idPrefix = React.useId();
 
-    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
-    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-    const [labelStruct, setLabelStruct] = React.useState({
-        bay_start: null as number | null,
-        bay_end: null as number | null,
-        shelves: null as string | null,
+    const { state, actions } = useShortLabelForm({
+        initialPrefix: SHORT_CODE_PREFIXES[0],
+        minBayValue: MIN_BAY_VALUE,
+        maxBayValue: MAX_BAY_VALUE,
+        softLimit: LABEL_SOFT_LIMIT,
+        hardLimit: LABEL_HARD_LIMIT,
+        formatTwoDigitValue,
     });
-    const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(SHORT_CODE_PREFIXES[0]);
 
-    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
+    const {
+        labelStruct,
+        selectedShortCodePrefix,
+        errorMessage,
+        warningMessage,
+        generatedLabels,
+    } = state;
+
+    const {
+        setSelectedShortCodePrefix,
+        onInputChange,
+        onShelfStartChange,
+        onShelfEndChange,
+        generateLabel,
+        resetGeneratedLabels,
+    } = actions;
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
-
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'bay_start' | 'bay_end'): void => {
-        const numericValue = parseNumericInput(e.target.value);
-        setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
-    }
-
-    const onShelfChange = (letter: string): void => {
-        setLabelStruct((prevState) => ({ ...prevState, shelves: letter || null }));
-    }
-
-    const generateLabel = (): void => {
-        const validationError = validateShortLabelInput(
-            {
-                ...labelStruct,
-                prefix: selectedShortCodePrefix,
-            },
-            MIN_BAY_VALUE,
-            MAX_BAY_VALUE,
-        );
-        if (validationError) {
-            setErrorMessage(validationError);
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        const shelfCount = labelStruct.shelves ? labelStruct.shelves.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : 0;
-        const bayCount = (labelStruct.bay_end ?? 0) - (labelStruct.bay_start ?? 0) + 1;
-        const totalLabels = bayCount * shelfCount;
-        if (totalLabels > LABEL_HARD_LIMIT) {
-            setErrorMessage(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        setErrorMessage(null);
-        setWarningMessage(totalLabels > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
-        setGeneratedLabels(
-            generateShortLabelCodes(
-                {
-                    ...labelStruct,
-                    prefix: selectedShortCodePrefix,
-                },
-                formatTwoDigitValue,
-            ),
-        );
-    }
 
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate FOS/BAK Labels</h1>
             <p className={styles.sectionIntro}>Choose BAK (Back Wall) or FOS (Front Of Store) using the prefix selector.
-                <br/>Set the start bay, end bay and the last shelf required. 
+                <br/>Set the start bay, end bay, start shelf, and end shelf required.
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.
                 </p>
             <div className={styles.stackedSections}>
@@ -139,14 +100,24 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                 </section>
 
                 <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Shelves Per Bay ({shelfRangeText})</h2>
-                    <div className={styles.singleField}>
-                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>Last Shelf</label>
-                        <ShelfSelect
-                            id={`${idPrefix}-shelves`}
-                            value={labelStruct.shelves ?? ''}
-                            onChange={onShelfChange}
-                        />
+                    <h2 className={shellStyles.sectionTitle}>Shelf Range ({shelfRangeText})</h2>
+                    <div className={styles.twoFieldGrid}>
+                        <div className={styles.fieldGroup}>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
+                            <ShelfSelect
+                                id={`${idPrefix}-shelf-start`}
+                                value={labelStruct.shelf_start ?? ''}
+                                onChange={onShelfStartChange}
+                            />
+                        </div>
+                        <div className={styles.fieldGroup}>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-end`}>End Shelf</label>
+                            <ShelfSelect
+                                id={`${idPrefix}-shelf-end`}
+                                value={labelStruct.shelf_end ?? ''}
+                                onChange={onShelfEndChange}
+                            />
+                        </div>
                     </div>
                 </section>
             </div>

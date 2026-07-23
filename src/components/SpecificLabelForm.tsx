@@ -5,108 +5,25 @@ import shellStyles from './FormShell.module.css';
 import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
 import {
-    AISLE_PREFIXES,
     SHORT_CODE_PREFIXES,
-    MIN_AISLE_VALUE,
-    MAX_AISLE_VALUE,
-    MAX_BAY_VALUE,
-    MAX_SHELF_LETTER,
     SPECIAL_AISLE_VALUES,
-    LABEL_SOFT_LIMIT,
-    LABEL_HARD_LIMIT,
 } from '../config/labelConfig';
-import {
-    VALIDATION_MESSAGES,
-    getLabelHardLimitMessage,
-    getLabelSoftLimitMessage,
-    getSpecificInvalidLabelMessage,
-} from '../config/validationMessages';
 import { Button, RadioGroup, TextField } from './FormControls';
-import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
-import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
-import { useLabelPrintMode } from './useLabelPrintMode';
+import { useSpecificLabelForm } from './useSpecificLabelForm';
 
 interface SpecificLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
 }
 
 const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) => {
-    const bayRangeText = `01-${MAX_BAY_VALUE.toString().padStart(2, '0')}`;
-    const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
-    const namedAisleExamples = SPECIAL_AISLE_VALUES.join(', ');
-    const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
+    const { content, state, actions } = useSpecificLabelForm();
+    const { bayRangeText, shelfRangeText, namedAisleExamples, aislePrefixedExamples } = content;
+    const { labelText, generatedLabels, errorMessage, warningMessage, labelPrintMode, printModeOptions } = state;
+    const { onInputChange, handleModeChange, generateLabel, resetGeneratedLabels } = actions;
 
-    const [labelText, setLabelText] = React.useState("");
-    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
-    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-
-    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
-    const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode(() => setGeneratedLabels(null));
-
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
-        setLabelText(e.target.value)
-    }
-
-    const isValidSpecificCode = (code: string): boolean => {
-        const result = validateSpecificLabelCode(code, {
-            aislePrefixes: AISLE_PREFIXES,
-            shortCodePrefixes: SHORT_CODE_PREFIXES,
-            minAisleValue: MIN_AISLE_VALUE,
-            maxAisleValue: MAX_AISLE_VALUE,
-            maxBayValue: MAX_BAY_VALUE,
-            maxShelfLetter: MAX_SHELF_LETTER,
-        });
-
-        return result.ok;
-    };
-
-    const generateLabel = ():void => {
-        const labelTexts = normalizeSpecificInputCodes(labelText);
-
-        if (labelTexts.length === 0) {
-            setErrorMessage(VALIDATION_MESSAGES.specificEmpty);
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        if (labelTexts.length > LABEL_HARD_LIMIT) {
-            setErrorMessage(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
-        if (hasInvalidCode) {
-            setErrorMessage(getSpecificInvalidLabelMessage({
-                aislePrefixedExamples,
-                backPrefix: SHORT_CODE_PREFIXES[0],
-                frontPrefix: SHORT_CODE_PREFIXES[1],
-                namedAisleExamples,
-                bayRangeText,
-                shelfRangeText,
-            }));
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        if (labelPrintMode === 'large-sel' && labelTexts.some((code) => (SPECIAL_AISLE_VALUES as ReadonlyArray<string>).includes(code))) {
-            setErrorMessage(VALIDATION_MESSAGES.specificLargeSelSpecialCode);
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        setErrorMessage(null);
-        setWarningMessage(labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
-        setGeneratedLabels(labelTexts);
-    }
 
     return (
         <div className={shellStyles.panel}>

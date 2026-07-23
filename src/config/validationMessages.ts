@@ -5,7 +5,7 @@ export const VALIDATION_MESSAGES = {
   sideRangeRequired: 'Enter at least one complete side range (both start and end bays).',
   sideRangeIncomplete: 'Enter both start and end bay values for each selected side.',
   sideRangeOrder: 'Side range start cannot be greater than side range end.',
-  shortRequired: 'Please enter start bay, end bay, and select a last shelf.',
+  shortRequired: 'Please enter start bay, end bay, and select an end shelf.',
   shortOrder: 'Start bay cannot be greater than end bay.',
   shelfOrder: 'Start shelf must come before or equal to end shelf.',
   specificLargeSelSpecialCode: 'Special label values (such as KIOSK) are not supported on large labels. Switch to mini labels or remove the special values.',

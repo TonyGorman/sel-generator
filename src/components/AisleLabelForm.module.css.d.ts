@@ -8,7 +8,6 @@ export type Styles = {
   'sideInputGroup': string;
   'sideLabel': string;
   'sideRow': string;
-  'singleField': string;
   'stackedSections': string;
   'summaryBox': string;
   'summaryRow': string;

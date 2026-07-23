@@ -25,7 +25,8 @@ export interface IAisleLabelInput {
 export interface IShortLabelInput {
   bay_start: number | null;
   bay_end: number | null;
-  shelves: string | null;
+  shelf_start: string | null;
+  shelf_end: string | null;
   prefix: string;
 }
 
@@ -39,6 +40,15 @@ const getShelfTokens = (startShelf: string, endShelf: string): string[] => {
   const startCode = startShelf.charCodeAt(0);
   const endCode = endShelf.charCodeAt(0);
   return Array.from({ length: endCode - startCode + 1 }, (_, index) => String.fromCharCode(startCode + index));
+};
+
+export const getShelfRangeCount = (shelfStart: string | null, shelfEnd: string | null): number => {
+  if (!shelfEnd) {
+    return 0;
+  }
+
+  const start = shelfStart ?? 'A';
+  return shelfEnd.charCodeAt(0) - start.charCodeAt(0) + 1;
 };
 
 const buildAisleSideCodes = (
@@ -180,12 +190,16 @@ export const validateShortLabelInput = (
   minBayValue: number,
   maxBayValue: number,
 ): string | null => {
-  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelves) {
+  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelf_end) {
     return VALIDATION_MESSAGES.shortRequired;
   }
 
   if (input.bay_start > input.bay_end) {
     return VALIDATION_MESSAGES.shortOrder;
+  }
+
+  if (input.shelf_start && input.shelf_start > input.shelf_end) {
+    return VALIDATION_MESSAGES.shelfOrder;
   }
 
   if (input.bay_start < minBayValue || input.bay_end < minBayValue || input.bay_end > maxBayValue) {
@@ -199,11 +213,11 @@ export const generateShortLabelCodes = (
   input: IShortLabelInput,
   formatTwoDigitValue: (value: number) => string,
 ): string[] => {
-  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelves) {
+  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelf_end) {
     return [];
   }
 
-  const shelfTokens = getShelfTokens('A', input.shelves);
+  const shelfTokens = getShelfTokens(input.shelf_start ?? 'A', input.shelf_end);
   const labels: string[] = [];
 
   for (let bay = input.bay_start; bay <= input.bay_end; bay += 1) {
