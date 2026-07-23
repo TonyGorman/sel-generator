@@ -19,8 +19,9 @@
 }
 
 .button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(47, 125, 244, 0.24);
+  outline: 2px solid #0b4eb3;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px #ffffff;
 }
 
 .button:disabled {
@@ -55,9 +56,10 @@
 }
 
 .input:focus-visible {
-  outline: none;
+  outline: 2px solid #0b4eb3;
+  outline-offset: 2px;
   border-color: #1f5fbf;
-  box-shadow: 0 0 0 3px rgba(47, 125, 244, 0.16);
+  box-shadow: 0 0 0 1px #ffffff;
 }
 
 .inputMultiline {

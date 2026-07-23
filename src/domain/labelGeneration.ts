@@ -4,6 +4,7 @@ import {
   getShortBayRangeValidationMessage,
   getSideBayRangeValidationMessage,
 } from '../config/validationMessages';
+import { AISLE_SIDES } from '../config/labelConfig';
 import { AisleSide } from '../models/IAisleCodeParts';
 import { hasValue } from './numericGuard';
 
@@ -35,6 +36,31 @@ interface IAisleValidationLimits {
   maxAisleValue: number;
   maxBayValue: number;
 }
+
+type SideRangeInputKeys = {
+  start: keyof IAisleLabelInput;
+  end: keyof IAisleLabelInput;
+};
+
+const SIDE_RANGE_INPUT_KEYS: Record<AisleSide, SideRangeInputKeys> = {
+  L: { start: 'lf_start', end: 'lf_end' },
+  R: { start: 'rf_start', end: 'rf_end' },
+  E: { start: 'ef_start', end: 'ef_end' },
+  F: { start: 'ft_start', end: 'ft_end' },
+};
+
+const getAisleSideRanges = (
+  input: IAisleLabelInput,
+): Array<{ side: AisleSide; start: number | null; end: number | null }> => {
+  return AISLE_SIDES.map((side) => {
+    const keys = SIDE_RANGE_INPUT_KEYS[side];
+    return {
+      side,
+      start: input[keys.start] as number | null,
+      end: input[keys.end] as number | null,
+    };
+  });
+};
 
 const getShelfTokens = (startShelf: string, endShelf: string): string[] => {
   const startCode = startShelf.charCodeAt(0);
@@ -107,12 +133,7 @@ export const validateAisleLabelInput = (
     return VALIDATION_MESSAGES.shelfOrder;
   }
 
-  const sideRanges = [
-    [input.lf_start, input.lf_end],
-    [input.rf_start, input.rf_end],
-    [input.ef_start, input.ef_end],
-    [input.ft_start, input.ft_end],
-  ];
+  const sideRanges = getAisleSideRanges(input).map((range) => [range.start, range.end] as const);
   const hasIncompleteRange = sideRanges.some(([start, end]) => hasValue(start) !== hasValue(end));
   if (hasIncompleteRange) {
     return VALIDATION_MESSAGES.sideRangeIncomplete;
@@ -145,22 +166,10 @@ export const generateAisleLabelCodes = (
   }
 
   const shelfTokens = getShelfTokens(input.shelf_start ?? 'A', input.shelf_end);
-  const labelsBySide: Record<AisleSide, string[]> = {
-    L: [],
-    R: [],
-    E: [],
-    F: [],
-  };
-  const selectedSideCandidates: Array<{
-    side: AisleSide;
-    start: number | null;
-    end: number | null;
-  }> = [
-    { side: 'L', start: input.lf_start, end: input.lf_end },
-    { side: 'R', start: input.rf_start, end: input.rf_end },
-    { side: 'E', start: input.ef_start, end: input.ef_end },
-    { side: 'F', start: input.ft_start, end: input.ft_end },
-  ];
+  const labelsBySide = Object.fromEntries(
+    AISLE_SIDES.map((side) => [side, [] as string[]]),
+  ) as Record<AisleSide, string[]>;
+  const selectedSideCandidates = getAisleSideRanges(input);
   const selectedSides: Array<{ side: AisleSide; start: number; end: number }> =
     selectedSideCandidates
       .filter((range): range is { side: AisleSide; start: number; end: number } => {
@@ -182,7 +191,7 @@ export const generateAisleLabelCodes = (
     }
   }
 
-  return [...labelsBySide.L, ...labelsBySide.R, ...labelsBySide.E, ...labelsBySide.F];
+  return AISLE_SIDES.flatMap((side) => labelsBySide[side]);
 };
 
 export const validateShortLabelInput = (

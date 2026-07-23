@@ -5,6 +5,9 @@ export const LABEL_CONSTRAINTS = {
 		prefixes: ['BR', 'BL', 'FL', 'FR'] as const,
 		specialValues: ['FLORAL', 'KIOSK', 'SEASONAL'] as const,
 	},
+	side: {
+		values: ['L', 'R', 'E', 'F'] as const,
+	},
 	bay: {
 		min: 1,
 		max: 99,
@@ -17,7 +20,7 @@ export const LABEL_CONSTRAINTS = {
 		prefixes: ['BAK', 'FOS', 'FNT'] as const,
 	},
 	labelGeneration: {
-		softLimit: 1000,
+		softLimit: 1800,
 		hardLimit: 2000,
 	},
 } as const;
@@ -28,6 +31,7 @@ export const MIN_BAY_VALUE = LABEL_CONSTRAINTS.bay.min;
 export const MAX_BAY_VALUE = LABEL_CONSTRAINTS.bay.max;
 export const MIN_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.min;
 export const MAX_SHELF_LETTER = LABEL_CONSTRAINTS.shelf.max;
+export const AISLE_SIDES = LABEL_CONSTRAINTS.side.values;
 export const AISLE_PREFIXES = LABEL_CONSTRAINTS.aisle.prefixes;
 export const SHORT_CODE_PREFIXES = LABEL_CONSTRAINTS.shortCode.prefixes;
 export const SPECIAL_AISLE_VALUES = LABEL_CONSTRAINTS.aisle.specialValues;

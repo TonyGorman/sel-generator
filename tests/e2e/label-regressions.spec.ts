@@ -16,6 +16,24 @@ test.describe('Label Generator regressions', () => {
     await expect(page.getByRole('tab', { name: 'FOS/Bak Labels' })).toBeVisible();
   });
 
+  test('supports keyboard navigation across tabs', async ({ page }) => {
+    await page.goto('/');
+
+    const specificTab = page.getByRole('tab', { name: 'Specific Labels' });
+    const aisleTab = page.getByRole('tab', { name: 'Aisle Labels' });
+    const backTab = page.getByRole('tab', { name: 'FOS/Bak Labels' });
+
+    await specificTab.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(aisleTab).toHaveAttribute('aria-selected', 'true');
+
+    await page.keyboard.press('ArrowRight');
+    await expect(backTab).toHaveAttribute('aria-selected', 'true');
+
+    await page.keyboard.press('Home');
+    await expect(specificTab).toHaveAttribute('aria-selected', 'true');
+  });
+
   test('Specific Labels tab shows validation message for empty submission', async ({ page }) => {
     await page.goto('/');
 

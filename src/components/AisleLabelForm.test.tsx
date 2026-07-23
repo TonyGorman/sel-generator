@@ -224,12 +224,12 @@ describe('AisleLabelForm', () => {
     render(<AisleLabelForm />);
 
     fillInputs({ 0: '1', 1: '1', 2: '1', 3: '99' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'L' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'S' } });
     fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Large batch warning');
-    expect(screen.getByTestId('generated-count')).toHaveTextContent('1188');
+    expect(screen.getByTestId('generated-count')).toHaveTextContent('1881');
   });
 
   it('blocks generation when total labels exceed hard limit', () => {

@@ -10,6 +10,7 @@ import {
   type IAisleLabelInput,
   type IShortLabelInput,
 } from './labelGeneration';
+import { AISLE_SIDES } from '../config/labelConfig';
 
 const formatTwoDigitValue = (value: number): string => value.toString().padStart(2, '0');
 
@@ -72,7 +73,7 @@ describe('labelGeneration', () => {
     expect(lowerBoundError).toBe('Bay values must be between 1 and 99.');
   });
 
-  it('generates aisle labels grouped by side in L/R/E/F order', () => {
+  it('generates aisle labels grouped by configured side order', () => {
     const codes = generateAisleLabelCodes(
       {
         aisle_start: 1,
@@ -91,7 +92,7 @@ describe('labelGeneration', () => {
       formatTwoDigitValue,
     );
 
-    expect(codes).toEqual(['01L01A', '01R01A', '01E01A', '01F01A']);
+    expect(codes).toEqual(AISLE_SIDES.map((side) => `01${side}01A`));
   });
 
   it('validates short label bounds and generates compact output', () => {

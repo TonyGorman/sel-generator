@@ -9,12 +9,13 @@ import {
   buildCompactLabelCodePattern,
   buildCompactShortCodePattern,
 } from '../domain/labelCodePatterns';
+import { AISLE_SIDES } from '../config/labelConfig';
 
 describe('labelCodePatterns', () => {
   it('keeps aisle token pattern numeric-only', () => {
     expect(AISLE_TOKEN_PATTERN).toBe('\\d{2}');
     expect(AISLE_PREFIX_NUMBER_PATTERN).toBe('\\d{1,2}');
-    expect(SIDE_TOKEN_PATTERN).toBe('[LREF]');
+    expect(SIDE_TOKEN_PATTERN).toBe(`(?:${AISLE_SIDES.join('|')})`);
     expect(BAY_TOKEN_PATTERN).toBe('\\d{2}');
     expect(SHELF_TOKEN_PATTERN).toBe('[A-Z]');
   });

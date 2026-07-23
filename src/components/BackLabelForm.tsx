@@ -62,7 +62,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate FOS/BAK Labels</h1>
-            <p className={styles.sectionIntro}>Choose BAK (Back Wall) or FOS (Front Of Store) using the prefix selector.
+            <p className={styles.sectionIntro}>Choose BAK (Back Wall), FOS (Front Of Store) or FNT (Front) using the prefix selector.
                 <br/>Set the start bay, end bay, start shelf, and end shelf required.
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.
                 </p>
