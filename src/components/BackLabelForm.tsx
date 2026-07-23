@@ -42,7 +42,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     });
 
     const {
-        labelStruct,
+        formInput,
         selectedShortCodePrefix,
         errorMessage,
         warningMessage,
@@ -84,16 +84,16 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
                             <TextField
                                 id={`${idPrefix}-bay-start`}
-                                value={labelStruct.bay_start?.toString() ?? ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_start')}
+                                value={formInput.bayStart?.toString() ?? ''}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bayStart')}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-end`}>End</label>
                             <TextField
                                 id={`${idPrefix}-bay-end`}
-                                value={labelStruct.bay_end?.toString() ?? ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bay_end')}
+                                value={formInput.bayEnd?.toString() ?? ''}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bayEnd')}
                             />
                         </div>
                     </div>
@@ -106,7 +106,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-start`}
-                                value={labelStruct.shelf_start ?? ''}
+                                value={formInput.shelfStart ?? ''}
                                 onChange={onShelfStartChange}
                             />
                         </div>
@@ -114,7 +114,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-end`}>End Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-end`}
-                                value={labelStruct.shelf_end ?? ''}
+                                value={formInput.shelfEnd ?? ''}
                                 onChange={onShelfEndChange}
                             />
                         </div>

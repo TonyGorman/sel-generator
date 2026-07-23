@@ -8,26 +8,32 @@ import { AISLE_SIDES } from '../config/labelConfig';
 import { AisleSide } from '../models/IAisleCodeParts';
 import { hasValue } from './numericGuard';
 
+export interface IAisleSideRange {
+  start: number | null;
+  end: number | null;
+}
+
+export type IAisleSideRanges = Record<AisleSide, IAisleSideRange>;
+
+export const createEmptyAisleSideRanges = (): IAisleSideRanges => {
+  return Object.fromEntries(
+    AISLE_SIDES.map((side) => [side, { start: null, end: null }]),
+  ) as IAisleSideRanges;
+};
+
 export interface IAisleLabelInput {
-  aisle_start: number | null;
-  aisle_end: number | null;
-  lf_start: number | null;
-  lf_end: number | null;
-  ef_start: number | null;
-  ef_end: number | null;
-  rf_start: number | null;
-  rf_end: number | null;
-  ft_start: number | null;
-  ft_end: number | null;
-  shelf_start: string | null;
-  shelf_end: string | null;
+  aisleStart: number | null;
+  aisleEnd: number | null;
+  sideRanges: IAisleSideRanges;
+  shelfStart: string | null;
+  shelfEnd: string | null;
 }
 
 export interface IShortLabelInput {
-  bay_start: number | null;
-  bay_end: number | null;
-  shelf_start: string | null;
-  shelf_end: string | null;
+  bayStart: number | null;
+  bayEnd: number | null;
+  shelfStart: string | null;
+  shelfEnd: string | null;
   prefix: string;
 }
 
@@ -37,29 +43,14 @@ interface IAisleValidationLimits {
   maxBayValue: number;
 }
 
-type SideRangeInputKeys = {
-  start: keyof IAisleLabelInput;
-  end: keyof IAisleLabelInput;
-};
-
-const SIDE_RANGE_INPUT_KEYS: Record<AisleSide, SideRangeInputKeys> = {
-  L: { start: 'lf_start', end: 'lf_end' },
-  R: { start: 'rf_start', end: 'rf_end' },
-  E: { start: 'ef_start', end: 'ef_end' },
-  F: { start: 'ft_start', end: 'ft_end' },
-};
-
 const getAisleSideRanges = (
   input: IAisleLabelInput,
 ): Array<{ side: AisleSide; start: number | null; end: number | null }> => {
-  return AISLE_SIDES.map((side) => {
-    const keys = SIDE_RANGE_INPUT_KEYS[side];
-    return {
-      side,
-      start: input[keys.start] as number | null,
-      end: input[keys.end] as number | null,
-    };
-  });
+  return AISLE_SIDES.map((side) => ({
+    side,
+    start: input.sideRanges[side].start,
+    end: input.sideRanges[side].end,
+  }));
 };
 
 const getShelfTokens = (startShelf: string, endShelf: string): string[] => {
@@ -113,23 +104,23 @@ export const validateAisleLabelInput = (
 ): string | null => {
   const { minAisleValue, maxAisleValue, maxBayValue } = limits;
 
-  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelf_end) {
+  if (!hasValue(input.aisleStart) || !hasValue(input.aisleEnd) || !input.shelfEnd) {
     return VALIDATION_MESSAGES.aisleRequired;
   }
 
   if (
-    input.aisle_start < minAisleValue ||
-    input.aisle_end < minAisleValue ||
-    input.aisle_end > maxAisleValue
+    input.aisleStart < minAisleValue ||
+    input.aisleEnd < minAisleValue ||
+    input.aisleEnd > maxAisleValue
   ) {
     return getAisleRangeValidationMessage(minAisleValue, maxAisleValue);
   }
 
-  if (input.aisle_start > input.aisle_end) {
+  if (input.aisleStart > input.aisleEnd) {
     return VALIDATION_MESSAGES.aisleOrder;
   }
 
-  if (input.shelf_start && input.shelf_start > input.shelf_end) {
+  if (input.shelfStart && input.shelfStart > input.shelfEnd) {
     return VALIDATION_MESSAGES.shelfOrder;
   }
 
@@ -161,11 +152,11 @@ export const generateAisleLabelCodes = (
   input: IAisleLabelInput,
   formatTwoDigitValue: (value: number) => string,
 ): string[] => {
-  if (!hasValue(input.aisle_start) || !hasValue(input.aisle_end) || !input.shelf_end) {
+  if (!hasValue(input.aisleStart) || !hasValue(input.aisleEnd) || !input.shelfEnd) {
     return [];
   }
 
-  const shelfTokens = getShelfTokens(input.shelf_start ?? 'A', input.shelf_end);
+  const shelfTokens = getShelfTokens(input.shelfStart ?? 'A', input.shelfEnd);
   const labelsBySide = Object.fromEntries(
     AISLE_SIDES.map((side) => [side, [] as string[]]),
   ) as Record<AisleSide, string[]>;
@@ -176,7 +167,7 @@ export const generateAisleLabelCodes = (
         return hasValue(range.start) && hasValue(range.end);
       });
 
-  for (let aisle = input.aisle_start; aisle <= input.aisle_end; aisle += 1) {
+  for (let aisle = input.aisleStart; aisle <= input.aisleEnd; aisle += 1) {
     for (const sideRange of selectedSides) {
       labelsBySide[sideRange.side].push(
         ...buildAisleSideCodes(
@@ -199,19 +190,19 @@ export const validateShortLabelInput = (
   minBayValue: number,
   maxBayValue: number,
 ): string | null => {
-  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelf_end) {
+  if (!hasValue(input.bayStart) || !hasValue(input.bayEnd) || !input.shelfEnd) {
     return VALIDATION_MESSAGES.shortRequired;
   }
 
-  if (input.bay_start > input.bay_end) {
+  if (input.bayStart > input.bayEnd) {
     return VALIDATION_MESSAGES.shortOrder;
   }
 
-  if (input.shelf_start && input.shelf_start > input.shelf_end) {
+  if (input.shelfStart && input.shelfStart > input.shelfEnd) {
     return VALIDATION_MESSAGES.shelfOrder;
   }
 
-  if (input.bay_start < minBayValue || input.bay_end < minBayValue || input.bay_end > maxBayValue) {
+  if (input.bayStart < minBayValue || input.bayEnd < minBayValue || input.bayEnd > maxBayValue) {
     return getShortBayRangeValidationMessage(minBayValue, maxBayValue);
   }
 
@@ -222,14 +213,14 @@ export const generateShortLabelCodes = (
   input: IShortLabelInput,
   formatTwoDigitValue: (value: number) => string,
 ): string[] => {
-  if (!hasValue(input.bay_start) || !hasValue(input.bay_end) || !input.shelf_end) {
+  if (!hasValue(input.bayStart) || !hasValue(input.bayEnd) || !input.shelfEnd) {
     return [];
   }
 
-  const shelfTokens = getShelfTokens(input.shelf_start ?? 'A', input.shelf_end);
+  const shelfTokens = getShelfTokens(input.shelfStart ?? 'A', input.shelfEnd);
   const labels: string[] = [];
 
-  for (let bay = input.bay_start; bay <= input.bay_end; bay += 1) {
+  for (let bay = input.bayStart; bay <= input.bayEnd; bay += 1) {
     const bayText = formatTwoDigitValue(bay);
     for (const shelfToken of shelfTokens) {
       labels.push(`${input.prefix}${bayText}${shelfToken}`);

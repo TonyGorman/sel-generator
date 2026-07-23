@@ -15,18 +15,16 @@ import { AISLE_SIDES } from '../config/labelConfig';
 const formatTwoDigitValue = (value: number): string => value.toString().padStart(2, '0');
 
 const baseAisleInput: IAisleLabelInput = {
-  aisle_start: 1,
-  aisle_end: 1,
-  lf_start: 1,
-  lf_end: 2,
-  ef_start: null,
-  ef_end: null,
-  rf_start: null,
-  rf_end: null,
-  ft_start: null,
-  ft_end: null,
-  shelf_start: null,
-  shelf_end: 'B',
+  aisleStart: 1,
+  aisleEnd: 1,
+  sideRanges: {
+    L: { start: 1, end: 2 },
+    E: { start: null, end: null },
+    R: { start: null, end: null },
+    F: { start: null, end: null },
+  },
+  shelfStart: null,
+  shelfEnd: 'B',
 };
 
 describe('labelGeneration', () => {
@@ -38,7 +36,7 @@ describe('labelGeneration', () => {
 
   it('validates aisle input required fields first', () => {
     const error = validateAisleLabelInput(
-      { ...baseAisleInput, aisle_start: null },
+      { ...baseAisleInput, aisleStart: null },
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
@@ -47,11 +45,11 @@ describe('labelGeneration', () => {
 
   it('validates aisle side ranges and bay max bounds', () => {
     const orderError = validateAisleLabelInput(
-      { ...baseAisleInput, lf_start: 3, lf_end: 2 },
+      { ...baseAisleInput, sideRanges: { ...baseAisleInput.sideRanges, L: { start: 3, end: 2 } } },
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
     const rangeError = validateAisleLabelInput(
-      { ...baseAisleInput, lf_end: 100 },
+      { ...baseAisleInput, sideRanges: { ...baseAisleInput.sideRanges, L: { start: 1, end: 100 } } },
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
@@ -61,11 +59,11 @@ describe('labelGeneration', () => {
 
   it('validates incomplete and lower-bound aisle side ranges', () => {
     const incompleteRangeError = validateAisleLabelInput(
-      { ...baseAisleInput, rf_start: 2, rf_end: null },
+      { ...baseAisleInput, sideRanges: { ...baseAisleInput.sideRanges, R: { start: 2, end: null } } },
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
     const lowerBoundError = validateAisleLabelInput(
-      { ...baseAisleInput, lf_start: 0, lf_end: 1 },
+      { ...baseAisleInput, sideRanges: { ...baseAisleInput.sideRanges, L: { start: 0, end: 1 } } },
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
@@ -76,18 +74,16 @@ describe('labelGeneration', () => {
   it('generates aisle labels grouped by configured side order', () => {
     const codes = generateAisleLabelCodes(
       {
-        aisle_start: 1,
-        aisle_end: 1,
-        lf_start: 1,
-        lf_end: 1,
-        ef_start: 1,
-        ef_end: 1,
-        rf_start: 1,
-        rf_end: 1,
-        ft_start: 1,
-        ft_end: 1,
-        shelf_start: null,
-        shelf_end: 'A',
+        aisleStart: 1,
+        aisleEnd: 1,
+        sideRanges: {
+          L: { start: 1, end: 1 },
+          E: { start: 1, end: 1 },
+          R: { start: 1, end: 1 },
+          F: { start: 1, end: 1 },
+        },
+        shelfStart: null,
+        shelfEnd: 'A',
       },
       formatTwoDigitValue,
     );
@@ -97,10 +93,10 @@ describe('labelGeneration', () => {
 
   it('validates short label bounds and generates compact output', () => {
     const shortInput: IShortLabelInput = {
-      bay_start: 1,
-      bay_end: 2,
-      shelf_start: null,
-      shelf_end: 'B',
+      bayStart: 1,
+      bayEnd: 2,
+      shelfStart: null,
+      shelfEnd: 'B',
       prefix: 'BAK',
     };
 
@@ -115,10 +111,10 @@ describe('labelGeneration', () => {
 
   it('validates short shelf ordering and supports shelf ranges from custom starts', () => {
     const invalidShelfOrderInput: IShortLabelInput = {
-      bay_start: 1,
-      bay_end: 1,
-      shelf_start: 'C',
-      shelf_end: 'A',
+      bayStart: 1,
+      bayEnd: 1,
+      shelfStart: 'C',
+      shelfEnd: 'A',
       prefix: 'BAK',
     };
 
@@ -127,10 +123,10 @@ describe('labelGeneration', () => {
     );
 
     const validRangeInput: IShortLabelInput = {
-      bay_start: 1,
-      bay_end: 1,
-      shelf_start: 'B',
-      shelf_end: 'C',
+      bayStart: 1,
+      bayEnd: 1,
+      shelfStart: 'B',
+      shelfEnd: 'C',
       prefix: 'BAK',
     };
 
@@ -153,4 +149,5 @@ describe('labelGeneration', () => {
     expect(getShelfRangeCount(null, 'C')).toBe(3);
     expect(getShelfRangeCount('B', 'C')).toBe(2);
   });
+
 });

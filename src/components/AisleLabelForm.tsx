@@ -13,10 +13,12 @@ import {
     LABEL_HARD_LIMIT,
     formatTwoDigitValue,
 } from '../config/labelConfig';
+import { AISLE_SIDE_METADATA } from '../config/aisleSideMetadata';
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import {
+    createEmptyAisleSideRanges,
     generateAisleLabelCodes,
     getShelfRangeCount,
     IAisleLabelInput,
@@ -26,8 +28,9 @@ import {
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useLabelPrintMode } from './useLabelPrintMode';
 import { hasValue } from '../domain/numericGuard';
+import { AisleSide } from '../models/IAisleCodeParts';
 
-type NumericAisleInputKey = Exclude<keyof IAisleLabelInput, 'shelf_start' | 'shelf_end'>;
+type NumericAisleInputKey = 'aisleStart' | 'aisleEnd';
 
 interface AisleLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -42,19 +45,12 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
     const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const idPrefix = React.useId();
-    const [labelStruct, setLabelStruct] = React.useState<IAisleLabelInput>({
-        aisle_start: null as number | null,
-        aisle_end: null as number | null,
-        lf_start: null as number | null,
-        lf_end: null as number | null,
-        ef_start: null as number | null,
-        ef_end: null as number | null,
-        rf_start: null as number | null,
-        rf_end: null as number | null,
-        ft_start: null as number | null,
-        ft_end: null as number | null,
-        shelf_start: null as string | null,
-        shelf_end: null as string | null,
+    const [formInput, setFormInput] = React.useState<IAisleLabelInput>({
+        aisleStart: null,
+        aisleEnd: null,
+        sideRanges: createEmptyAisleSideRanges(),
+        shelfStart: null,
+        shelfEnd: null,
     });
 
     const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
@@ -64,15 +60,33 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
 
     const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
         const numericValue = parseNumericInput(e.target.value);
-        setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
+        setFormInput((prevState) => ({ ...prevState, [type]: numericValue }));
+    }, []);
+
+    const onSideRangeInputChange = React.useCallback((
+        e: React.ChangeEvent<HTMLInputElement>,
+        side: AisleSide,
+        rangeType: 'start' | 'end',
+    ): void => {
+        const numericValue = parseNumericInput(e.target.value);
+        setFormInput((prevState) => ({
+            ...prevState,
+            sideRanges: {
+                ...prevState.sideRanges,
+                [side]: {
+                    ...prevState.sideRanges[side],
+                    [rangeType]: numericValue,
+                },
+            },
+        }));
     }, []);
 
     const onShelfStartChange = React.useCallback((letter: string): void => {
-        setLabelStruct((prevState) => ({ ...prevState, shelf_start: letter || null }));
+        setFormInput((prevState) => ({ ...prevState, shelfStart: letter || null }));
     }, []);
 
     const onShelfEndChange = React.useCallback((letter: string): void => {
-        setLabelStruct((prevState) => ({ ...prevState, shelf_end: letter || null }));
+        setFormInput((prevState) => ({ ...prevState, shelfEnd: letter || null }));
     }, []);
 
     const formatTwoDigits = (value: number | null): string => {
@@ -84,32 +98,33 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     };
 
     const formatShelfSummary = (): string => {
-        if (!labelStruct.shelf_end) {
+        if (!formInput.shelfEnd) {
             return '--';
         }
-        const start = labelStruct.shelf_start ?? 'A';
-        if (start === labelStruct.shelf_end) {
-            return labelStruct.shelf_end;
+        const start = formInput.shelfStart ?? 'A';
+        if (start === formInput.shelfEnd) {
+            return formInput.shelfEnd;
         }
-        return `${start} – ${labelStruct.shelf_end}`;
+        return `${start} – ${formInput.shelfEnd}`;
     };
 
-    const sideRows = [
-        { label: 'Left', startKey: 'lf_start', endKey: 'lf_end' },
-        { label: 'Right', startKey: 'rf_start', endKey: 'rf_end' },
-        { label: 'End', startKey: 'ef_start', endKey: 'ef_end' },
-        { label: 'Front', startKey: 'ft_start', endKey: 'ft_end' },
-    ] as const;
+    const sideRows = AISLE_SIDE_METADATA;
 
-    const activeSideRanges = sideRows.filter((side) => hasValue(labelStruct[side.startKey]) && hasValue(labelStruct[side.endKey]));
+    const activeSideRanges = sideRows
+        .map((side) => ({
+            ...side,
+            start: formInput.sideRanges[side.side].start,
+            end: formInput.sideRanges[side.side].end,
+        }))
+        .filter((side) => hasValue(side.start) && hasValue(side.end));
 
-    const totalAisles = hasValue(labelStruct.aisle_start) && hasValue(labelStruct.aisle_end)
-        ? labelStruct.aisle_end - labelStruct.aisle_start + 1
+    const totalAisles = hasValue(formInput.aisleStart) && hasValue(formInput.aisleEnd)
+        ? formInput.aisleEnd - formInput.aisleStart + 1
         : 0;
 
     const totalBayValues = activeSideRanges.reduce((total, side) => {
-        const start = labelStruct[side.startKey];
-        const end = labelStruct[side.endKey];
+        const start = side.start;
+        const end = side.end;
 
         if (!hasValue(start) || !hasValue(end)) {
             return total;
@@ -118,13 +133,13 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         return total + (end - start + 1);
     }, 0);
 
-    const shelfCount = getShelfRangeCount(labelStruct.shelf_start, labelStruct.shelf_end);
+    const shelfCount = getShelfRangeCount(formInput.shelfStart, formInput.shelfEnd);
     const totalLabels = totalAisles > 0 && shelfCount > 0
         ? totalAisles * totalBayValues * shelfCount
         : 0;
 
     const generateLabel = (): void => {
-        const validationError = validateAisleLabelInput(labelStruct, {
+        const validationError = validateAisleLabelInput(formInput, {
             minAisleValue: MIN_AISLE_VALUE,
             maxAisleValue: MAX_AISLE_VALUE,
             maxBayValue: MAX_BAY_VALUE,
@@ -145,7 +160,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
 
         setErrorMessage(null);
         setWarningMessage(totalLabels > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
-        setGeneratedLabels(generateAisleLabelCodes(labelStruct, formatTwoDigitValue));
+        setGeneratedLabels(generateAisleLabelCodes(formInput, formatTwoDigitValue));
     }
 
     return (
@@ -163,16 +178,16 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
                             <TextField
                                 id={`${idPrefix}-aisle-start`}
-                                value={labelStruct.aisle_start?.toString() ?? ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisle_start')}
+                                value={formInput.aisleStart?.toString() ?? ''}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisleStart')}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-end`}>To</label>
                             <TextField
                                 id={`${idPrefix}-aisle-end`}
-                                value={labelStruct.aisle_end?.toString() ?? ''}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisle_end')}
+                                value={formInput.aisleEnd?.toString() ?? ''}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisleEnd')}
                             />
                         </div>
                     </div>
@@ -182,23 +197,23 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                     <h2 className={shellStyles.sectionTitle}>Bay Configuration ({bayRangeText})</h2>
                     <div className={styles.sideGrid}>
                         {sideRows.map((side) => (
-                            <div key={side.label} className={styles.sideRow}>
+                            <div key={side.side} className={styles.sideRow}>
                                 <div className={styles.sideLabel}>{side.label}</div>
                                 <div className={styles.sideInputGroup}>
                                     <div className={styles.fieldGroup}>
-                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.startKey}`}>From</label>
+                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.side}-start`}>From</label>
                                         <TextField
-                                            id={`${idPrefix}-${side.startKey}`}
-                                            value={labelStruct[side.startKey]?.toString() ?? ''}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, side.startKey)}
+                                            id={`${idPrefix}-${side.side}-start`}
+                                            value={formInput.sideRanges[side.side].start?.toString() ?? ''}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSideRangeInputChange(e, side.side, 'start')}
                                         />
                                     </div>
                                     <div className={styles.fieldGroup}>
-                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.endKey}`}>To</label>
+                                        <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.side}-end`}>To</label>
                                         <TextField
-                                            id={`${idPrefix}-${side.endKey}`}
-                                            value={labelStruct[side.endKey]?.toString() ?? ''}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, side.endKey)}
+                                            id={`${idPrefix}-${side.side}-end`}
+                                            value={formInput.sideRanges[side.side].end?.toString() ?? ''}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSideRangeInputChange(e, side.side, 'end')}
                                         />
                                     </div>
                                 </div>
@@ -214,15 +229,15 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-start`}
-                                value={labelStruct.shelf_start ?? ''}
+                                value={formInput.shelfStart ?? ''}
                                 onChange={onShelfStartChange}
                             />
                         </div>
                         <div className={styles.fieldGroup}>
-                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelves`}>End Shelf</label>
+                            <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-end`}>End Shelf</label>
                             <ShelfSelect
-                                id={`${idPrefix}-shelves`}
-                                value={labelStruct.shelf_end ?? ''}
+                                id={`${idPrefix}-shelf-end`}
+                                value={formInput.shelfEnd ?? ''}
                                 onChange={onShelfEndChange}
                             />
                         </div>
@@ -244,13 +259,13 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                     <div className={styles.summaryBox}>
                         <div className={styles.summaryRow}>
                             <span>Aisles:</span>
-                            <span>{formatTwoDigits(labelStruct.aisle_start)} – {formatTwoDigits(labelStruct.aisle_end)}</span>
+                            <span>{formatTwoDigits(formInput.aisleStart)} – {formatTwoDigits(formInput.aisleEnd)}</span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Bays:</span>
                             <span>
                                 {activeSideRanges.length > 0
-                                    ? activeSideRanges.map((side) => `${side.label} ${formatTwoDigits(labelStruct[side.startKey])} – ${formatTwoDigits(labelStruct[side.endKey])}`).join(', ')
+                                    ? activeSideRanges.map((side) => `${side.label} ${formatTwoDigits(side.start)} – ${formatTwoDigits(side.end)}`).join(', ')
                                     : '--'}
                             </span>
                         </div>

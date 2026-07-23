@@ -9,7 +9,7 @@ import {
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
-type NumericShortInputKey = 'bay_start' | 'bay_end';
+type NumericShortInputKey = 'bayStart' | 'bayEnd';
 
 interface UseShortLabelFormArgs {
   initialPrefix: string;
@@ -22,7 +22,7 @@ interface UseShortLabelFormArgs {
 
 interface UseShortLabelFormResult {
   state: {
-    labelStruct: ShortInputWithoutPrefix;
+    formInput: ShortInputWithoutPrefix;
     selectedShortCodePrefix: string;
     errorMessage: string | null;
     warningMessage: string | null;
@@ -50,44 +50,44 @@ export const useShortLabelForm = ({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
   const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(initialPrefix);
-  const [labelStruct, setLabelStruct] = React.useState<ShortInputWithoutPrefix>({
-    bay_start: null,
-    bay_end: null,
-    shelf_start: null,
-    shelf_end: null,
+  const [formInput, setFormInput] = React.useState<ShortInputWithoutPrefix>({
+    bayStart: null,
+    bayEnd: null,
+    shelfStart: null,
+    shelfEnd: null,
   });
 
   const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericShortInputKey): void => {
     const numericValue = parseNumericInput(e.target.value);
-    setLabelStruct((prevState) => ({ ...prevState, [type]: numericValue }));
+    setFormInput((prevState) => ({ ...prevState, [type]: numericValue }));
   }, []);
 
   const onShelfStartChange = React.useCallback((letter: string): void => {
-    setLabelStruct((prevState) => ({ ...prevState, shelf_start: letter || null }));
+    setFormInput((prevState) => ({ ...prevState, shelfStart: letter || null }));
   }, []);
 
   const onShelfEndChange = React.useCallback((letter: string): void => {
-    setLabelStruct((prevState) => ({ ...prevState, shelf_end: letter || null }));
+    setFormInput((prevState) => ({ ...prevState, shelfEnd: letter || null }));
   }, []);
 
-  const shelfCount = getShelfRangeCount(labelStruct.shelf_start, labelStruct.shelf_end);
+  const shelfCount = getShelfRangeCount(formInput.shelfStart, formInput.shelfEnd);
   const bayCount = React.useMemo(() => {
-    if (labelStruct.bay_start === null || labelStruct.bay_end === null) {
+    if (formInput.bayStart === null || formInput.bayEnd === null) {
       return 0;
     }
 
-    return labelStruct.bay_end - labelStruct.bay_start + 1;
-  }, [labelStruct.bay_end, labelStruct.bay_start]);
+    return formInput.bayEnd - formInput.bayStart + 1;
+  }, [formInput.bayEnd, formInput.bayStart]);
   const totalLabels = bayCount * shelfCount;
 
   const shortLabelInput = React.useMemo<IShortLabelInput>(() => {
     return {
-      ...labelStruct,
+      ...formInput,
       prefix: selectedShortCodePrefix,
     };
-  }, [labelStruct, selectedShortCodePrefix]);
+  }, [formInput, selectedShortCodePrefix]);
 
   const generateLabel = React.useCallback((): void => {
     const validationError = validateShortLabelInput(shortLabelInput, minBayValue, maxBayValue);
@@ -112,7 +112,7 @@ export const useShortLabelForm = ({
 
   return {
     state: {
-      labelStruct,
+      formInput,
       selectedShortCodePrefix,
       errorMessage,
       warningMessage,
