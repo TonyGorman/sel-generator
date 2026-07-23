@@ -40,6 +40,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     const aisleRangeText = `${MIN_AISLE_VALUE}-${MAX_AISLE_VALUE}`;
     const bayRangeText = `1-${MAX_BAY_VALUE}`;
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
+    const sideNamesText = AISLE_SIDE_METADATA.map((side) => side.label).join(', ');
 
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
     const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
@@ -167,7 +168,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Aisle Labels</h1>
             <div className={styles.sectionIntro}>
-                <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides (Left, Right, End, Front), Bays from 1 to {MAX_BAY_VALUE} and Shelves (alphabetical only) within {shelfRangeText}.</p>
+                <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides ({sideNamesText}), Bays from 1 to {MAX_BAY_VALUE} and Shelves (alphabetical only) within {shelfRangeText}.</p>
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
             </div>
             <div className={styles.configLayout}>
