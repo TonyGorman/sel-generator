@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import styles from './LabelApp.module.css';
+import styles from './LabelGenerator.module.css';
 
 import { ILabelGenerator } from '../models/ILabelGenerator';
 import Pagination from './Pagination';

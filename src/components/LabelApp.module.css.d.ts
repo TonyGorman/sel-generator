@@ -1,6 +1,4 @@
 export type Styles = {
-  'actionBar': string;
-  'actionButton': string;
   'actionsRow': string;
   'barcodeGraphic': string;
   'barcodeGraphicLargeSel': string;
@@ -11,7 +9,6 @@ export type Styles = {
   'labelAppRoot': string;
   'labelBox': string;
   'labelBoxLargeSel': string;
-  'labelDiv': string;
   'labelText': string;
   'largeSelHeading': string;
   'largeSelHeadingMain': string;
@@ -21,18 +18,8 @@ export type Styles = {
   'miniAisleBottomCode': string;
   'miniAisleTopCode': string;
   'miniShelfFullValue': string;
-  'pdfDiv': string;
-  'previewPage': string;
   'primaryCode': string;
-  'printLabelDiv': string;
-  'printPage': string;
-  'printPortal': string;
   'sectionIntro': string;
-  'tabButton': string;
-  'tabButtonActive': string;
-  'tabList': string;
-  'tabPanelBox': string;
-  'tabPanelContent': string;
   'variantControlLabel': string;
   'variantControlRow': string;
   'variantControlSelect': string;

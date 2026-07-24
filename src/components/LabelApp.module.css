@@ -46,68 +46,6 @@
   border-color: #2f7df4;
 }
 
-.tabList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  align-items: flex-end;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.tabButton,
-.tabButtonActive {
-  appearance: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  border-radius: 0;
-  background: transparent;
-  color: #6b7280;
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: color 120ms ease, border-color 120ms ease;
-}
-
-.tabButton:hover,
-.tabButtonActive:hover {
-  color: #1f2937;
-}
-
-.tabButton:focus-visible,
-.tabButtonActive:focus-visible {
-  outline: 2px solid #0b4eb3;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 1px #ffffff;
-  border-radius: 2px 2px 0 0;
-}
-
-.tabButtonActive {
-  border-bottom-color: #2f7df4;
-  color: #2f7df4;
-}
-
-.tabPanelBox {
-  width: 100%;
-  margin-top: 18px;
-  padding: 34px 38px;
-  border: 1px solid #d8dde5;
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
-  box-sizing: border-box;
-  overflow-x: auto;
-}
-
-.tabPanelContent {
-  width: 100%;
-  text-align: left;
-}
-
 .sectionIntro {
   margin: 0 0 24px;
   color: #4b5563;
@@ -134,10 +72,6 @@
   .labelAppRoot {
     width: calc(100% - 48px);
   }
-
-  .tabPanelBox {
-    padding: 26px 24px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -155,44 +89,6 @@
     min-width: 100%;
   }
 
-  .tabButton,
-  .tabButtonActive {
-    padding: 10px 14px;
-    font-size: 0.8rem;
-  }
-
-  .tabPanelBox {
-    padding: 20px 16px;
-    border-radius: 14px;
-  }
-}
-
-.pdfDiv {
-  width: var(--current-sheet-width-mm);
-  margin: 0 auto;
-}
-
-.previewPage,
-.printPage {
-  width: var(--current-sheet-width-mm);
-  height: var(--current-sheet-height-mm);
-  box-sizing: border-box;
-  padding: var(--current-page-pad-top-mm)
-    var(--current-page-pad-right-mm)
-    var(--current-page-pad-bottom-mm)
-    var(--current-page-pad-left-mm);
-  background: #fff;
-  overflow: hidden;
-}
-
-.printPage {
-  break-after: page;
-  page-break-after: always;
-}
-
-.printPage:last-child {
-  break-after: auto;
-  page-break-after: auto;
 }
 
 .labelText {
@@ -363,16 +259,6 @@
   shape-rendering: crispEdges;
 }
 
-.labelDiv,
-.printLabelDiv {
-  display: grid;
-  grid-template-columns: repeat(var(--current-grid-columns), var(--current-label-width-mm));
-  grid-auto-rows: var(--current-label-height-mm);
-  width: 100%;
-  height: var(--current-grid-height-mm);
-  margin: 0 auto;
-}
-
 .encodedValue {
   position: absolute;
   left: 50%;
@@ -401,64 +287,9 @@
   white-space: nowrap;
 }
 
-.barcodeGraphic :global(svg) {
-  width: auto;
-  max-width: var(--mini-sel-barcode-width-mm);
-  height: var(--mini-sel-barcode-height-mm);
-}
-
-.barcodeGraphic :global(svg),
-.barcodeGraphic :global(svg *) {
-  shape-rendering: crispEdges;
-}
-
-.actionBar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 18px;
-  margin-bottom: 16px;
-}
-
-.actionButton {
-  min-width: 220px;
-}
-
-.printPortal {
-  position: absolute;
-  left: -99999px;
-  top: 0;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-@page {
-  size: A4;
-  margin: 0;
-}
-
 @media print {
-  :global(html),
-  :global(body) {
+  .labelBox,
+  .labelBoxLargeSel {
     margin: 0;
-    padding: 0;
-  }
-
-  /* Hide every direct child of body — including the React root */
-  :global(body) > * {
-    display: none !important;
-  }
-
-  /* Show only the portal container that sits as a direct body child. */
-  :global(#label-print-surface),
-  :global(#barcode-print-surface) {
-    display: block !important;
-  }
-
-  /* Un-hide the inner wrapper that is visibility:hidden on screen */
-  .printPortal {
-    visibility: visible;
-    position: static;
-    left: auto;
   }
 }
