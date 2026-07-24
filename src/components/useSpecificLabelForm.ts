@@ -20,6 +20,7 @@ import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import { useLabelPrintMode } from './useLabelPrintMode';
+import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 interface UseSpecificLabelFormResult {
   content: {
@@ -51,11 +52,18 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
   const aislePrefixedExamples = [`${AISLE_PREFIXES[0]}1L01A`, `${AISLE_PREFIXES[1]}2L02B`].join(', ');
 
   const [labelText, setLabelText] = React.useState('');
-  const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-
-  const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
+  const {
+    state: {
+      generatedLabels,
+      errorMessage,
+      warningMessage,
+    },
+    actions: {
+      resetGeneratedLabels,
+      setFailure,
+      setSuccess,
+    },
+  } = useLabelGenerationFeedback();
   const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode(resetGeneratedLabels);
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -79,22 +87,18 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
     const labelTexts = normalizeSpecificInputCodes(labelText);
 
     if (labelTexts.length === 0) {
-      setErrorMessage(VALIDATION_MESSAGES.specificEmpty);
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(VALIDATION_MESSAGES.specificEmpty);
       return;
     }
 
     if (labelTexts.length > LABEL_HARD_LIMIT) {
-      setErrorMessage(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
       return;
     }
 
     const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
     if (hasInvalidCode) {
-      setErrorMessage(getSpecificInvalidLabelMessage({
+      setFailure(getSpecificInvalidLabelMessage({
         aislePrefixedExamples,
         backPrefix: SHORT_CODE_PREFIXES[0],
         frontPrefix: SHORT_CODE_PREFIXES[1],
@@ -102,22 +106,29 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
         bayRangeText,
         shelfRangeText,
       }));
-      setWarningMessage(null);
-      setGeneratedLabels(null);
       return;
     }
 
     if (labelPrintMode === 'large-sel' && labelTexts.some((code) => (SPECIAL_AISLE_VALUES as ReadonlyArray<string>).includes(code))) {
-      setErrorMessage(VALIDATION_MESSAGES.specificLargeSelSpecialCode);
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(VALIDATION_MESSAGES.specificLargeSelSpecialCode);
       return;
     }
 
-    setErrorMessage(null);
-    setWarningMessage(labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
-    setGeneratedLabels(labelTexts);
-  }, [aislePrefixedExamples, bayRangeText, isValidSpecificCode, labelPrintMode, labelText, namedAisleExamples, shelfRangeText]);
+    setSuccess(
+      labelTexts,
+      labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null,
+    );
+  }, [
+    aislePrefixedExamples,
+    bayRangeText,
+    isValidSpecificCode,
+    labelPrintMode,
+    labelText,
+    namedAisleExamples,
+    setFailure,
+    setSuccess,
+    shelfRangeText,
+  ]);
 
   return {
     content: {

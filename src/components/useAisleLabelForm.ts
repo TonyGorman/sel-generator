@@ -11,6 +11,7 @@ import {
 } from '../domain/labelGeneration';
 import { hasValue } from '../domain/numericGuard';
 import { AisleSide } from '../models/IAisleCodeParts';
+import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type NumericAisleInputKey = 'aisleStart' | 'aisleEnd';
 
@@ -58,9 +59,18 @@ export const useAisleLabelForm = ({
   hardLimit,
   formatTwoDigitValue,
 }: UseAisleLabelFormArgs): UseAisleLabelFormResult => {
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-  const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
+  const {
+    state: {
+      errorMessage,
+      warningMessage,
+      generatedLabels,
+    },
+    actions: {
+      resetGeneratedLabels,
+      setFailure,
+      setSuccess,
+    },
+  } = useLabelGenerationFeedback();
   const [formInput, setFormInput] = React.useState<IAisleLabelInput>({
     aisleStart: null,
     aisleEnd: null,
@@ -68,8 +78,6 @@ export const useAisleLabelForm = ({
     shelfStart: null,
     shelfEnd: null,
   });
-
-  const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
     const numericValue = parseNumericInput(e.target.value);
@@ -164,22 +172,19 @@ export const useAisleLabelForm = ({
       maxBayValue,
     });
     if (validationError) {
-      setErrorMessage(validationError);
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(validationError);
       return;
     }
 
     if (totalLabels > hardLimit) {
-      setErrorMessage(getLabelHardLimitMessage(hardLimit));
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(getLabelHardLimitMessage(hardLimit));
       return;
     }
 
-    setErrorMessage(null);
-    setWarningMessage(totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null);
-    setGeneratedLabels(generateAisleLabelCodes(formInput, formatTwoDigitValue));
+    setSuccess(
+      generateAisleLabelCodes(formInput, formatTwoDigitValue),
+      totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null,
+    );
   }, [
     formInput,
     formatTwoDigitValue,
@@ -187,6 +192,8 @@ export const useAisleLabelForm = ({
     maxAisleValue,
     maxBayValue,
     minAisleValue,
+    setFailure,
+    setSuccess,
     softLimit,
     totalLabels,
   ]);

@@ -7,6 +7,7 @@ import {
   validateShortLabelInput,
 } from '../domain/labelGeneration';
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
+import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
 type NumericShortInputKey = 'bayStart' | 'bayEnd';
@@ -46,9 +47,18 @@ export const useShortLabelForm = ({
   hardLimit,
   formatTwoDigitValue,
 }: UseShortLabelFormArgs): UseShortLabelFormResult => {
-  const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
+  const {
+    state: {
+      generatedLabels,
+      errorMessage,
+      warningMessage,
+    },
+    actions: {
+      resetGeneratedLabels,
+      setFailure,
+      setSuccess,
+    },
+  } = useLabelGenerationFeedback();
   const [selectedShortCodePrefix, setSelectedShortCodePrefix] = React.useState<string>(initialPrefix);
   const [formInput, setFormInput] = React.useState<ShortInputWithoutPrefix>({
     bayStart: null,
@@ -56,8 +66,6 @@ export const useShortLabelForm = ({
     shelfStart: null,
     shelfEnd: null,
   });
-
-  const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericShortInputKey): void => {
     const numericValue = parseNumericInput(e.target.value);
@@ -92,23 +100,30 @@ export const useShortLabelForm = ({
   const generateLabel = React.useCallback((): void => {
     const validationError = validateShortLabelInput(shortLabelInput, minBayValue, maxBayValue);
     if (validationError) {
-      setErrorMessage(validationError);
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(validationError);
       return;
     }
 
     if (totalLabels > hardLimit) {
-      setErrorMessage(getLabelHardLimitMessage(hardLimit));
-      setWarningMessage(null);
-      setGeneratedLabels(null);
+      setFailure(getLabelHardLimitMessage(hardLimit));
       return;
     }
 
-    setErrorMessage(null);
-    setWarningMessage(totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null);
-    setGeneratedLabels(generateShortLabelCodes(shortLabelInput, formatTwoDigitValue));
-  }, [formatTwoDigitValue, hardLimit, maxBayValue, minBayValue, shortLabelInput, softLimit, totalLabels]);
+    setSuccess(
+      generateShortLabelCodes(shortLabelInput, formatTwoDigitValue),
+      totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null,
+    );
+  }, [
+    formatTwoDigitValue,
+    hardLimit,
+    maxBayValue,
+    minBayValue,
+    setFailure,
+    setSuccess,
+    shortLabelInput,
+    softLimit,
+    totalLabels,
+  ]);
 
   return {
     state: {
