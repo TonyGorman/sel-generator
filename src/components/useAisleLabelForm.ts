@@ -6,11 +6,15 @@ import {
   generateAisleLabelCodes,
   getShelfRangeCount,
   IAisleLabelInput,
-  parseNumericInput,
   validateAisleLabelInput,
 } from '../domain/labelGeneration';
 import { hasValue } from '../domain/numericGuard';
 import { AisleSide } from '../models/IAisleCodeParts';
+import {
+  setParsedNumericField,
+  updateParsedNumericField,
+  updateOptionalLetterField,
+} from './formStateUpdaters';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type NumericAisleInputKey = 'aisleStart' | 'aisleEnd';
@@ -80,8 +84,7 @@ export const useAisleLabelForm = ({
   });
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
-    const numericValue = parseNumericInput(e.target.value);
-    setFormInput((prevState) => ({ ...prevState, [type]: numericValue }));
+    updateParsedNumericField(setFormInput, type, e.target.value);
   }, []);
 
   const onSideRangeInputChange = React.useCallback((
@@ -89,25 +92,24 @@ export const useAisleLabelForm = ({
     side: AisleSide,
     rangeType: 'start' | 'end',
   ): void => {
-    const numericValue = parseNumericInput(e.target.value);
     setFormInput((prevState) => ({
       ...prevState,
       sideRanges: {
         ...prevState.sideRanges,
         [side]: {
           ...prevState.sideRanges[side],
-          [rangeType]: numericValue,
+          ...setParsedNumericField(prevState.sideRanges[side], rangeType, e.target.value),
         },
       },
     }));
   }, []);
 
   const onShelfStartChange = React.useCallback((letter: string): void => {
-    setFormInput((prevState) => ({ ...prevState, shelfStart: letter || null }));
+    updateOptionalLetterField(setFormInput, 'shelfStart', letter);
   }, []);
 
   const onShelfEndChange = React.useCallback((letter: string): void => {
-    setFormInput((prevState) => ({ ...prevState, shelfEnd: letter || null }));
+    updateOptionalLetterField(setFormInput, 'shelfEnd', letter);
   }, []);
 
   const formatTwoDigits = React.useCallback((value: number | null): string => {

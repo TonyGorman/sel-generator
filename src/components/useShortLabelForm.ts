@@ -3,10 +3,10 @@ import {
   generateShortLabelCodes,
   getShelfRangeCount,
   IShortLabelInput,
-  parseNumericInput,
   validateShortLabelInput,
 } from '../domain/labelGeneration';
 import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
+import { updateOptionalLetterField, updateParsedNumericField } from './formStateUpdaters';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
@@ -68,16 +68,15 @@ export const useShortLabelForm = ({
   });
 
   const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericShortInputKey): void => {
-    const numericValue = parseNumericInput(e.target.value);
-    setFormInput((prevState) => ({ ...prevState, [type]: numericValue }));
+    updateParsedNumericField(setFormInput, type, e.target.value);
   }, []);
 
   const onShelfStartChange = React.useCallback((letter: string): void => {
-    setFormInput((prevState) => ({ ...prevState, shelfStart: letter || null }));
+    updateOptionalLetterField(setFormInput, 'shelfStart', letter);
   }, []);
 
   const onShelfEndChange = React.useCallback((letter: string): void => {
-    setFormInput((prevState) => ({ ...prevState, shelfEnd: letter || null }));
+    updateOptionalLetterField(setFormInput, 'shelfEnd', letter);
   }, []);
 
   const shelfCount = getShelfRangeCount(formInput.shelfStart, formInput.shelfEnd);
