@@ -40,7 +40,7 @@ describe('labelGeneration', () => {
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
-    expect(error).toBe('Please enter aisle start, aisle end, and select a shelf.');
+    expect(error).toEqual({ code: 'AISLE_REQUIRED' });
   });
 
   it('validates aisle side ranges and bay max bounds', () => {
@@ -53,8 +53,8 @@ describe('labelGeneration', () => {
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
-    expect(orderError).toBe('Side range start cannot be greater than side range end.');
-    expect(rangeError).toBe('Bay values must be between 1 and 99.');
+    expect(orderError).toEqual({ code: 'SIDE_RANGE_ORDER' });
+    expect(rangeError).toEqual({ code: 'SIDE_BAY_RANGE', minBayValue: 1, maxBayValue: 99 });
   });
 
   it('validates incomplete and lower-bound aisle side ranges', () => {
@@ -67,8 +67,8 @@ describe('labelGeneration', () => {
       { minAisleValue: 0, maxAisleValue: 99, maxBayValue: 99 },
     );
 
-    expect(incompleteRangeError).toBe('Enter both start and end bay values for each selected side.');
-    expect(lowerBoundError).toBe('Bay values must be between 1 and 99.');
+    expect(incompleteRangeError).toEqual({ code: 'SIDE_RANGE_INCOMPLETE' });
+    expect(lowerBoundError).toEqual({ code: 'SIDE_BAY_RANGE', minBayValue: 1, maxBayValue: 99 });
   });
 
   it('generates aisle labels grouped by configured side order', () => {
@@ -118,9 +118,7 @@ describe('labelGeneration', () => {
       prefix: 'BAK',
     };
 
-    expect(validateShortLabelInput(invalidShelfOrderInput, 1, 99)).toBe(
-      'Start shelf must come before or equal to end shelf.',
-    );
+    expect(validateShortLabelInput(invalidShelfOrderInput, 1, 99)).toEqual({ code: 'SHELF_ORDER' });
 
     const validRangeInput: IShortLabelInput = {
       bayStart: 1,

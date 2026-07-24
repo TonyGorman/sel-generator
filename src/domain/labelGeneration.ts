@@ -1,9 +1,4 @@
-import {
-  VALIDATION_MESSAGES,
-  getAisleRangeValidationMessage,
-  getShortBayRangeValidationMessage,
-  getSideBayRangeValidationMessage,
-} from '../config/validationMessages';
+import type { LabelValidationErrorCode } from '../config/validationMessages';
 import { AISLE_SIDES } from '../config/labelConfig';
 import { AisleSide } from '../models/IAisleCodeParts';
 import { hasValue } from './numericGuard';
@@ -101,11 +96,11 @@ export const parseNumericInput = (value: string): number | null => {
 export const validateAisleLabelInput = (
   input: IAisleLabelInput,
   limits: IAisleValidationLimits,
-): string | null => {
+): LabelValidationErrorCode | null => {
   const { minAisleValue, maxAisleValue, maxBayValue } = limits;
 
   if (!hasValue(input.aisleStart) || !hasValue(input.aisleEnd) || !input.shelfEnd) {
-    return VALIDATION_MESSAGES.aisleRequired;
+    return { code: 'AISLE_REQUIRED' };
   }
 
   if (
@@ -113,35 +108,35 @@ export const validateAisleLabelInput = (
     input.aisleEnd < minAisleValue ||
     input.aisleEnd > maxAisleValue
   ) {
-    return getAisleRangeValidationMessage(minAisleValue, maxAisleValue);
+    return { code: 'AISLE_RANGE', minAisleValue, maxAisleValue };
   }
 
   if (input.aisleStart > input.aisleEnd) {
-    return VALIDATION_MESSAGES.aisleOrder;
+    return { code: 'AISLE_ORDER' };
   }
 
   if (input.shelfStart && input.shelfStart > input.shelfEnd) {
-    return VALIDATION_MESSAGES.shelfOrder;
+    return { code: 'SHELF_ORDER' };
   }
 
   const sideRanges = getAisleSideRanges(input).map((range) => [range.start, range.end] as const);
   const hasIncompleteRange = sideRanges.some(([start, end]) => hasValue(start) !== hasValue(end));
   if (hasIncompleteRange) {
-    return VALIDATION_MESSAGES.sideRangeIncomplete;
+    return { code: 'SIDE_RANGE_INCOMPLETE' };
   }
 
   const completeRanges = sideRanges.filter(([start, end]) => hasValue(start) && hasValue(end));
   if (completeRanges.length === 0) {
-    return VALIDATION_MESSAGES.sideRangeRequired;
+    return { code: 'SIDE_RANGE_REQUIRED' };
   }
 
   for (const [start, end] of sideRanges) {
     if (hasValue(start) && hasValue(end) && start > end) {
-      return VALIDATION_MESSAGES.sideRangeOrder;
+      return { code: 'SIDE_RANGE_ORDER' };
     }
 
     if (hasValue(start) && hasValue(end) && (start < 1 || end < 1 || end > maxBayValue)) {
-      return getSideBayRangeValidationMessage(1, maxBayValue);
+      return { code: 'SIDE_BAY_RANGE', minBayValue: 1, maxBayValue };
     }
   }
 
@@ -189,21 +184,21 @@ export const validateShortLabelInput = (
   input: IShortLabelInput,
   minBayValue: number,
   maxBayValue: number,
-): string | null => {
+): LabelValidationErrorCode | null => {
   if (!hasValue(input.bayStart) || !hasValue(input.bayEnd) || !input.shelfEnd) {
-    return VALIDATION_MESSAGES.shortRequired;
+    return { code: 'SHORT_REQUIRED' };
   }
 
   if (input.bayStart > input.bayEnd) {
-    return VALIDATION_MESSAGES.shortOrder;
+    return { code: 'SHORT_ORDER' };
   }
 
   if (input.shelfStart && input.shelfStart > input.shelfEnd) {
-    return VALIDATION_MESSAGES.shelfOrder;
+    return { code: 'SHELF_ORDER' };
   }
 
   if (input.bayStart < minBayValue || input.bayEnd < minBayValue || input.bayEnd > maxBayValue) {
-    return getShortBayRangeValidationMessage(minBayValue, maxBayValue);
+    return { code: 'SHORT_BAY_RANGE', minBayValue, maxBayValue };
   }
 
   return null;

@@ -81,7 +81,7 @@ This blocking is intentional to avoid complexity in large labels, in the absence
 
 ## Visual Regression Scope
 
-- Snapshot baselines live under `tests/e2e/label-regressions.spec.ts-snapshots`.
+- Snapshot baselines live under `tests/e2e/visual-baselines.spec.ts-snapshots`.
 - Keep at least one full-page (35 mini-labels) preview snapshot using default configuration.
 
 ## Change Discipline
@@ -158,7 +158,7 @@ After feature implementation passes all validation gates (`npm run validate:ci` 
 ## Testing Expectations For React Changes
 
 - For logic changes, add or update Vitest tests near the affected component/helper.
-- For UI behavior changes, add or update Playwright assertions in `tests/e2e/label-regressions.spec.ts`.
+- For UI behavior changes, add or update Playwright assertions in the relevant focused spec under `tests/e2e/` (`tabs-accessibility.spec.ts`, `specific-flow.spec.ts`, `aisle-flow.spec.ts`, `back-flow.spec.ts`, or `visual-baselines.spec.ts`).
 - For visual/layout changes, update visual snapshots only when the change is intentional and verified.
 - When fixing uncovered defensive branches, write realistic tests that exercise the branch rather than removing the guard.
 

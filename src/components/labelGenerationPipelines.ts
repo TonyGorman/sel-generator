@@ -6,6 +6,7 @@ import {
   validateAisleLabelInput,
   validateShortLabelInput,
 } from '../domain/labelGeneration';
+import { getValidationErrorMessage } from '../config/validationMessages';
 import { getLabelBatchLimitsResult } from './labelBatchLimits';
 
 interface GenerationPipelineResult {
@@ -52,7 +53,7 @@ export const getAisleGenerationPipelineResult = ({
   });
   if (validationError) {
     return {
-      errorMessage: validationError,
+      errorMessage: getValidationErrorMessage(validationError),
       warningMessage: null,
       labels: [],
     };
@@ -86,7 +87,7 @@ export const getShortGenerationPipelineResult = ({
   const validationError = validateShortLabelInput(formInput, minBayValue, maxBayValue);
   if (validationError) {
     return {
-      errorMessage: validationError,
+      errorMessage: getValidationErrorMessage(validationError),
       warningMessage: null,
       labels: [],
     };

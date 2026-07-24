@@ -292,17 +292,19 @@ Run all Playwright E2E tests:
 
 `npm run test:e2e`
 
-Run only the label regression spec:
+Run only one of the focused specs, e.g. the Aisle Labels flow:
 
-`npm run test:e2e -- tests/e2e/label-regressions.spec.ts`
+`npm run test:e2e -- tests/e2e/aisle-flow.spec.ts`
+
+The E2E suite is split into focused specs under `tests/e2e/`: `tabs-accessibility.spec.ts`, `specific-flow.spec.ts`, `aisle-flow.spec.ts`, `back-flow.spec.ts`, and `visual-baselines.spec.ts`.
 
 ### Visual regression snapshots
 
 Visual snapshots are part of the Playwright suite and are validated automatically when running `npm run test:e2e`.
 
-The label regression spec now validates visual outputs for both label sizes:
+`tests/e2e/visual-baselines.spec.ts` validates visual outputs for both label sizes:
 
-- On-screen preview image snapshots for Mini SEL (35-label full page) and Large SEL (8-label full page)
+- On-screen preview image snapshots for Mini SEL (35-label full page and shelf-emphasis aisle preview) and Large SEL (8-label full page)
 
 If UI changes are intentional, update the snapshot baselines with:
 
@@ -310,9 +312,7 @@ If UI changes are intentional, update the snapshot baselines with:
 
 Snapshot files are stored under:
 
-`tests/e2e/label-regressions.spec.ts-snapshots`
-
-The label regression suite includes a dedicated visual snapshot baseline for the default Mini SEL stacked layout aisle preview.
+`tests/e2e/visual-baselines.spec.ts-snapshots`
 
 ## Barcode Format
 
