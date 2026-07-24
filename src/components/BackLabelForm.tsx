@@ -16,8 +16,8 @@ import {
 } from '../config/labelConfig';
 import { RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
-import { useResetOnVariantChange } from './useResetOnVariantChange';
-import { useShortLabelForm } from './useShortLabelForm';
+import { useResetOnVariantChange } from '../hooks/useResetOnVariantChange';
+import { useShortLabelForm } from '../hooks/useShortLabelForm';
 
 interface BackLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;

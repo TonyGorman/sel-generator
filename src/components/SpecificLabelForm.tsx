@@ -11,8 +11,8 @@ import {
 } from '../config/labelConfig';
 import { RadioGroup, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
-import { useResetOnVariantChange } from './useResetOnVariantChange';
-import { useSpecificLabelForm } from './useSpecificLabelForm';
+import { useResetOnVariantChange } from '../hooks/useResetOnVariantChange';
+import { useSpecificLabelForm } from '../hooks/useSpecificLabelForm';
 
 interface SpecificLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;

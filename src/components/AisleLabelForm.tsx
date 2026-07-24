@@ -17,9 +17,9 @@ import {
 import { AISLE_SIDE_METADATA } from '../config/aisleSideMetadata';
 import { RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
-import { useResetOnVariantChange } from './useResetOnVariantChange';
-import { useLabelPrintMode } from './useLabelPrintMode';
-import { useAisleLabelForm } from './useAisleLabelForm';
+import { useResetOnVariantChange } from '../hooks/useResetOnVariantChange';
+import { useLabelPrintMode } from '../hooks/useLabelPrintMode';
+import { useAisleLabelForm } from '../hooks/useAisleLabelForm';
 
 interface AisleLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;

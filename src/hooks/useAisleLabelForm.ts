@@ -7,12 +7,12 @@ import {
 } from '../domain/labelGeneration';
 import { hasValue } from '../domain/numericGuard';
 import { AisleSide } from '../models/IAisleCodeParts';
-import { getAisleGenerationPipelineResult } from './labelGenerationPipelines';
+import { getAisleGenerationPipelineResult } from '../components/labelGenerationPipelines';
 import {
   setParsedNumericField,
   updateParsedNumericField,
   updateOptionalLetterField,
-} from './formStateUpdaters';
+} from '../components/formStateUpdaters';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type NumericAisleInputKey = 'aisleStart' | 'aisleEnd';

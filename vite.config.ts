@@ -59,6 +59,8 @@ export default defineConfig({
       include: [
         'src/components/**/*.ts',
         'src/components/**/*.tsx',
+        'src/hooks/**/*.ts',
+        'src/hooks/**/*.tsx',
         'src/config/**/*.ts',
         'src/domain/**/*.ts',
       ],

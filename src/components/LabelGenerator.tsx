@@ -10,8 +10,8 @@ import controlStyles from './FormControls.module.css';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy } from '../models/ILabelLayoutStrategy';
 import { buildLayoutCssVars } from './labelLayoutCssVars';
-import { usePaginatedLabels } from './usePaginatedLabels';
-import { usePrintPortal } from './usePrintPortal';
+import { usePaginatedLabels } from '../hooks/usePaginatedLabels';
+import { usePrintPortal } from '../hooks/usePrintPortal';
 import { DEFAULT_MINI_COMPOSITION_VARIANT_ID, resolveMiniCompositionVariantId } from '../domain/labelCodeDomain';
 import { TabPanelVisibilityContext } from './TabPanelVisibilityContext';
 

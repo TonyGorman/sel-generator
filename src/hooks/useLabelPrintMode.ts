@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
-import { RadioOption } from './FormControls';
+import { RadioOption } from '../components/FormControls';
 
 const PRINT_MODE_OPTIONS: RadioOption<LabelPrintMode>[] = [
   { key: 'mini-sel', text: 'Mini SEL' },

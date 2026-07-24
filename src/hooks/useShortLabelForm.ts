@@ -3,8 +3,8 @@ import {
   getShelfRangeCount,
   IShortLabelInput,
 } from '../domain/labelGeneration';
-import { updateOptionalLetterField, updateParsedNumericField } from './formStateUpdaters';
-import { getShortGenerationPipelineResult } from './labelGenerationPipelines';
+import { updateOptionalLetterField, updateParsedNumericField } from '../components/formStateUpdaters';
+import { getShortGenerationPipelineResult } from '../components/labelGenerationPipelines';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
