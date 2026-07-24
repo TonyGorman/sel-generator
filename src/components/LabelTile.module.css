@@ -1,0 +1,213 @@
+.labelText {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  color: black;
+  text-align: center;
+  z-index: 999;
+}
+
+.primaryCode {
+  position: absolute;
+  top: var(--current-mini-primary-center-from-content-top-mm, 8.25mm);
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  font-size: var(--current-mini-primary-text-size-mm, 13mm);
+  line-height: 1;
+  font-weight: var(--current-mini-primary-font-weight, 800);
+  letter-spacing: 0.07mm;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.miniAisleTopCode {
+  position: absolute;
+  top: var(--current-mini-aisle-top-center-from-content-top-mm, 2.2mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-aisle-aux-text-size-mm, 6.8mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #4a4a4a;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.miniAisleBottomCode {
+  position: absolute;
+  top: var(--current-mini-aisle-bottom-center-from-content-top-mm, 15mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-aisle-aux-text-size-mm, 6.8mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #4a4a4a;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.miniShelfFullValue {
+  position: absolute;
+  top: var(--current-mini-secondary-center-from-content-top-mm, 20.7mm);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-secondary-text-size-mm, 5.6mm);
+  line-height: 1;
+  font-weight: var(--current-mini-secondary-font-weight, 700);
+  letter-spacing: 0;
+  color: #000;
+  white-space: nowrap;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.labelBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--current-tile-width-mm);
+  min-width: 0;
+  height: var(--current-tile-height-mm);
+  padding: var(--current-tile-pad-top-mm, 1.5mm)
+    var(--current-tile-pad-horizontal-mm, 1.2mm)
+    var(--current-tile-pad-bottom-mm, 0.8mm);
+  box-sizing: border-box;
+  border: 0.2mm solid #8c8c8c;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.labelBoxLargeSel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--current-tile-width-mm, 105mm);
+  min-width: 0;
+  height: var(--current-tile-height-mm, 73mm);
+  padding: var(--current-tile-pad-top-mm, 4mm)
+    var(--current-tile-pad-horizontal-mm, 4mm)
+    var(--current-tile-pad-bottom-mm, 2mm);
+  box-sizing: border-box;
+  border: 0.2mm solid #8c8c8c;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.largeSelLabelTextArea {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.largeSelHeading {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0;
+  line-height: 1;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  color: #000;
+}
+
+.largeSelHeadingPrefix,
+.largeSelHeadingSuffix {
+  font-size: var(--current-large-prefix-text-size-mm, 12mm);
+}
+
+.largeSelHeadingMain {
+  font-size: var(--current-large-main-text-size-mm, 24mm);
+}
+
+.largeSelHeadingPrefix {
+  margin-right: 0.8mm;
+}
+
+.largeSelHeadingSuffix {
+  margin-left: 1.5mm;
+}
+
+.barcodeGraphic,
+.barcodeGraphicLargeSel {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+  width: 100%;
+}
+
+.barcodeGraphic {
+  min-height: var(--mini-sel-barcode-height-mm);
+  margin-bottom: var(--mini-sel-barcode-margin-bottom-mm);
+}
+
+.barcodeGraphicLargeSel {
+  min-height: var(--large-sel-barcode-height-mm);
+  margin-bottom: var(--large-sel-barcode-margin-bottom-mm);
+}
+
+.barcodeGraphicLargeSel :global(svg) {
+  width: auto;
+  max-width: var(--large-sel-barcode-width-mm);
+  height: var(--large-sel-barcode-height-mm);
+}
+
+.barcodeGraphicLargeSel :global(svg),
+.barcodeGraphicLargeSel :global(svg *) {
+  shape-rendering: crispEdges;
+}
+
+.encodedValue {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + (var(--mini-sel-barcode-margin-bottom-mm) / 2));
+  transform: translate(-50%, -50%);
+  font-size: var(--current-mini-encoded-text-size-mm, 2.4mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.02mm;
+  white-space: nowrap;
+}
+
+.encodedValueLargeSel {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + (var(--large-sel-barcode-margin-bottom-mm) / 2));
+  transform: translate(-50%, -50%);
+  font-size: var(--current-large-encoded-text-size-mm, 3mm);
+  line-height: 1;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.02mm;
+  white-space: nowrap;
+}
+
+.barcodeGraphic :global(svg) {
+  width: auto;
+  max-width: var(--mini-sel-barcode-width-mm);
+  height: var(--mini-sel-barcode-height-mm);
+}
+
+.barcodeGraphic :global(svg),
+.barcodeGraphic :global(svg *) {
+  shape-rendering: crispEdges;
+}
+
+@media print {
+  .labelBox,
+  .labelBoxLargeSel {
+    margin: 0;
+  }
+}

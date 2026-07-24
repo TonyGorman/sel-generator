@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Barcode from 'react-barcode';
-import styles from './LabelApp.module.css';
+import styles from './LabelTile.module.css';
 import { DEFAULT_LABEL_PRINT_MODE, getLabelLayoutStrategy } from '../config/labelLayoutStrategies';
 import { ILabelLayoutStrategy, LabelPrintMode } from '../models/ILabelLayoutStrategy';
 import {
