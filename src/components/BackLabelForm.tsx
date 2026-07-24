@@ -1,5 +1,6 @@
 import * as React from 'react';
-import styles from './AisleLabelForm.module.css';
+import styles from './BackLabelForm.module.css';
+import formLayoutStyles from './FormLayout.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import FormFeedback from './FormFeedback';
@@ -63,7 +64,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate FOS/BAK Labels</h1>
-            <p className={styles.sectionIntro}>Choose BAK (Back Wall), FOS (Front Of Store) or FNT (Front) using the prefix selector.
+            <p className={formLayoutStyles.sectionIntro}>Choose BAK (Back Wall), FOS (Front Of Store) or FNT (Front) using the prefix selector.
                 <br/>Set the start bay, end bay, start shelf, and end shelf required.
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.
                 </p>
@@ -78,8 +79,8 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                 </FormSection>
 
                 <FormSection title={`Bay Range (${bayRangeText})`}>
-                    <div className={styles.twoFieldGrid}>
-                        <div className={styles.fieldGroup}>
+                    <div className={formLayoutStyles.twoFieldGrid}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
                             <TextField
                                 id={`${idPrefix}-bay-start`}
@@ -87,7 +88,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'bayStart')}
                             />
                         </div>
-                        <div className={styles.fieldGroup}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-end`}>End</label>
                             <TextField
                                 id={`${idPrefix}-bay-end`}
@@ -99,8 +100,8 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                 </FormSection>
 
                 <FormSection title={`Shelf Range (${shelfRangeText})`}>
-                    <div className={styles.twoFieldGrid}>
-                        <div className={styles.fieldGroup}>
+                    <div className={formLayoutStyles.twoFieldGrid}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-start`}
@@ -108,7 +109,7 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                                 onChange={onShelfStartChange}
                             />
                         </div>
-                        <div className={styles.fieldGroup}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-end`}>End Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-end`}
@@ -120,11 +121,11 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                 </FormSection>
             </div>
 
-            <div className={styles.actionsRow}>
-                <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />
-            </div>
-
             <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
+
+            <div className={formLayoutStyles.actionsRow}>
+                <GenerateLabelsButton className={formLayoutStyles.generateButton} onClick={generateLabel} />
+            </div>
 
             {generatedLabels && (
                 <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />

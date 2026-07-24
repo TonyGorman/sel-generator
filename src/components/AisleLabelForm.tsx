@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
+import formLayoutStyles from './FormLayout.module.css';
 import shellStyles from './FormShell.module.css';
 import LabelGenerator from './LabelGenerator';
 import FormFeedback from './FormFeedback';
@@ -68,14 +69,14 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     return (
         <div className={shellStyles.panel}>
             <h1 className={shellStyles.panelTitle}>Generate Aisle Labels</h1>
-            <div className={styles.sectionIntro}>
+            <div className={formLayoutStyles.sectionIntro}>
                 <p><strong>Enter values for:</strong> aisles from {MIN_AISLE_VALUE} to {MAX_AISLE_VALUE}, Sides ({sideNamesText}), Bays from 1 to {MAX_BAY_VALUE} and Shelves (alphabetical only) within {shelfRangeText}.</p>
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
             </div>
             <div className={styles.configLayout}>
                 <FormSection title={`Aisle Range (${aisleRangeText})`}>
-                    <div className={styles.twoFieldGrid}>
-                        <div className={styles.fieldGroup}>
+                    <div className={formLayoutStyles.twoFieldGrid}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
                             <TextField
                                 id={`${idPrefix}-aisle-start`}
@@ -83,7 +84,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e, 'aisleStart')}
                             />
                         </div>
-                        <div className={styles.fieldGroup}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-end`}>To</label>
                             <TextField
                                 id={`${idPrefix}-aisle-end`}
@@ -100,7 +101,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             <div key={side.side} className={styles.sideRow}>
                                 <div className={styles.sideLabel}>{side.label}</div>
                                 <div className={styles.sideInputGroup}>
-                                    <div className={styles.fieldGroup}>
+                                    <div className={formLayoutStyles.fieldGroup}>
                                         <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.side}-start`}>From</label>
                                         <TextField
                                             id={`${idPrefix}-${side.side}-start`}
@@ -108,7 +109,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSideRangeInputChange(e, side.side, 'start')}
                                         />
                                     </div>
-                                    <div className={styles.fieldGroup}>
+                                    <div className={formLayoutStyles.fieldGroup}>
                                         <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-${side.side}-end`}>To</label>
                                         <TextField
                                             id={`${idPrefix}-${side.side}-end`}
@@ -123,8 +124,8 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                 </FormSection>
 
                 <FormSection title={`Shelf Range (${shelfRangeText})`}>
-                    <div className={styles.twoFieldGrid}>
-                        <div className={styles.fieldGroup}>
+                    <div className={formLayoutStyles.twoFieldGrid}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-start`}
@@ -132,7 +133,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                                 onChange={onShelfStartChange}
                             />
                         </div>
-                        <div className={styles.fieldGroup}>
+                        <div className={formLayoutStyles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-end`}>End Shelf</label>
                             <ShelfSelect
                                 id={`${idPrefix}-shelf-end`}
@@ -177,8 +178,8 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
 
             <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
-            <div className={styles.actionsRow}>
-                <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />
+            <div className={formLayoutStyles.actionsRow}>
+                <GenerateLabelsButton className={formLayoutStyles.generateButton} onClick={generateLabel} />
             </div>
 
             {generatedLabels && (

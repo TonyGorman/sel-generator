@@ -33,7 +33,6 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                 <br/>Labels must have no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
             </p>
-            <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
             <FormSection title="Label Input">
                 <div className={styles.formStack}>
@@ -54,6 +53,8 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                     onChange={handleModeChange}
                 />
             </FormSection>
+
+            <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
             <div className={styles.actionsRow}>
                 <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />

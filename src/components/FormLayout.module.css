@@ -1,0 +1,48 @@
+.sectionIntro {
+    margin: 0 0 24px;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.sectionIntro p {
+    margin: 0;
+}
+
+.sectionIntro p + p {
+    margin-top: 8px;
+}
+
+.twoFieldGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.fieldGroup {
+    min-width: 0;
+}
+
+.actionsRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 36px;
+}
+
+.generateButton {
+    min-width: 220px;
+}
+
+@media (max-width: 768px) {
+    .twoFieldGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .actionsRow {
+        justify-content: stretch;
+    }
+
+    .generateButton {
+        width: 100%;
+        min-width: 0;
+    }
+}
