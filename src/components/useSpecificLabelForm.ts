@@ -7,19 +7,12 @@ import {
   MAX_BAY_VALUE,
   MAX_SHELF_LETTER,
   SPECIAL_AISLE_VALUES,
-  LABEL_SOFT_LIMIT,
-  LABEL_HARD_LIMIT,
 } from '../config/labelConfig';
-import {
-  VALIDATION_MESSAGES,
-  getSpecificInvalidLabelMessage,
-} from '../config/validationMessages';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
-import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
-import { getLabelBatchLimitsResult } from './labelBatchLimits';
 import { useLabelPrintMode } from './useLabelPrintMode';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
+import { getSpecificLabelValidationResult } from './specificLabelGeneration';
 
 interface UseSpecificLabelFormResult {
   content: {
@@ -83,41 +76,24 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
   }, []);
 
   const generateLabel = React.useCallback((): void => {
-    const labelTexts = normalizeSpecificInputCodes(labelText);
-
-    if (labelTexts.length === 0) {
-      setFailure(VALIDATION_MESSAGES.specificEmpty);
-      return;
-    }
-
-    const batchLimits = getLabelBatchLimitsResult(labelTexts.length, LABEL_SOFT_LIMIT, LABEL_HARD_LIMIT);
-    if (batchLimits.hardLimitError) {
-      setFailure(batchLimits.hardLimitError);
-      return;
-    }
-
-    const hasInvalidCode = labelTexts.some((code) => !isValidSpecificCode(code));
-    if (hasInvalidCode) {
-      setFailure(getSpecificInvalidLabelMessage({
-        aislePrefixedExamples,
-        backPrefix: SHORT_CODE_PREFIXES[0],
-        frontPrefix: SHORT_CODE_PREFIXES[1],
-        namedAisleExamples,
+    const validationResult = getSpecificLabelValidationResult({
+      labelText,
+      labelPrintMode,
+      isValidSpecificCode,
+      contentTokens: {
         bayRangeText,
         shelfRangeText,
-      }));
+        namedAisleExamples,
+        aislePrefixedExamples,
+      },
+    });
+
+    if (validationResult.errorMessage) {
+      setFailure(validationResult.errorMessage);
       return;
     }
 
-    if (labelPrintMode === 'large-sel' && labelTexts.some((code) => (SPECIAL_AISLE_VALUES as ReadonlyArray<string>).includes(code))) {
-      setFailure(VALIDATION_MESSAGES.specificLargeSelSpecialCode);
-      return;
-    }
-
-    setSuccess(
-      labelTexts,
-      batchLimits.warningMessage,
-    );
+    setSuccess(validationResult.labels, validationResult.warningMessage);
   }, [
     aislePrefixedExamples,
     bayRangeText,
