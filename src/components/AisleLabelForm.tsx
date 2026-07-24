@@ -1,9 +1,10 @@
 import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
-import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
-import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
+import FormFeedback from './FormFeedback';
+import GenerateLabelsButton from './GenerateLabelsButton';
+import FormSection from './FormSection';
 import {
     MIN_AISLE_VALUE,
     MAX_AISLE_VALUE,
@@ -14,7 +15,7 @@ import {
     formatTwoDigitValue,
 } from '../config/labelConfig';
 import { AISLE_SIDE_METADATA } from '../config/aisleSideMetadata';
-import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
+import { RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useLabelPrintMode } from './useLabelPrintMode';
@@ -72,8 +73,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                 <p>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.</p>
             </div>
             <div className={styles.configLayout}>
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Aisle Range ({aisleRangeText})</h2>
+                <FormSection title={`Aisle Range (${aisleRangeText})`}>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-aisle-start`}>From</label>
@@ -92,10 +92,9 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             />
                         </div>
                     </div>
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Bay Configuration ({bayRangeText})</h2>
+                <FormSection title={`Bay Configuration (${bayRangeText})`}>
                     <div className={styles.sideGrid}>
                         {sideRows.map((side) => (
                             <div key={side.side} className={styles.sideRow}>
@@ -121,10 +120,9 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             </div>
                         ))}
                     </div>
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Shelf Range ({shelfRangeText})</h2>
+                <FormSection title={`Shelf Range (${shelfRangeText})`}>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
@@ -143,20 +141,18 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                             />
                         </div>
                     </div>
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Label Size</h2>
+                <FormSection title="Label Size">
                     <RadioGroup
                         name={`${idPrefix}-label-print-mode`}
                         options={printModeOptions}
                         selectedKey={labelPrintMode}
                         onChange={handleModeChange}
                     />
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Summary</h2>
+                <FormSection title="Summary">
                     <div className={styles.summaryBox}>
                         <div className={styles.summaryRow}>
                             <span>Aisles:</span>
@@ -176,21 +172,13 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                         </div>
                         <div className={styles.summaryTotal}>Total labels: {totalLabels}</div>
                     </div>
-                </section>
+                </FormSection>
             </div>
 
-            {errorMessage && <div role="alert" className={alertStyles.alertError}><div><span>{errorMessage}</span></div></div>}
-            {warningMessage && (
-                <div role="status" aria-live="polite" aria-atomic="true" className={alertStyles.alertWarning}>
-                    <div><span>{warningMessage}</span></div>
-                </div>
-            )}
+            <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
             <div className={styles.actionsRow}>
-                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
-                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
-                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
-                </Button>
+                <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />
             </div>
 
             {generatedLabels && (

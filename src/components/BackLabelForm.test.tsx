@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import BackLabelForm from './BackLabelForm';
 import { SHORT_CODE_PREFIXES, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { clickGenerateLabels, setComboboxValue, setTextboxValues } from '../test/formTestHelpers';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ labelCodes }: { labelCodes: string[] }) => (
@@ -13,7 +14,7 @@ describe('BackLabelForm', () => {
   it('shows validation error when fields are missing', () => {
     render(<BackLabelForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Please enter start bay, end bay, and select an end shelf.');
   });
@@ -21,11 +22,9 @@ describe('BackLabelForm', () => {
   it('shows validation error when start bay is greater than end bay', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '5' } });
-    fireEvent.change(inputs[1], { target: { value: '3' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '5', 1: '3' });
+    setComboboxValue('End Shelf', 'B');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Start bay cannot be greater than end bay.');
   });
@@ -33,11 +32,9 @@ describe('BackLabelForm', () => {
   it('generates expected short codes for range and shelves', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '1' } });
-    fireEvent.change(inputs[1], { target: { value: '2' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '2' });
+    setComboboxValue('End Shelf', 'B');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-labels')).toHaveTextContent(`${SHORT_CODE_PREFIXES[0]}01A|${SHORT_CODE_PREFIXES[0]}01B|${SHORT_CODE_PREFIXES[0]}02A|${SHORT_CODE_PREFIXES[0]}02B`);
@@ -46,11 +43,9 @@ describe('BackLabelForm', () => {
   it('shows validation error when bay start is below 1', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '0' } });
-    fireEvent.change(inputs[1], { target: { value: '5' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '0', 1: '5' });
+    setComboboxValue('End Shelf', 'B');
+    clickGenerateLabels();
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent(/Bays must be between/i);
@@ -74,11 +69,9 @@ describe('BackLabelForm', () => {
 
     fireEvent.click(screen.getByLabelText('FOS'));
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '1' } });
-    fireEvent.change(inputs[1], { target: { value: '1' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1' });
+    setComboboxValue('End Shelf', 'B');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-labels')).toHaveTextContent('FOS01A|FOS01B');
@@ -97,11 +90,9 @@ describe('BackLabelForm', () => {
   it('blocks generation when total labels exceed hard limit', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '1' } });
-    fireEvent.change(inputs[1], { target: { value: '99' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'Z' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '99' });
+    setComboboxValue('End Shelf', 'Z');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
     expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();
@@ -110,12 +101,10 @@ describe('BackLabelForm', () => {
   it('supports shelf start to shelf end range generation', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '1' } });
-    fireEvent.change(inputs[1], { target: { value: '1' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Start Shelf' }), { target: { value: 'B' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'C' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1' });
+    setComboboxValue('Start Shelf', 'B');
+    setComboboxValue('End Shelf', 'C');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-labels')).toHaveTextContent('BAK01B|BAK01C');
@@ -124,12 +113,10 @@ describe('BackLabelForm', () => {
   it('shows shelf ordering validation when start shelf is after end shelf', () => {
     render(<BackLabelForm />);
 
-    const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: '1' } });
-    fireEvent.change(inputs[1], { target: { value: '1' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Start Shelf' }), { target: { value: 'C' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1' });
+    setComboboxValue('Start Shelf', 'C');
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Start shelf must come before or equal to end shelf.');
     expect(screen.queryByTestId('generated-labels')).not.toBeInTheDocument();

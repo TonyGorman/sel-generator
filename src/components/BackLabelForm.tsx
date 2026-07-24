@@ -1,9 +1,10 @@
 import * as React from 'react';
 import styles from './AisleLabelForm.module.css';
-import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
-import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
+import FormFeedback from './FormFeedback';
+import GenerateLabelsButton from './GenerateLabelsButton';
+import FormSection from './FormSection';
 import {
     SHORT_CODE_PREFIXES,
     MIN_BAY_VALUE,
@@ -13,7 +14,7 @@ import {
     LABEL_HARD_LIMIT,
     formatTwoDigitValue,
 } from '../config/labelConfig';
-import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
+import { RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useShortLabelForm } from './useShortLabelForm';
@@ -67,18 +68,16 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                 <br/>The barcode will <strong>always</strong> be encoded <strong>without</strong> spaces or dashes.
                 </p>
             <div className={styles.stackedSections}>
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Prefix</h2>
+                <FormSection title="Prefix">
                     <RadioGroup
                         name={`${idPrefix}-short-code-type`}
                         options={SHORT_CODE_PREFIX_OPTIONS}
                         selectedKey={selectedShortCodePrefix}
                         onChange={setSelectedShortCodePrefix}
                     />
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Bay Range ({bayRangeText})</h2>
+                <FormSection title={`Bay Range (${bayRangeText})`}>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-bay-start`}>Start</label>
@@ -97,10 +96,9 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                             />
                         </div>
                     </div>
-                </section>
+                </FormSection>
 
-                <section className={shellStyles.sectionBox}>
-                    <h2 className={shellStyles.sectionTitle}>Shelf Range ({shelfRangeText})</h2>
+                <FormSection title={`Shelf Range (${shelfRangeText})`}>
                     <div className={styles.twoFieldGrid}>
                         <div className={styles.fieldGroup}>
                             <label className={shellStyles.fieldLabel} htmlFor={`${idPrefix}-shelf-start`}>Start Shelf</label>
@@ -119,26 +117,14 @@ const BackLabelForm: React.FC<BackLabelFormProps> = ({ miniVariantId }) => {
                             />
                         </div>
                     </div>
-                </section>
+                </FormSection>
             </div>
 
             <div className={styles.actionsRow}>
-                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
-                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
-                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
-                </Button>
+                <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />
             </div>
 
-            {errorMessage && (
-                <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
-                    <div><span>{errorMessage}</span></div>
-                </div>
-            )}
-            {warningMessage && (
-                <div role="status" aria-live="polite" aria-atomic="true" className={alertStyles.alertWarning}>
-                    <div><span>{warningMessage}</span></div>
-                </div>
-            )}
+            <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
             {generatedLabels && (
                 <LabelGenerator labelCodes={generatedLabels} layoutMode="mini-sel" miniVariantId={miniVariantId} />

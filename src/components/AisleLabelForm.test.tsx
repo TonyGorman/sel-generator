@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import AisleLabelForm from './AisleLabelForm';
 import { MIN_AISLE_VALUE, MAX_AISLE_VALUE, MAX_BAY_VALUE, MAX_SHELF_LETTER } from '../config/labelConfig';
+import { clickGenerateLabels, setComboboxValue, setTextboxValues } from '../test/formTestHelpers';
 
 vi.mock('./LabelGenerator', () => ({
   default: ({ labelCodes, layoutMode }: { labelCodes: string[]; layoutMode?: string }) => (
@@ -10,17 +11,10 @@ vi.mock('./LabelGenerator', () => ({
 }));
 
 describe('AisleLabelForm', () => {
-  const fillInputs = (values: Record<number, string>): void => {
-    const inputs = screen.getAllByRole('textbox');
-    Object.entries(values).forEach(([index, value]) => {
-      fireEvent.change(inputs[Number(index)], { target: { value } });
-    });
-  };
-
   it('shows required fields error when aisle and shelves are missing', () => {
     render(<AisleLabelForm />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Please enter aisle start, aisle end, and select a shelf.');
   });
@@ -28,9 +22,9 @@ describe('AisleLabelForm', () => {
   it('shows aisle range validation when aisle value is out of bounds', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '100' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '100' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent(String(MIN_AISLE_VALUE));
@@ -40,8 +34,8 @@ describe('AisleLabelForm', () => {
   it('shows select a shelf error when shelf is not selected', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '2' });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '2' });
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('select a shelf');
   });
@@ -49,10 +43,10 @@ describe('AisleLabelForm', () => {
   it('shows error when no side range is provided', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '2' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'E' } });
+    setTextboxValues({ 0: '1', 1: '2' });
+    setComboboxValue('End Shelf', 'E');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Enter at least one complete side range');
   });
@@ -60,9 +54,9 @@ describe('AisleLabelForm', () => {
   it('shows aisle order validation when start is greater than end', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '3', 1: '2', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '3', 1: '2', 2: '1', 3: '1' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Aisle start cannot be greater than aisle end.');
   });
@@ -70,9 +64,9 @@ describe('AisleLabelForm', () => {
   it('shows side range order validation when side start is greater than side end', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '4', 3: '2' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '4', 3: '2' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Side range start cannot be greater than side range end.');
   });
@@ -80,9 +74,9 @@ describe('AisleLabelForm', () => {
   it('shows bay upper bound validation when side range exceeds max', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '100' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '100' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent(String(MAX_BAY_VALUE));
@@ -91,9 +85,9 @@ describe('AisleLabelForm', () => {
   it('shows validation when a side range is partially filled', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Enter both start and end bay values for each selected side.');
   });
@@ -101,9 +95,9 @@ describe('AisleLabelForm', () => {
   it('shows bay lower bound validation when side range starts below 1', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '0', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '0', 3: '1' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Bay values must be between 1 and 99.');
   });
@@ -111,7 +105,7 @@ describe('AisleLabelForm', () => {
   it('generates labels and updates summary for valid Left and Right ranges', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({
+    setTextboxValues({
       0: '1',
       1: '1',
       2: '1',
@@ -119,13 +113,13 @@ describe('AisleLabelForm', () => {
       4: '1',
       5: '1',
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
+    setComboboxValue('End Shelf', 'B');
 
     expect(screen.getByText('Left 01 – 02, Right 01 – 01')).toBeInTheDocument();
     expect(screen.getByText('A – B')).toBeInTheDocument();
     expect(screen.getByText('Total labels: 6')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('6');
@@ -134,7 +128,7 @@ describe('AisleLabelForm', () => {
   it('generates labels for End and Front side ranges', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({
+    setTextboxValues({
       0: '1',
       1: '1',
       6: '1',
@@ -142,9 +136,9 @@ describe('AisleLabelForm', () => {
       8: '2',
       9: '2',
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
+    setComboboxValue('End Shelf', 'A');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('2');
@@ -154,9 +148,9 @@ describe('AisleLabelForm', () => {
   it('accepts aisle start at 0 and generates labels', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '0', 1: '1', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '0', 1: '1', 2: '1', 3: '1' });
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('2');
@@ -188,15 +182,15 @@ describe('AisleLabelForm', () => {
 
     fireEvent.click(screen.getByLabelText('Large SEL'));
 
-    fillInputs({
+    setTextboxValues({
       0: '1',
       1: '1',
       2: '1',
       3: '1',
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
+    setComboboxValue('End Shelf', 'A');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    clickGenerateLabels();
 
     expect(screen.getByTestId('generated-count')).toHaveAttribute('data-layout-mode', 'large-sel');
   });
@@ -204,14 +198,14 @@ describe('AisleLabelForm', () => {
   it('clears generated output when label size mode changes', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({
+    setTextboxValues({
       0: '1',
       1: '1',
       2: '1',
       3: '1',
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'A' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setComboboxValue('End Shelf', 'A');
+    clickGenerateLabels();
 
     expect(screen.getByTestId('generated-count')).toBeInTheDocument();
 
@@ -223,9 +217,9 @@ describe('AisleLabelForm', () => {
   it('shows soft warning for large but allowed label totals', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '99' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'S' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '99' });
+    setComboboxValue('End Shelf', 'S');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Large batch warning');
@@ -235,9 +229,9 @@ describe('AisleLabelForm', () => {
   it('blocks generation when total labels exceed hard limit', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '0', 1: '99', 2: '1', 3: '99' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'L' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '0', 1: '99', 2: '1', 3: '99' });
+    setComboboxValue('End Shelf', 'L');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Too many labels requested.');
     expect(screen.queryByTestId('generated-count')).not.toBeInTheDocument();
@@ -246,10 +240,10 @@ describe('AisleLabelForm', () => {
   it('generates only shelves within the selected start-to-end range', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Start Shelf' }), { target: { value: 'B' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'D' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '1' });
+    setComboboxValue('Start Shelf', 'B');
+    setComboboxValue('End Shelf', 'D');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     // aisle 1, left side, bay 1, shelves B–D = 3 labels
@@ -260,10 +254,10 @@ describe('AisleLabelForm', () => {
   it('generates a single label when start shelf equals end shelf', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Start Shelf' }), { target: { value: 'F' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'F' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '1' });
+    setComboboxValue('Start Shelf', 'F');
+    setComboboxValue('End Shelf', 'F');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByTestId('generated-count')).toHaveTextContent('1');
@@ -273,10 +267,10 @@ describe('AisleLabelForm', () => {
   it('shows shelf order validation when start shelf is after end shelf', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Start Shelf' }), { target: { value: 'D' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'B' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '1' });
+    setComboboxValue('Start Shelf', 'D');
+    setComboboxValue('End Shelf', 'B');
+    clickGenerateLabels();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Start shelf must come before or equal to end shelf.');
     expect(screen.queryByTestId('generated-count')).not.toBeInTheDocument();
@@ -285,9 +279,9 @@ describe('AisleLabelForm', () => {
   it('defaults start shelf to A when only end shelf is selected', () => {
     render(<AisleLabelForm />);
 
-    fillInputs({ 0: '1', 1: '1', 2: '1', 3: '1' });
-    fireEvent.change(screen.getByRole('combobox', { name: 'End Shelf' }), { target: { value: 'C' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Generate Labels' }));
+    setTextboxValues({ 0: '1', 1: '1', 2: '1', 3: '1' });
+    setComboboxValue('End Shelf', 'C');
+    clickGenerateLabels();
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     // A, B, C = 3 labels (backwards-compatible behaviour)

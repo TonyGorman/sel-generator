@@ -1,14 +1,15 @@
 import * as React from 'react';
 import styles from './SpecificLabelForm.module.css';
-import alertStyles from './Alert.module.css';
 import shellStyles from './FormShell.module.css';
-import controlStyles from './FormControls.module.css';
 import LabelGenerator from './LabelGenerator';
+import FormFeedback from './FormFeedback';
+import GenerateLabelsButton from './GenerateLabelsButton';
+import FormSection from './FormSection';
 import {
     SHORT_CODE_PREFIXES,
     SPECIAL_AISLE_VALUES,
 } from '../config/labelConfig';
-import { Button, RadioGroup, TextField } from './FormControls';
+import { RadioGroup, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useSpecificLabelForm } from './useSpecificLabelForm';
@@ -32,19 +33,9 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                 <br/>Labels must have no spaces or dashes.
                 <br/>Named aisle values without bay/shelf are supported: {namedAisleExamples}.
             </p>
-            {errorMessage && (
-                <div role="alert" aria-live="assertive" aria-atomic="true" className={alertStyles.alertError}>
-                    <div><span>{errorMessage}</span></div>
-                </div>
-            )}
-            {warningMessage && (
-                <div role="status" aria-live="polite" aria-atomic="true" className={alertStyles.alertWarning}>
-                    <div><span>{warningMessage}</span></div>
-                </div>
-            )}
+            <FormFeedback errorMessage={errorMessage} warningMessage={warningMessage} />
 
-            <section className={shellStyles.sectionBox}>
-                <h2 className={shellStyles.sectionTitle}>Label Input</h2>
+            <FormSection title="Label Input">
                 <div className={styles.formStack}>
                     <TextField
                         value={labelText}
@@ -53,23 +44,19 @@ const SpecificLabelForm: React.FC<SpecificLabelFormProps> = ({ miniVariantId }) 
                     />
                     <p>Bay values must be {bayRangeText} and shelves must be {shelfRangeText}.</p>
                 </div>
-            </section>
+            </FormSection>
 
-            <section className={shellStyles.sectionBox}>
-                <h2 className={shellStyles.sectionTitle}>Label Size</h2>
+            <FormSection title="Label Size">
                 <RadioGroup
                     name="specific-label-print-mode"
                     options={printModeOptions}
                     selectedKey={labelPrintMode}
                     onChange={handleModeChange}
                 />
-            </section>
+            </FormSection>
 
             <div className={styles.actionsRow}>
-                <Button aria-label="Generate Labels" className={styles.generateButton} onClick={generateLabel}>
-                    <span className={controlStyles.buttonLabel}>Generate Labels</span>
-                    <span className={controlStyles.buttonIcon} aria-hidden="true">⚡</span>
-                </Button>
+                <GenerateLabelsButton className={styles.generateButton} onClick={generateLabel} />
             </div>
 
             {generatedLabels && (
