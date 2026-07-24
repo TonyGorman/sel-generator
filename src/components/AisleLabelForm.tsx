@@ -14,23 +14,11 @@ import {
     formatTwoDigitValue,
 } from '../config/labelConfig';
 import { AISLE_SIDE_METADATA } from '../config/aisleSideMetadata';
-import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import { Button, RadioGroup, ShelfSelect, TextField } from './FormControls';
 import { MiniCompositionVariantId } from '../models/IMiniCompositionVariant';
-import {
-    createEmptyAisleSideRanges,
-    generateAisleLabelCodes,
-    getShelfRangeCount,
-    IAisleLabelInput,
-    parseNumericInput,
-    validateAisleLabelInput,
-} from '../domain/labelGeneration';
 import { useResetOnVariantChange } from './useResetOnVariantChange';
 import { useLabelPrintMode } from './useLabelPrintMode';
-import { hasValue } from '../domain/numericGuard';
-import { AisleSide } from '../models/IAisleCodeParts';
-
-type NumericAisleInputKey = 'aisleStart' | 'aisleEnd';
+import { useAisleLabelForm } from './useAisleLabelForm';
 
 interface AisleLabelFormProps {
     miniVariantId?: MiniCompositionVariantId;
@@ -42,127 +30,39 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
     const shelfRangeText = `A-${MAX_SHELF_LETTER}`;
     const sideNamesText = AISLE_SIDE_METADATA.map((side) => side.label).join(', ');
 
-    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-    const [generatedLabels, setGeneratedLabels] = React.useState<string[] | null>(null);
     const idPrefix = React.useId();
-    const [formInput, setFormInput] = React.useState<IAisleLabelInput>({
-        aisleStart: null,
-        aisleEnd: null,
-        sideRanges: createEmptyAisleSideRanges(),
-        shelfStart: null,
-        shelfEnd: null,
+    const { state, actions } = useAisleLabelForm({
+        sideRows: AISLE_SIDE_METADATA,
+        minAisleValue: MIN_AISLE_VALUE,
+        maxAisleValue: MAX_AISLE_VALUE,
+        maxBayValue: MAX_BAY_VALUE,
+        softLimit: LABEL_SOFT_LIMIT,
+        hardLimit: LABEL_HARD_LIMIT,
+        formatTwoDigitValue,
     });
+    const {
+        formInput,
+        activeSideRanges,
+        errorMessage,
+        warningMessage,
+        generatedLabels,
+        totalLabels,
+        shelfSummary,
+    } = state;
+    const {
+        onInputChange,
+        onSideRangeInputChange,
+        onShelfStartChange,
+        onShelfEndChange,
+        generateLabel,
+        resetGeneratedLabels,
+        formatTwoDigits,
+    } = actions;
 
-    const resetGeneratedLabels = React.useCallback(() => setGeneratedLabels(null), []);
     useResetOnVariantChange(miniVariantId, resetGeneratedLabels);
     const { labelPrintMode, printModeOptions, handleModeChange } = useLabelPrintMode(resetGeneratedLabels);
 
-
-    const onInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>, type: NumericAisleInputKey): void => {
-        const numericValue = parseNumericInput(e.target.value);
-        setFormInput((prevState) => ({ ...prevState, [type]: numericValue }));
-    }, []);
-
-    const onSideRangeInputChange = React.useCallback((
-        e: React.ChangeEvent<HTMLInputElement>,
-        side: AisleSide,
-        rangeType: 'start' | 'end',
-    ): void => {
-        const numericValue = parseNumericInput(e.target.value);
-        setFormInput((prevState) => ({
-            ...prevState,
-            sideRanges: {
-                ...prevState.sideRanges,
-                [side]: {
-                    ...prevState.sideRanges[side],
-                    [rangeType]: numericValue,
-                },
-            },
-        }));
-    }, []);
-
-    const onShelfStartChange = React.useCallback((letter: string): void => {
-        setFormInput((prevState) => ({ ...prevState, shelfStart: letter || null }));
-    }, []);
-
-    const onShelfEndChange = React.useCallback((letter: string): void => {
-        setFormInput((prevState) => ({ ...prevState, shelfEnd: letter || null }));
-    }, []);
-
-    const formatTwoDigits = (value: number | null): string => {
-        if (!hasValue(value)) {
-            return '--';
-        }
-
-        return formatTwoDigitValue(value);
-    };
-
-    const formatShelfSummary = (): string => {
-        if (!formInput.shelfEnd) {
-            return '--';
-        }
-        const start = formInput.shelfStart ?? 'A';
-        if (start === formInput.shelfEnd) {
-            return formInput.shelfEnd;
-        }
-        return `${start} – ${formInput.shelfEnd}`;
-    };
-
     const sideRows = AISLE_SIDE_METADATA;
-
-    const activeSideRanges = sideRows
-        .map((side) => ({
-            ...side,
-            start: formInput.sideRanges[side.side].start,
-            end: formInput.sideRanges[side.side].end,
-        }))
-        .filter((side) => hasValue(side.start) && hasValue(side.end));
-
-    const totalAisles = hasValue(formInput.aisleStart) && hasValue(formInput.aisleEnd)
-        ? formInput.aisleEnd - formInput.aisleStart + 1
-        : 0;
-
-    const totalBayValues = activeSideRanges.reduce((total, side) => {
-        const start = side.start;
-        const end = side.end;
-
-        if (!hasValue(start) || !hasValue(end)) {
-            return total;
-        }
-
-        return total + (end - start + 1);
-    }, 0);
-
-    const shelfCount = getShelfRangeCount(formInput.shelfStart, formInput.shelfEnd);
-    const totalLabels = totalAisles > 0 && shelfCount > 0
-        ? totalAisles * totalBayValues * shelfCount
-        : 0;
-
-    const generateLabel = (): void => {
-        const validationError = validateAisleLabelInput(formInput, {
-            minAisleValue: MIN_AISLE_VALUE,
-            maxAisleValue: MAX_AISLE_VALUE,
-            maxBayValue: MAX_BAY_VALUE,
-        });
-        if (validationError) {
-            setErrorMessage(validationError);
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        if (totalLabels > LABEL_HARD_LIMIT) {
-            setErrorMessage(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
-            setWarningMessage(null);
-            setGeneratedLabels(null);
-            return;
-        }
-
-        setErrorMessage(null);
-        setWarningMessage(totalLabels > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null);
-        setGeneratedLabels(generateAisleLabelCodes(formInput, formatTwoDigitValue));
-    }
 
     return (
         <div className={shellStyles.panel}>
@@ -272,7 +172,7 @@ const AisleLabelForm: React.FC<AisleLabelFormProps> = ({ miniVariantId }) => {
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Shelves:</span>
-                            <span>{formatShelfSummary()}</span>
+                            <span>{shelfSummary}</span>
                         </div>
                         <div className={styles.summaryTotal}>Total labels: {totalLabels}</div>
                     </div>
