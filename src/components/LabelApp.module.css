@@ -46,28 +46,6 @@
   border-color: #2f7df4;
 }
 
-.sectionIntro {
-  margin: 0 0 24px;
-  color: #4b5563;
-  line-height: 1.5;
-}
-
-.formStack {
-  display: grid;
-  gap: 12px;
-  max-width: 640px;
-}
-
-.actionsRow {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 36px;
-}
-
-.generateButton {
-  min-width: 220px;
-}
-
 @media (max-width: 1024px) {
   .labelAppRoot {
     width: calc(100% - 48px);
