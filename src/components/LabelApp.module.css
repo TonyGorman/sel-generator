@@ -1,8 +1,3 @@
-/* 
- * - Runtime layout vars:    --current-* (injected from layoutStrategy page/typography values).
- * - Barcode placement vars: --mini-sel-barcode-* and --large-sel-barcode-* (injected from layoutStrategy.barcodeGeometry).
- */
-
 .labelAppRoot {
   overflow-x: auto;
   overflow-y: visible;
@@ -66,6 +61,5 @@
   .variantControlSelect {
     min-width: 100%;
   }
-
 }
 
