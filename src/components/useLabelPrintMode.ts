@@ -13,8 +13,14 @@ export const useLabelPrintMode = (onModeChange?: (newMode: LabelPrintMode) => vo
   onModeChangeRef.current = onModeChange;
 
   const handleModeChange = React.useCallback((key: LabelPrintMode) => {
-    setLabelPrintMode(key);
-    onModeChangeRef.current?.(key);
+    setLabelPrintMode((currentMode) => {
+      if (currentMode === key) {
+        return currentMode;
+      }
+
+      onModeChangeRef.current?.(key);
+      return key;
+    });
   }, []);
 
   return { labelPrintMode, printModeOptions: PRINT_MODE_OPTIONS, handleModeChange };
