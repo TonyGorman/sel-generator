@@ -5,8 +5,8 @@ import {
   IShortLabelInput,
   validateShortLabelInput,
 } from '../domain/labelGeneration';
-import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import { updateOptionalLetterField, updateParsedNumericField } from './formStateUpdaters';
+import { getLabelBatchLimitsResult } from './labelBatchLimits';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
@@ -103,14 +103,15 @@ export const useShortLabelForm = ({
       return;
     }
 
-    if (totalLabels > hardLimit) {
-      setFailure(getLabelHardLimitMessage(hardLimit));
+    const batchLimits = getLabelBatchLimitsResult(totalLabels, softLimit, hardLimit);
+    if (batchLimits.hardLimitError) {
+      setFailure(batchLimits.hardLimitError);
       return;
     }
 
     setSuccess(
       generateShortLabelCodes(shortLabelInput, formatTwoDigitValue),
-      totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null,
+      batchLimits.warningMessage,
     );
   }, [
     formatTwoDigitValue,

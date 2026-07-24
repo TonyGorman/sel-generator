@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { IAisleSideMetadata } from '../config/aisleSideMetadata';
-import { getLabelHardLimitMessage, getLabelSoftLimitMessage } from '../config/validationMessages';
 import {
   createEmptyAisleSideRanges,
   generateAisleLabelCodes,
@@ -10,6 +9,7 @@ import {
 } from '../domain/labelGeneration';
 import { hasValue } from '../domain/numericGuard';
 import { AisleSide } from '../models/IAisleCodeParts';
+import { getLabelBatchLimitsResult } from './labelBatchLimits';
 import {
   setParsedNumericField,
   updateParsedNumericField,
@@ -178,14 +178,15 @@ export const useAisleLabelForm = ({
       return;
     }
 
-    if (totalLabels > hardLimit) {
-      setFailure(getLabelHardLimitMessage(hardLimit));
+    const batchLimits = getLabelBatchLimitsResult(totalLabels, softLimit, hardLimit);
+    if (batchLimits.hardLimitError) {
+      setFailure(batchLimits.hardLimitError);
       return;
     }
 
     setSuccess(
       generateAisleLabelCodes(formInput, formatTwoDigitValue),
-      totalLabels > softLimit ? getLabelSoftLimitMessage(softLimit) : null,
+      batchLimits.warningMessage,
     );
   }, [
     formInput,

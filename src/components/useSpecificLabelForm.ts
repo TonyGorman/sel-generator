@@ -12,13 +12,12 @@ import {
 } from '../config/labelConfig';
 import {
   VALIDATION_MESSAGES,
-  getLabelHardLimitMessage,
-  getLabelSoftLimitMessage,
   getSpecificInvalidLabelMessage,
 } from '../config/validationMessages';
 import { validateSpecificLabelCode } from '../domain/labelCodeDomain';
 import { normalizeSpecificInputCodes } from '../domain/labelGeneration';
 import { LabelPrintMode } from '../models/ILabelLayoutStrategy';
+import { getLabelBatchLimitsResult } from './labelBatchLimits';
 import { useLabelPrintMode } from './useLabelPrintMode';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
@@ -91,8 +90,9 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
       return;
     }
 
-    if (labelTexts.length > LABEL_HARD_LIMIT) {
-      setFailure(getLabelHardLimitMessage(LABEL_HARD_LIMIT));
+    const batchLimits = getLabelBatchLimitsResult(labelTexts.length, LABEL_SOFT_LIMIT, LABEL_HARD_LIMIT);
+    if (batchLimits.hardLimitError) {
+      setFailure(batchLimits.hardLimitError);
       return;
     }
 
@@ -116,7 +116,7 @@ export const useSpecificLabelForm = (): UseSpecificLabelFormResult => {
 
     setSuccess(
       labelTexts,
-      labelTexts.length > LABEL_SOFT_LIMIT ? getLabelSoftLimitMessage(LABEL_SOFT_LIMIT) : null,
+      batchLimits.warningMessage,
     );
   }, [
     aislePrefixedExamples,
