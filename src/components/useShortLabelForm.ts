@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {
-  generateShortLabelCodes,
   getShelfRangeCount,
   IShortLabelInput,
-  validateShortLabelInput,
 } from '../domain/labelGeneration';
 import { updateOptionalLetterField, updateParsedNumericField } from './formStateUpdaters';
-import { getLabelBatchLimitsResult } from './labelBatchLimits';
+import { getShortGenerationPipelineResult } from './labelGenerationPipelines';
 import { useLabelGenerationFeedback } from './useLabelGenerationFeedback';
 
 type ShortInputWithoutPrefix = Omit<IShortLabelInput, 'prefix'>;
@@ -97,22 +95,21 @@ export const useShortLabelForm = ({
   }, [formInput, selectedShortCodePrefix]);
 
   const generateLabel = React.useCallback((): void => {
-    const validationError = validateShortLabelInput(shortLabelInput, minBayValue, maxBayValue);
-    if (validationError) {
-      setFailure(validationError);
+    const generationResult = getShortGenerationPipelineResult({
+      formInput: shortLabelInput,
+      minBayValue,
+      maxBayValue,
+      softLimit,
+      hardLimit,
+      totalLabels,
+      formatTwoDigitValue,
+    });
+    if (generationResult.errorMessage) {
+      setFailure(generationResult.errorMessage);
       return;
     }
 
-    const batchLimits = getLabelBatchLimitsResult(totalLabels, softLimit, hardLimit);
-    if (batchLimits.hardLimitError) {
-      setFailure(batchLimits.hardLimitError);
-      return;
-    }
-
-    setSuccess(
-      generateShortLabelCodes(shortLabelInput, formatTwoDigitValue),
-      batchLimits.warningMessage,
-    );
+    setSuccess(generationResult.labels, generationResult.warningMessage);
   }, [
     formatTwoDigitValue,
     hardLimit,

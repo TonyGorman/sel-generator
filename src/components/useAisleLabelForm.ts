@@ -2,14 +2,12 @@ import * as React from 'react';
 import { IAisleSideMetadata } from '../config/aisleSideMetadata';
 import {
   createEmptyAisleSideRanges,
-  generateAisleLabelCodes,
   getShelfRangeCount,
   IAisleLabelInput,
-  validateAisleLabelInput,
 } from '../domain/labelGeneration';
 import { hasValue } from '../domain/numericGuard';
 import { AisleSide } from '../models/IAisleCodeParts';
-import { getLabelBatchLimitsResult } from './labelBatchLimits';
+import { getAisleGenerationPipelineResult } from './labelGenerationPipelines';
 import {
   setParsedNumericField,
   updateParsedNumericField,
@@ -168,26 +166,22 @@ export const useAisleLabelForm = ({
     : 0;
 
   const generateLabel = React.useCallback((): void => {
-    const validationError = validateAisleLabelInput(formInput, {
+    const generationResult = getAisleGenerationPipelineResult({
+      formInput,
       minAisleValue,
       maxAisleValue,
       maxBayValue,
+      softLimit,
+      hardLimit,
+      totalLabels,
+      formatTwoDigitValue,
     });
-    if (validationError) {
-      setFailure(validationError);
+    if (generationResult.errorMessage) {
+      setFailure(generationResult.errorMessage);
       return;
     }
 
-    const batchLimits = getLabelBatchLimitsResult(totalLabels, softLimit, hardLimit);
-    if (batchLimits.hardLimitError) {
-      setFailure(batchLimits.hardLimitError);
-      return;
-    }
-
-    setSuccess(
-      generateAisleLabelCodes(formInput, formatTwoDigitValue),
-      batchLimits.warningMessage,
-    );
+    setSuccess(generationResult.labels, generationResult.warningMessage);
   }, [
     formInput,
     formatTwoDigitValue,
