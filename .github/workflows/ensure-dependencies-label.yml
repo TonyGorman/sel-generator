@@ -1,0 +1,42 @@
+name: Ensure dependencies label
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  ensure-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure dependencies label exists
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const name = 'dependencies'
+            const color = '0366d6'
+            const description = 'Pull requests that update dependencies'
+
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name })
+              core.info(`Label '${name}' already exists`)
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error
+              }
+
+              await github.rest.issues.createLabel({
+                owner,
+                repo,
+                name,
+                color,
+                description,
+              })
+              core.info(`Created label '${name}'`)
+            }
