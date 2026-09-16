@@ -327,6 +327,17 @@ All geometry values _must_ remain in millimeters.
 2. Start the development server:
    `npm run dev`
 
+When changing Node.js versions with `nvm`, select the project-supported Node 24 LTS release and reinstall the local dependencies and Playwright browser:
+
+```sh
+nvm use 24
+npm install
+npm run test:e2e:install
+```
+
+Run `npm run test:e2e:install` again after each Node.js version change before
+running the Playwright E2E suite.
+
 `npm install` also installs the repository's Git hooks, including a branch-aware `pre-push` hook:
 
 - pushes to `main` run `npm run validate:release`
