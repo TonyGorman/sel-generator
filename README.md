@@ -16,7 +16,7 @@ There are 2 supported variations of mini labels reflecting differing use cases: 
 
 The app provides three workflows for generating shelf edge labels:
 
-- **Specific Labels**: Manually enter label values, comma-separated, in compact format (for example `01L01A`, `BR10L01A`, `BAK01A`). Spaces and dashes are not accepted. Supports both mini & large labels.
+- **Specific Labels**: Manually enter label values, comma-separated, in compact format (for example `01L01A`, `BR10L01A`, `BM10L01A`, `BAK01A`). Spaces and dashes are not accepted. Supports both mini & large labels.
 - **Aisle Labels**: Generate sequential labels for store aisles, with configurable layout (mini or large SEL format) and optional shelf range selection (e.g., shelves B through D instead of always A through chosen value).
 - **Short Code Labels**: Generate labels for back wall or front of store items, with custom prefix support.
 
@@ -73,7 +73,7 @@ For Mini SEL, the three-row variant places those parts on separate rows, while t
 - Barcode in every case is always `01L01A`-style compact payload.
 
 Named aisle values are validated against the configured explicit allow-list (default: `KIOSK`, `FLORAL`) rather than inferred.
-Configured compact prefixed aisle inputs are validated against the configured aisle-prefix allow-list (default: `BR`, `BL`, `FL`, `FR`, `PD`) and aisle numeric min/max bounds. These default prefixes represent store sections: `BR` = Back Right, `BL` = Back Left, `FL` = Front Left, `FR` = Front Right, `PD` = Produce.
+Configured compact prefixed aisle inputs are validated against the configured aisle-prefix allow-list (default: `BR`, `BL`, `FL`, `FR`, `PD`, `BM`) and aisle numeric min/max bounds. These prefixes represent store sections: `BR` = Back Right, `BL` = Back Left, `FL` = Front Left, `FR` = Front Right, `PD` = Produce. `BM` is also supported.
 
 ### Why Compact Encoding
 
@@ -87,14 +87,14 @@ Validation of compact codes follows a two-phase process: **shape recognition** (
 
 Input is trimmed and uppercased first. Patterns are matched in order; the first match determines the code kind. Patterns with alternations (like aisle prefixes) are sorted longest-first to prevent shadowing.
 
-| #   | Kind               | Pattern                                                     | Example               | Failure       |
-| --- | ------------------ | ----------------------------------------------------------- | --------------------- | ------------- |
-| 0   | —                  | Reject if code contains `-` or space                        | `01-L-01A`            | `not-compact` |
-| 1   | `special`          | Exact match: `FLORAL` \| `KIOSK`                            | `KIOSK`               | —             |
-| 2   | `aisle` (prefixed) | `^(BR\|BL\|FL\|FR\|PD)(\d{1,2})(L\|R\|E\|F)(\d{2})([A-Z])$` | `BR7L01A`, `PD12R05C` | `unparseable` |
-| 3   | `aisle` (numeric)  | `^(\d{2})(L\|R\|E\|F)(\d{2})([A-Z])$`                       | `01L01A`              | `unparseable` |
-| 4   | `short`            | `^(BAK\|FOS\|FNT)(\d{2})([A-Z])$`                           | `BAK01A`              | `unparseable` |
-| 5   | —                  | No match                                                    | `ZZZ`                 | `unparseable` |
+| #   | Kind               | Pattern                                                         | Example                           | Failure       |
+| --- | ------------------ | --------------------------------------------------------------- | --------------------------------- | ------------- |
+| 0   | —                  | Reject if code contains `-` or space                            | `01-L-01A`                        | `not-compact` |
+| 1   | `special`          | Exact match: `FLORAL` \| `KIOSK`                                | `KIOSK`                           | —             |
+| 2   | `aisle` (prefixed) | `^(BR\|BL\|FL\|FR\|PD\|BM)(\d{1,2})(L\|R\|E\|F)(\d{2})([A-Z])$` | `BR7L01A`, `PD12R05C`, `BM10L01A` | `unparseable` |
+| 3   | `aisle` (numeric)  | `^(\d{2})(L\|R\|E\|F)(\d{2})([A-Z])$`                           | `01L01A`                          | `unparseable` |
+| 4   | `short`            | `^(BAK\|FOS\|FNT)(\d{2})([A-Z])$`                               | `BAK01A`                          | `unparseable` |
+| 5   | —                  | No match                                                        | `ZZZ`                             | `unparseable` |
 
 **Note:** Numeric aisle form requires **exactly two** digits (`01L01A`), but prefixed form allows **one or two** (`BR7L01A` or `BR07L01A` both parse).
 
@@ -104,13 +104,13 @@ Once a shape is recognized, tokens are validated in order (first failure is repo
 
 #### By Token
 
-| Token        | Applies to                  | Rule                                        | Bounds                                 | Source                            | Failure                |
-| ------------ | --------------------------- | ------------------------------------------- | -------------------------------------- | --------------------------------- | ---------------------- |
-| aisle number | `aisle` only                | integer, no leading zeros                   | `0–99`                                 | `minAisleValue` / `maxAisleValue` | `invalid-aisle-range`  |
-| aisle prefix | `aisle` (non-numeric token) | must be in configured aisle prefixes        | `BR`, `BL`, `FL`, `FR`, `PD` (default) | `aislePrefixes` option            | `invalid-aisle-prefix` |
-| bay          | `aisle`, `short`            | integer, leading zeros allowed              | `01–99` (note: `00` fails)             | `maxBayValue`, min hardcoded 1    | `invalid-bay-range`    |
-| shelf        | `aisle`, `short`            | single uppercase letter, `≤ maxShelfLetter` | `A–Z` (default)                        | `maxShelfLetter`                  | `invalid-shelf-range`  |
-| —            | `special`                   | no range checks                             | —                                      | —                                 | —                      |
+| Token        | Applies to                  | Rule                                        | Bounds                                       | Source                            | Failure                |
+| ------------ | --------------------------- | ------------------------------------------- | -------------------------------------------- | --------------------------------- | ---------------------- |
+| aisle number | `aisle` only                | integer, no leading zeros                   | `0–99`                                       | `minAisleValue` / `maxAisleValue` | `invalid-aisle-range`  |
+| aisle prefix | `aisle` (non-numeric token) | must be in configured aisle prefixes        | `BR`, `BL`, `FL`, `FR`, `PD`, `BM` (default) | `aislePrefixes` option            | `invalid-aisle-prefix` |
+| bay          | `aisle`, `short`            | integer, leading zeros allowed              | `01–99` (note: `00` fails)                   | `maxBayValue`, min hardcoded 1    | `invalid-bay-range`    |
+| shelf        | `aisle`, `short`            | single uppercase letter, `≤ maxShelfLetter` | `A–Z` (default)                              | `maxShelfLetter`                  | `invalid-shelf-range`  |
+| —            | `special`                   | no range checks                             | —                                            | —                                 | —                      |
 
 #### By Code Kind (Check Order)
 

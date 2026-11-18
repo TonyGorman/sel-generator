@@ -121,8 +121,8 @@ One term, one meaning, one owning module. Prefer these words over synonyms.
 ## Barcode Encoding Rules
 
 - **Only compact input is accepted** (no dashes or spaces in user input).
-- Compact input (`01L01A`, `BR10L01A`, `BAK01A`, `KIOSK`) is parsed directly to constituent parts (aisle token, side, bay, shelf).
-- Prefixed aisle tokens are allow-listed by configuration (default `BR`, `BL`, `FL`, `FR`) and their numeric suffix is validated against configured aisle min/max bounds.
+- Compact input (`01L01A`, `BR10L01A`, `BM10L01A`, `BAK01A`, `KIOSK`) is parsed directly to constituent parts (aisle token, side, bay, shelf).
+- Prefixed aisle tokens are allow-listed by configuration (default `BR`, `BL`, `FL`, `FR`, `PD`, `BM`) and their numeric suffix is validated against configured aisle min/max bounds.
 - Shelf tokens are **alphabetical only** (`A`-`Z`) for aisle and short label codes.
 - **Barcode payload is always compact**, identical to the input after uppercasing.
 - Display text uses font size and weight for visual treatment only — this is a rendering concern, not an input format.

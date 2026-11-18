@@ -57,7 +57,7 @@ describe('labelConfig', () => {
   })
 
   it('keeps configured aisle prefixes stable and case-insensitive', () => {
-    expect(AISLE_PREFIXES).toEqual(['BR', 'BL', 'FL', 'FR', 'PD'])
+    expect(AISLE_PREFIXES).toEqual(['BR', 'BL', 'FL', 'FR', 'PD', 'BM'])
     expect(isAislePrefix('BR')).toBe(true)
     expect(isAislePrefix('bl')).toBe(true)
     expect(isAislePrefix(' br ')).toBe(true)
